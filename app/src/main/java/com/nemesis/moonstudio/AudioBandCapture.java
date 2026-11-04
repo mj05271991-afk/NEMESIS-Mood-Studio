@@ -38,8 +38,9 @@ public final class AudioBandCapture {
             record = null;
             return;
         }
+        final AudioRecord captureSource = candidate;
         worker = new Thread(new Runnable() {
-            @Override public void run() { captureLoop(candidate); }
+            @Override public void run() { captureLoop(captureSource); }
         }, "NemesisAudioBands");
         worker.start();
     }
