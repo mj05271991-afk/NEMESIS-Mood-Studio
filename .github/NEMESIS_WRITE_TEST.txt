@@ -1,0 +1,1 @@
+Temporary write-permission test for the NEMESIS repository. This file will be removed immediately.
