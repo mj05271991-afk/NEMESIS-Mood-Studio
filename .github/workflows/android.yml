@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Android SDK
         run: sdkmanager "platforms;android-28" "build-tools;28.0.3"
-       - name: Set up Java 8 for Gradle
+      - name: Set up Java 8 for Gradle
         uses: actions/setup-java@v4
         with:
           distribution: temurin
