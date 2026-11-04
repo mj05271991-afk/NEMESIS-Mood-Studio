@@ -21,7 +21,7 @@ public final class AudioBandCapture {
         int min = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
         if (min <= 0) return;
-        AudioRecord candidate = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
+        final AudioRecord candidate = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 Math.max(min, FFT_SIZE * 4));
         if (candidate.getState() != AudioRecord.STATE_INITIALIZED) {
