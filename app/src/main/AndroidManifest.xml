@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.nemesis.moonstudio">
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <application android:theme="@android:style/Theme.Holo.NoActionBar"" android:label="NEMESIS Moon Studio" android:usesCleartextTraffic="false">
+    <application android:theme="@android:style/Theme.Holo.NoActionBar" android:label="NEMESIS Moon Studio" android:usesCleartextTraffic="false">
         <activity android:name=".MoonStudioActivity" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation|screenSize" android:exported="true">
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
