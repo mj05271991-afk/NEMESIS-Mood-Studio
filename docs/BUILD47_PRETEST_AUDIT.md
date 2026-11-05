@@ -187,3 +187,28 @@ References inspected in VysseCodes/HMG-API:
 - `core/runtime/java/hmgapi/engine/Vehicle.java` and `core/runtime/java/hmgapi/vehicle/Hub.java` — command enforcement and vehicle-service routing.
 
 This is a source-level integration design, not an implemented feature or an on-car NEMESIS test.
+
+## 13. HMG-API ambient-light first-use restore gap
+
+A deeper read of the current HMG-API core/runtime/java/hmgapi/vehicle/Commands.java found a safety gap that must be resolved before NEMESIS relies on the documented hmgapi-client.jar command path:
+
+- takeLight(mod) asks for the car's current light status and polls for up to ten 50 ms intervals when lightState() is null.
+- If the status still has not arrived, takeLight does not fail or return an error. It leaves lightSaved null, assigns lightBy = mod, and returns to the caller.
+- The ambient_light color and ambient_light brightness handlers then proceed to issue the requested change.
+- On release, releaseLight() detects that lightSaved is null, logs that the owner's light was not reported, and explicitly reports that it was not restored.
+
+Therefore the HMG-API client command contract is authenticated and documented, but the current ambient-light implementation does not strictly fail closed when the initial owner-state report is missing. The general docs' lease/restore description must not be interpreted as a guarantee that the first-use state capture always succeeds.
+
+### Required upstream correction / acceptance criteria
+
+Before NEMESIS enables this backend, HMG-API should reject the first color/brightness command unless a valid owner light state has been captured. The rejection should leave lightBy unset and send no lighting write. Tests should cover:
+- status already available before first command;
+- status arriving during the bounded wait;
+- status never arriving (command refused, no write, no lease);
+- valid saved state restored on release;
+- owner changes during a held lease;
+- mod disable/process death and the resulting restore path.
+
+Until that correction is merged and tested, NEMESIS must treat HMG-API ambient-light integration as not safe to activate, even though the client API and mod declaration are documented. This finding is based on source inspection; no vehicle command was sent and no car behavior was tested.
+
+Reference: VysseCodes/HMG-API core/runtime/java/hmgapi/vehicle/Commands.java, takeLight, ambient_light handler, and releaseLight.
