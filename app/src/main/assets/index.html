@@ -36,7 +36,7 @@ select.btn{max-width:125px}
 <div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="80"><output id="brightOut">80%</output></div><p class="fixed-note">Music never changes this setting.</p>
 <div class="section-title"><b>MUSIC RESPONSE</b><small id="audioSource">Audio off</small></div>
 <div class="tuning"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
-<div class="actions"><button class="btn primary" id="mic">ENABLE MICROPHONE</button><button class="btn" id="demo">DEMO</button><button class="btn" id="stop">STOP</button></div>
+<div class="actions"><button class="btn primary" id="mic">ENABLE MICROPHONE</button><button class="btn" id="demo">DEMO</button><button class="btn" id="stop">STOP / RELEASE PREVIEW</button></div>
 </section>
 <div class="right">
 <section class="panel"><div class="section-title"><b>LIGHT EFFECTS</b><small>Choose a motion style</small></div><div class="modes" id="modes">
@@ -50,7 +50,7 @@ select.btn{max-width:125px}
 <div class="actions"><button class="btn" id="save">SAVE PROFILE</button><select id="profiles" class="btn"><option value="">Select profile</option></select><button class="btn" id="load">LOAD</button></div>
 </section></div></div>
 <section class="panel" style="margin-top:14px"><div class="section-title"><b>EV6 VEHICLE CONNECTION</b><small>Read-only diagnostic</small></div><button class="btn primary" id="vehicleCheck">CHECK VEHICLE LIGHTS</button><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Not checked. This test does not change color or brightness.</p></section>
-<div class="notice"><b>Preview mode:</b> This build tests the Moon Studio interface and audio-reactive visuals only. It does not send lighting commands to the EV6. Vehicle lighting output remains disabled pending verification of the correct interface on your exact firmware. No HMG-API or vehicle-control API is used.</div>
+<div class="notice"><b>Preview-only safety:</b> Static, Rainbow and Dual Color currently animate the on-screen preview only. STOP / RELEASE PREVIEW stops microphone/demo capture and returns the preview to the selected primary color; it does not send a vehicle release command. No EV6 lighting writes are enabled. Do not treat the preview as a vehicle-control test.</div>
 <div class="foot">NEMESIS MOON STUDIO · UNOFFICIAL COMMUNITY PROJECT</div>
 </main>
 <script>
@@ -70,7 +70,7 @@ function setColor(c){color=c.toUpperCase();$('wheel').value=color;$('hex').inner
 function setStatus(on,label){$('dot').style.background=on?'#5ce0a0':'#73798c';$('status').innerHTML=label;}
 function onNativeBands(b,m,t){nativeLevels={bass:clamp(Number(b)),mid:clamp(Number(m)),treble:clamp(Number(t))};}
 window.onNativeBands=onNativeBands;
-function stop(){if(raf){window.cancelAnimationFrame(raf);raf=0;}if(nativeAudio&&window.NemesisAudio&&window.NemesisAudio.stop){try{window.NemesisAudio.stop();}catch(e){}}nativeAudio=false;if(stream){var tracks=stream.getTracks();for(var j=0;j<tracks.length;j++)tracks[j].stop();}stream=null;if(ctx){try{ctx.close();}catch(e){}}ctx=null;analyser=null;demo=false;setStatus(false,'STANDBY');$('audioSource').innerHTML='Audio off';}
+function stop(){if(raf){window.cancelAnimationFrame(raf);raf=0;}if(nativeAudio&&window.NemesisAudio&&window.NemesisAudio.stop){try{window.NemesisAudio.stop();}catch(e){}}nativeAudio=false;if(stream){var tracks=stream.getTracks();for(var j=0;j<tracks.length;j++)tracks[j].stop();}stream=null;if(ctx){try{ctx.close();}catch(e){}}ctx=null;analyser=null;demo=false;setStatus(false,'STANDBY');$('audioSource').innerHTML='Audio off';paint(0,null);$('orb').style.transform='scale(1)';}
 function startMic(){stop();if(window.NemesisAudio&&window.NemesisAudio.start){try{nativeAudio=true;window.NemesisAudio.start();$('audioSource').innerHTML='Head-unit microphone';setStatus(true,'MIC ACTIVE');tick();return;}catch(e){nativeAudio=false;}}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Microphone access is not available in this WebView.');return;}navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){stream=s;var AC=window.AudioContext||window.webkitAudioContext;ctx=new AC();var resume=ctx.resume?ctx.resume():null;analyser=ctx.createAnalyser();analyser.fftSize=2048;var src=ctx.createMediaStreamSource(stream);src.connect(analyser);$('audioSource').innerHTML='Microphone';setStatus(true,'MIC ACTIVE');tick();}).catch(function(e){setStatus(false,'MIC UNAVAILABLE');alert('Microphone permission failed: '+e.message);});}
 function startDemo(){stop();demo=true;startAt=new Date().getTime();$('audioSource').innerHTML='Demo signal';setStatus(true,'DEMO ACTIVE');tick();}
 function bandAverage(data,lo,hi){var sum=0,count=0;for(var k=lo;k<hi&&k<data.length;k++){sum+=data[k];count++;}return count?sum/count/255:0;}
