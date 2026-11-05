@@ -42,14 +42,16 @@ public class MoonStudioActivity extends Activity {
  private void callJavascript(String s){if(web!=null)web.loadUrl("javascript:"+s);}
  private void vehicleError(Exception e){callJavascript("window.onVehicleWriteError('"+jsQuote(e.getMessage())+"')");}
  private class VehicleBridge{
+  // Defense in depth: this audit Activity never dispatches vehicle writes or release calls.
+  private void readOnly(){vehicleError(new Exception("This diagnostic build is read-only. Vehicle lighting commands are disabled."));}
   @JavascriptInterface public void connect(){runOnUiThread(new Runnable(){@Override public void run(){beginConnect();}});}
-  @JavascriptInterface public void setColor(final String hex){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.color(hex);}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLColor").start();}
-  @JavascriptInterface public void setBrightness(final int percent){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.brightness(percent);}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLBrightness").start();}
-  @JavascriptInterface public void release(){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.restore();runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onVehicleReleased('Original EV6 color and brightness restored.')");}});}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLRestore").start();}
+  @JavascriptInterface public void setColor(String hex){readOnly();}
+  @JavascriptInterface public void setBrightness(int percent){readOnly();}
+  @JavascriptInterface public void release(){readOnly();}
  }
  @Override protected void onDestroy(){
   probePending=false;mainHandler.removeCallbacksAndMessages(null);
-  try{Ev6LightingController.restore();}catch(Exception ignored){}
+  // No session snapshot is acquired in this read-only diagnostic build; do not issue restore calls.
   if(smlReceiver!=null){try{unregisterReceiver(smlReceiver);}catch(Exception ignored){}}
   if(web!=null)web.destroy();super.onDestroy();
  }
