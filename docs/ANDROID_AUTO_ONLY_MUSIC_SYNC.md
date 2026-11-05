@@ -29,7 +29,7 @@ The Android Auto GPM hooks expose:
 - video density configuration
 - sensor/fuel/EV connector configuration
 
-The documented GPM hook-point catalogue lists GalReceiver, NavigationStatus, VideoSink, SensorSource, and navigation methods. It does not list an audio receiver, audio decoder, PCM callback, or playback-buffer method.
+The documented GPM hook-point catalogue lists GalReceiver, NavigationStatus, VideoSink, SensorSource, and navigation methods. It does not list an audio receiver, audio decoder, PCM callback, or playback-buffer method. I also checked the EV6 US 260507 framework hook map for audio/media/microphone/sound/volume entries; it contains no mapped AudioFlinger, AudioTrack, AudioRecord, or media-playback hook. It does contain unrelated MICOM data/service entries, which are not evidence of an audio stream.
 
 The documented projection broadcasts contain event names, integer values, and navigation payload bytes. They are not audio samples.
 
