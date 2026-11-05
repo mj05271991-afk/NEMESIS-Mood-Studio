@@ -82,7 +82,7 @@ var forcedColor=null;if(mode==='Rainbow'||mode==='Disco')h=sec*speed*28;else if(
 paint(energy,h,forcedColor);$('orb').style.transform='scale('+(1+energy*.055)+')';for(var j=0;j<barEls.length;j++){var band=[levels.bass,levels.mid,levels.treble][j%3],v=band*.7+Math.abs(Math.sin(sec*speed+j*.43))*.16;barEls[j].style.height=(3+v*22)+'px';barEls[j].style.opacity=.25+v*.7;}
 raf=window.requestAnimationFrame?window.requestAnimationFrame(tick):window.setTimeout(tick,33);
 }
-function setMode(button){mode=button.getAttribute('data-mode');var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j]===button?' active':'');$('modeName').innerHTML=button.getElementsByTagName('b')[0].innerHTML.toUpperCase();}
+function setMode(button){mode=button.getAttribute('data-mode');var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j]===button?' active':'');$('modeName').innerHTML=button.getElementsByTagName('b')[0].innerHTML.toUpperCase();if(mode==='Static'){if(raf){window.cancelAnimationFrame(raf);raf=0;}paint(0,null);$('orb').style.transform='scale(1)';}else if(!raf){tick();}}
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
 $('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};
 var modeButtons=document.getElementsByClassName('mode');for(i=0;i<modeButtons.length;i++){modeButtons[i].onclick=function(){setMode(this);};}
