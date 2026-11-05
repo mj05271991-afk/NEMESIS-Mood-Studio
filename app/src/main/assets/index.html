@@ -79,11 +79,17 @@ body{background:radial-gradient(ellipse at 78% -8%,#39245f 0,transparent 42%),ra
 @media(max-width:900px){.shell{padding:14px 16px 24px}.columns{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:700px){.side-rail{width:54px;padding:12px 5px;gap:12px}.rail-mark{width:34px;height:34px}.rail-label{font-size:7px}.side-rail a{width:42px;font-size:7px}.shell{margin-left:54px;width:calc(100% - 54px);padding:12px 10px 22px}.heading h1{font-size:26px}.top{margin-bottom:10px}.status{padding:7px 9px;font-size:9px}.mode{width:calc(50% - 6px);margin-right:6px}}
 
+
+/* Clear, always-visible vehicle start/stop controls. */
+.vehicle-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px;padding:18px 22px;background:linear-gradient(110deg,#211a38,#121a2d 72%);border-color:#7252a5;box-shadow:0 12px 34px #0006}
+.vehicle-copy{display:flex;flex-direction:column;gap:6px;min-width:0}.vehicle-copy b{font-size:18px;letter-spacing:.2px}.vehicle-copy small{font-size:11px;color:#a8abc2;line-height:1.4}.vehicle-actions{display:flex;gap:10px;flex-shrink:0}.start-btn,.stop-btn{min-height:48px;min-width:150px;font-size:11px;font-weight:800;letter-spacing:1px}.stop-btn{border-color:#76505c;background:#2a1825;color:#ffdce5}.vehicle-result-panel{margin-top:14px}
+@media(max-width:700px){.vehicle-bar{align-items:stretch;flex-direction:column}.vehicle-actions{display:grid;grid-template-columns:1fr 1fr}.start-btn,.stop-btn{min-width:0;padding:10px 8px;font-size:9px}.vehicle-copy b{font-size:15px}}
 </style>
 </head>
 <body><aside class="side-rail"><div class="rail-mark">N</div><div class="rail-label">NEMESIS</div><a href="#modes">MODES</a><a href="#brightness">LIGHTS</a><a href="#vehicleConnect">EV6</a><div class="rail-foot">MOON<br>STUDIO</div></aside><main class="shell">
 <header class="top"><div class="brand">NEMESIS<small>MOON STUDIO</small></div><div class="status"><i class="dot" id="dot"></i><span id="status">STANDBY</span></div></header>
-<div class="heading"><div class="eyebrow">Personal ambient experience</div><h1>Set the mood.</h1><p>Preview static color, rainbow cycling, or alternating two-color effects.</p></div>
+<div class="heading"><div class="eyebrow">PERSONAL AMBIENT EXPERIENCE</div><h1>Set the mood.</h1><p>Take control of your EV6 ambient lighting.</p></div>
+<section class="vehicle-bar panel"><div class="vehicle-copy"><span class="eyebrow">EV6 LIGHTING CONTROL</span><b id="vehicleHeadline">Vehicle disconnected</b><small id="vehicleHint">Park the vehicle before connecting. Your current lighting is saved for restore.</small></div><div class="vehicle-actions"><button class="btn primary start-btn" id="vehicleConnect">▶ START LIGHTS</button><button class="btn stop-btn" id="stop">■ STOP / RESTORE</button></div></section>
 <div class="columns">
 <section class="left panel">
 <div class="stage"><div class="orb" id="orb"><span>MOON</span></div><div class="stage-label"><b id="modeName">STATIC</b><small id="stageCaption">Preview · vehicle output disconnected</small></div><div class="bars" id="bars"></div></div>
@@ -95,7 +101,7 @@ body{background:radial-gradient(ellipse at 78% -8%,#39245f 0,transparent 42%),ra
 <div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="50"><output id="brightOut">50%</output></div><p class="fixed-note">Vehicle brightness applies only after connecting; 50% is the default.</p>
 <div class="section-title audio-panel"><b>AUDIO RESPONSE</b><small id="audioSource">Disabled in first-test build</small></div>
 <div class="tuning audio-panel"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
-<div class="actions"><button class="btn" id="stop">STOP / RELEASE PREVIEW</button></div>
+
 </section>
 <div class="right">
 <section class="panel"><div class="section-title"><b>LIGHT EFFECTS</b><small>Choose a motion style</small></div><div class="modes" id="modes">
@@ -108,7 +114,7 @@ body{background:radial-gradient(ellipse at 78% -8%,#39245f 0,transparent 42%),ra
 <div class="rule"></div><div class="section-title"><b>PROFILES</b><small>Saved on this device</small></div>
 <div class="actions"><button class="btn" id="save">SAVE PROFILE</button><select id="profiles" class="btn"><option value="">Select profile</option></select><button class="btn" id="load">LOAD</button></div>
 </section></div></div>
-<section class="panel" style="margin-top:14px"><div class="section-title"><b>EV6 VEHICLE CONTROL</b><small>Direct NEMESIS connection</small></div><button class="btn primary" id="vehicleConnect">CONNECT &amp; ENABLE LIGHTS</button><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Disconnected. Connect while parked to save your current lighting and enable control.</p></section>
+<section class="panel vehicle-result-panel"><div class="section-title"><b>VEHICLE CONNECTION</b><small>Direct NEMESIS connection</small></div><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Disconnected. Connect while parked to save your current lighting and enable control.</p></section>
 <div class="notice"><b>Vehicle safety:</b> Connect only while parked. NEMESIS checks the EV6 firmware and Park status, captures the current color and brightness, and restores them when you press STOP / RELEASE or disconnect. The car may ignore colors outside its supported 64-color custom palette; select Custom Color in the factory mood-lamp settings. Keep the vehicle parked during testing.</div>
 <div class="foot">NEMESIS MOON STUDIO · UNOFFICIAL COMMUNITY PROJECT</div>
 </main>
@@ -147,11 +153,11 @@ function setMode(button){mode=button.getAttribute('data-mode');var all=document.
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
 $('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};
 var modeButtons=document.getElementsByClassName('mode');for(i=0;i<modeButtons.length;i++){modeButtons[i].onclick=function(){setMode(this);};}
-$('stop').onclick=stop;
-$('vehicleConnect').onclick=function(){if(vehicleReady){window.NemesisVehicle.release();$('vehicleResult').innerHTML='Disconnect requested. Restoring original lighting.';$('stageCaption').innerHTML='Preview · restoring original EV6 lighting';}else if(window.NemesisVehicle&&window.NemesisVehicle.connect){window.NemesisVehicle.connect();}};
-window.onVehicleProbeResult=function(state,detail){$('vehicleResult').innerHTML=state+': '+detail;if(state==='LIGHT CONTROL READY'){vehicleReady=true;$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';$('stageCaption').innerHTML='Live EV6 lighting control enabled';sendVehicleColor(color);if(mode!=='Static'&&!raf)tick();}else{vehicleReady=false;}};
+$('stop').onclick=function(){stop();};
+$('vehicleConnect').onclick=function(){if(vehicleReady){return;}if(window.NemesisVehicle&&window.NemesisVehicle.connect){$('vehicleResult').innerHTML='Connecting… checking firmware and Park status.';$('vehicleConnect').innerHTML='CONNECTING…';window.NemesisVehicle.connect();}};
+window.onVehicleProbeResult=function(state,detail){$('vehicleResult').innerHTML=state+': '+detail;if(state==='LIGHT CONTROL READY'){vehicleReady=true;$('vehicleConnect').innerHTML='● LIGHTS ACTIVE';$('vehicleHeadline').innerHTML='EV6 lights are active';$('vehicleHint').innerHTML='Use STOP / RESTORE to return to your saved original lighting.';$('stageCaption').innerHTML='Live EV6 lighting control enabled';sendVehicleColor(color);if(mode!=='Static'&&!raf)tick();}else{vehicleReady=false;$('vehicleConnect').innerHTML='▶ START LIGHTS';$('vehicleHeadline').innerHTML='Vehicle not connected';}};
 window.onVehicleWriteError=function(detail){$('vehicleResult').innerHTML='LIGHTING WRITE BLOCKED: '+detail;if(vehicleReady)$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';};
-window.onVehicleReleased=function(detail){vehicleReady=false;$('vehicleConnect').innerHTML='CONNECT &amp; ENABLE LIGHTS';$('vehicleResult').innerHTML=detail;$('stageCaption').innerHTML='Preview · vehicle output disconnected';};
+window.onVehicleReleased=function(detail){vehicleReady=false;$('vehicleConnect').innerHTML='▶ START LIGHTS';$('vehicleHeadline').innerHTML='Vehicle disconnected';$('vehicleHint').innerHTML='Park the vehicle before connecting. Your current lighting is saved for restore.';$('vehicleResult').innerHTML=detail;$('stageCaption').innerHTML='Preview · vehicle output disconnected';};
 $('brightness').oninput=function(){ $('brightOut').innerHTML=this.value+'%';paint(0,null);if(vehicleReady&&window.NemesisVehicle&&window.NemesisVehicle.setBrightness){var now=new Date().getTime();if(now-lastVehicleBrightnessAt>220){lastVehicleBrightnessAt=now;window.NemesisVehicle.setBrightness(parseInt(this.value,10));}}};
 $('sensitivity').oninput=function(){ $('sensOut').innerHTML=this.value+'×';};
 $('smooth').oninput=function(){ $('smoothOut').innerHTML=Math.round(Number(this.value)*100)+'%';};
