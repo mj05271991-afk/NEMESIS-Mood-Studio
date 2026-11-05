@@ -1,43 +1,43 @@
 # EV6 integration status
 
 Target reported by owner: 2022 Kia EV6 GT-Line.
-Expected head-unit fingerprint:
+
+Expected head-unit fingerprint (must still be confirmed on the actual unit):
 - `ro.product.model=wp_daudioplus`
 - `ro.product.device=wp_daudioplus_cvev_us`
 - `ro.build.product2=CVEV.USA.S5W_M.V015.012.260507`
 - Android runtime: API 19.
 
-## Implemented in NEMESIS source
+## Firmware-specific API findings
 
-NEMESIS now has a standalone direct SML controller; it does not require HMG-API:
-- Read current lighting state using `ISystemService` status transaction 74 and the SML status broadcast.
-- Save the original RGB and brightness before enabling writes.
-- Set RGB using `ISystemService.setSMLRGB(byte[], byte[], byte[])` (documented Binder method 78); each channel is encoded as a two-byte big-endian value.
-- Set brightness using `ISystemService.setSMLConfiguration(5, rawLevel)` (documented Binder method 77); raw values 1=off and 2-11=levels 1-10.
-- Map requested colors to the EV6's 64 supported custom colors.
-- Limit writes to no more than 10 per second.
-- Require the exact expected firmware and Park status before every write.
-- Restore the captured original color and brightness on STOP / RELEASE or disconnect, and attempt restore when the activity is destroyed.
+The HMG-API EV6 USA 260507 map identifies the MICOM interface:
+- Service: `com.hkmc.micom.system`
+- Interface: `com.hkmc.micom.ISystemService`
+- Read status request: `requestSMLStatus()`
+- RGB write: `setSMLRGB(byte[], byte[], byte[])`
+- Brightness write: `setSMLConfiguration(int, int)`, with setting 5
+- Park check: `getGearPStatus()`, where 1 means Park
 
-The source is wired to Static, Rainbow, Dual Color, color selection, and manual brightness. Audio-reactive and party modes remain out of this test build.
+The documented color channels are 2-byte big-endian values. The vehicle accepts its 64-color custom palette. Brightness raw values are 1=off and 2-11=levels 1-10. NEMESIS uses a 100 ms write interval (maximum 10 writes/sec) and checks firmware/Park before writes.
 
-## Not yet validated
+**Do not use guessed raw Binder transaction IDs.** The source map confirms the named interface methods; it does not establish a safe hard-coded transaction number for NEMESIS.
 
-The controller code has been committed, but compilation and actual vehicle operation must still be verified. In particular:
-- The app process must have permission to access the MICOM system service and invoke its SML methods on this head unit.
-- The 74 status broadcast must arrive with the expected nine-byte payload.
-- Method 77/78 calls must succeed and the physical lights must respond.
-- Restore behavior must be confirmed on the owner's exact firmware.
+## Important status/restore blocker
 
-The interface method names, signatures, palette, channel encoding, and command values are sourced from HMG-API's EV6 USA 260507 hook map and vehicle command implementation. HMG-API is used only as source documentation; NEMESIS does not call its runtime or depend on it.
+HMG-API's own source explicitly says a listener registered from the ordinary app-process Binder callback path did not receive `SML_STATUS_CHANGED` on the EV6. HMG-API solves this with `LightRelay` running inside `system_server`: it receives the system broadcast and forwards the 9-byte status to the privileged HMG vehicle service over a local socket.
 
-## Safe first vehicle test
+NEMESIS currently registers a receiver in its ordinary app process. That is **not equivalent** to HMG-API's privileged relay and cannot be assumed to receive the event. Therefore NEMESIS cannot yet guarantee it has captured the owner's original color/brightness. The app must not report LIGHT CONTROL READY or enable writes until a supported status source is proven.
 
-1. Keep the EV6 parked and select Custom Color in the factory mood-lamp settings.
-2. Launch NEMESIS and press CONNECT & ENABLE LIGHTS.
-3. Confirm the UI reports LIGHT CONTROL READY before selecting a color.
-4. Test one static preset first, then brightness.
-5. Test Rainbow and Dual Color only after Static writes and readback work.
-6. Press STOP / RELEASE and confirm the original color and brightness return.
+A normal APK cannot install a receiver into `system_server`. A standalone implementation needs a separately installed privileged component/approved system hook with a secure relay, or an explicitly supported HMG-assisted integration. Do not fake this capability in the app process.
 
-If connection, Park validation, or status capture fails, the app must not send lighting writes. If a write fails, record the exact UI error and do not repeatedly retry. This build is not considered vehicle-validated until the physical response and restoration have both been confirmed.
+## Current implementation status
+
+- Direct named MICOM method calls and Park/firmware gates exist in source.
+- The status request now uses the mapped `requestSMLStatus()` method rather than a hard-coded transaction ID.
+- The app-process status receiver remains insufficient until the privileged relay question is solved.
+- Physical RGB/brightness writes, status readback, and restore have not been verified on the owner's EV6.
+- Do not treat a successful Android build as proof of vehicle control.
+
+## Safe test boundary
+
+Until status capture and original-state preservation are solved and validated, do not enable lighting writes. Keep the vehicle parked for any later controlled test. First prove status readback; then prove one static color, brightness, and restoration. Rainbow/Dual Color and audio-reactive behavior come only after the basic write/read/restore cycle is confirmed.
