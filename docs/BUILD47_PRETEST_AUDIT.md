@@ -212,3 +212,7 @@ Before NEMESIS enables this backend, HMG-API should reject the first color/brigh
 Until that correction is merged and tested, NEMESIS must treat HMG-API ambient-light integration as not safe to activate, even though the client API and mod declaration are documented. This finding is based on source inspection; no vehicle command was sent and no car behavior was tested.
 
 Reference: VysseCodes/HMG-API core/runtime/java/hmgapi/vehicle/Commands.java, takeLight, ambient_light handler, and releaseLight.
+
+### Existing upstream test confirms the gap
+
+The HMG-API unit test at core/runtime/test/hmgapi/vehicle/CommandsTest.java explicitly sets the fake car's light state to null, expects a brightness command to return ok, then expects release to report not restored. This is not merely an untested edge case: the current off-car test suite codifies the behavior. NEMESIS should request an upstream change to make missing initial state a refusal, with a revised test asserting that no color/brightness write is sent and no lease is taken.
