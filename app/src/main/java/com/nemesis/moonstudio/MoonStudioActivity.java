@@ -14,7 +14,7 @@ import android.view.View;
 
 public class MoonStudioActivity extends Activity {
  private WebView web; private Handler mainHandler;
- private boolean probePending; private BroadcastReceiver smlReceiver;
+ private boolean probePending; private BroadcastReceiver smlReceiver; private Runnable probeTimeout;
  @Override public void onCreate(Bundle state){
   super.onCreate(state);mainHandler=new Handler();
   getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -34,10 +34,12 @@ public class MoonStudioActivity extends Activity {
   String mismatch=Ev6LightingProbe.firmwareMismatch();
   if(mismatch!=null){finishProbe("SAFETY GATE BLOCKED",mismatch);return;}
   probePending=true;callJavascript("window.onVehicleProbeResult('REQUESTING','Requesting EV6 lighting status for read-only diagnostics…')");
-  mainHandler.postDelayed(new Runnable(){@Override public void run(){if(probePending)finishProbe("NO RESPONSE","No status response within 4 seconds. No lighting changes were sent.");}},4000);
+  if(probeTimeout!=null)mainHandler.removeCallbacks(probeTimeout);
+  probeTimeout=new Runnable(){@Override public void run(){if(probePending)finishProbe("NO RESPONSE","No status response within 4 seconds. No lighting changes were sent.");}};
+  mainHandler.postDelayed(probeTimeout,4000);
   new Thread(new Runnable(){@Override public void run(){try{Ev6LightingProbe.requestStatus();}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){if(probePending)finishProbe("CONNECT FAILED",e.getMessage());}});}}},"NemesisVehicleConnect").start();
  }
- private void finishProbe(String state,String detail){probePending=false;callJavascript("window.onVehicleProbeResult('"+jsQuote(state)+"','"+jsQuote(detail==null?"No details":detail)+"')");}
+ private void finishProbe(String state,String detail){probePending=false;if(probeTimeout!=null){mainHandler.removeCallbacks(probeTimeout);probeTimeout=null;}callJavascript("window.onVehicleProbeResult('"+jsQuote(state)+"','"+jsQuote(detail==null?"No details":detail)+"')");}
  private String jsQuote(String s){if(s==null)return "Unknown error";return s.replace("\\","\\\\").replace("'","\\'").replace("\r"," ").replace("\n"," ");}
  private void callJavascript(String s){if(web!=null)web.loadUrl("javascript:"+s);}
  private void vehicleError(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onVehicleWriteError('"+jsQuote(e.getMessage())+"')");}});}
