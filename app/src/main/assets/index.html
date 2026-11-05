@@ -84,40 +84,102 @@ body{background:radial-gradient(ellipse at 78% -8%,#39245f 0,transparent 42%),ra
 .vehicle-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px;padding:18px 22px;background:linear-gradient(110deg,#211a38,#121a2d 72%);border-color:#7252a5;box-shadow:0 12px 34px #0006}
 .vehicle-copy{display:flex;flex-direction:column;gap:6px;min-width:0}.vehicle-copy b{font-size:18px;letter-spacing:.2px}.vehicle-copy small{font-size:11px;color:#a8abc2;line-height:1.4}.vehicle-actions{display:flex;gap:10px;flex-shrink:0}.start-btn,.stop-btn{min-height:48px;min-width:150px;font-size:11px;font-weight:800;letter-spacing:1px}.stop-btn{border-color:#76505c;background:#2a1825;color:#ffdce5}.vehicle-result-panel{margin-top:14px}
 @media(max-width:700px){.vehicle-bar{align-items:stretch;flex-direction:column}.vehicle-actions{display:grid;grid-template-columns:1fr 1fr}.start-btn,.stop-btn{min-width:0;padding:10px 8px;font-size:9px}.vehicle-copy b{font-size:15px}}
+
+/* Full Moon Studio mockup-matched dashboard */
+html,body{min-height:100%;background:#050711;color:#f5f4ff;font-family:Arial,sans-serif}
+body{background:radial-gradient(ellipse at 78% 34%,#12234d 0,transparent 34%),radial-gradient(ellipse at 60% 12%,#35104c 0,transparent 35%),#050711}
+.side-rail{width:92px;padding:18px 9px;gap:14px;border-right:1px solid #5430a0;background:rgba(5,7,18,.97);box-shadow:5px 0 30px #7c28ff22}
+.rail-mark{width:48px;height:48px;border-radius:14px;font-size:26px}
+.rail-label{font-size:9px;letter-spacing:2.5px}
+.side-rail a{width:70px;min-height:62px;font-size:9px;border-radius:12px;letter-spacing:1px}
+.side-rail a:focus,.side-rail a:active{box-shadow:0 0 20px #a32cff88;border-color:#bd58ff}
+.shell{margin-left:92px;width:calc(100% - 92px);padding:18px clamp(16px,2vw,34px) 22px}
+.top{min-height:70px;padding:0 4px 14px;gap:16px}
+.brand{font-size:clamp(22px,2.5vw,36px);font-style:italic;letter-spacing:3px;background:linear-gradient(90deg,#c35cff,#29c9ff);color:transparent;background-clip:text;-webkit-background-clip:text}
+.brand small{color:#eee;font-size:10px;letter-spacing:4px}
+.status{font-size:11px;border:0;border-radius:0;background:transparent;color:#fff}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0 14px}
+.heading .eyebrow{font-size:12px;letter-spacing:3px;color:#c45cff}
+.heading h1{font-size:clamp(20px,2vw,30px);margin:0;letter-spacing:3px;text-transform:uppercase}
+.heading p{display:none}
+.vehicle-bar{margin:0 0 16px;padding:13px 18px;min-height:88px;border:1px solid #2862bb;background:linear-gradient(100deg,#15102b,#0c1c37);box-shadow:0 0 25px #4720a933}
+.vehicle-copy b{font-size:16px}.vehicle-copy small{font-size:10px}
+.vehicle-actions{gap:12px}
+.start-btn,.stop-btn{height:54px;min-width:clamp(150px,22vw,260px);font-size:clamp(11px,1vw,15px);border-radius:28px}
+.start-btn{background:linear-gradient(100deg,#073b30,#08251f);border:2px solid #35f5a2;color:#9fffd0;box-shadow:0 0 18px #17f49b55}
+.stop-btn{background:linear-gradient(100deg,#3b101e,#24101a);border:2px solid #ff4969;color:#ffd4df;box-shadow:0 0 18px #ff315455}
+.columns{grid-template-columns:minmax(0,1.18fr) minmax(300px,.82fr);gap:16px;align-items:stretch}
+.left.panel,.right>.panel,.vehicle-result-panel{background:linear-gradient(145deg,rgba(10,14,31,.96),rgba(8,10,22,.97));border:1px solid #46317b;border-radius:18px;box-shadow:0 0 24px #5020a322}
+.left.panel{padding:18px}
+.stage{height:clamp(185px,25vh,260px);padding:4px 0 10px;background:radial-gradient(ellipse at 50% 65%,#38206a77,transparent 62%)}
+.orb{width:clamp(125px,13vw,170px);height:clamp(125px,13vw,170px);border:1px solid #a96affaa;box-shadow:0 0 60px #873cff66,inset 0 0 35px #a55aff55}
+.stage-label b{font-size:14px;color:#e8d5ff}
+.section-title{margin:12px 0 12px}
+.section-title b{font-size:clamp(11px,1vw,14px);color:#f0eaff;letter-spacing:1.5px}
+.section-title small{font-size:10px;color:#9da7c7}
+.swatches{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.swatch{float:none;width:34px;height:34px;margin:4px 5px 4px 2px;border:2px solid #ffffff55;box-shadow:0 0 10px #ffffff22}
+.wheel{float:none;width:44px;height:44px;margin:0 5px}
+.dual-picker{margin-left:auto}
+.rule{background:#282c48}
+.control{display:flex;align-items:center;gap:12px}
+.control label{float:none;width:100px;flex:none;padding:0;font-size:11px}
+.control input{flex:1;width:auto;margin:0}
+.control output{float:none;width:45px}
+.fixed-note{margin-left:112px}
+.right{display:grid;grid-template-columns:1fr;gap:14px;align-content:start}
+.right>.panel{margin:0;padding:16px}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.mode,.mode:nth-child(3){float:none;width:auto;min-width:0;min-height:90px;height:auto;margin:0;padding:12px 8px;text-align:center;border:1px solid #3b4ca2;background:linear-gradient(145deg,#0b1b43,#10132b);box-shadow:inset 0 0 16px #1744a422}
+.mode:before{display:block;font-size:22px;margin-bottom:8px;color:#55d8ff}
+.mode[data-mode="Static"]:before{content:"☼";color:#54cfff}
+.mode[data-mode="Rainbow"]:before{content:"🌈"}
+.mode[data-mode="Breathing"]:before{content:"≈";color:#48dcff}
+.mode[data-mode="Strobe"]:before{content:"ϟ";color:#f05bff}
+.mode[data-mode="Spectrum"]:before{content:"▥";color:#40f5a0}
+.mode[data-mode="Dual Color"]:before{content:"◉";color:#ff9a30}
+.mode b{font-size:12px}.mode small{font-size:9px}
+.mode.active{border-color:#b04dff;background:linear-gradient(145deg,#2c1552,#10234a);box-shadow:0 0 18px #8a38ff55}
+.control input{accent-color:#a94cff}
+.actions{display:flex;flex-wrap:wrap;gap:7px}
+.btn{font-size:10px}
+.vehicle-result-panel{margin-top:14px;padding:12px 16px}
+.notice{background:#151327;border-color:#6a3e9a;color:#d8c9f4}
+.foot{color:#7e82a6}
+@media(max-width:900px){.columns{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.side-rail{width:58px;padding:12px 5px}.side-rail a{width:46px;min-height:46px;font-size:7px}.rail-mark{width:34px;height:34px}.rail-label{font-size:6px}.shell{margin-left:58px;width:calc(100% - 58px);padding:10px}.top{min-height:54px}.brand{font-size:20px}.vehicle-bar{padding:12px}.vehicle-actions{grid-template-columns:1fr 1fr}.start-btn,.stop-btn{height:46px;font-size:9px}.heading{margin:8px 0}.heading h1{font-size:17px}.modes{grid-template-columns:repeat(2,minmax(0,1fr))}.mode,.mode:nth-child(3){min-height:76px}.left.panel,.right>.panel{padding:12px}}
 </style>
 </head>
-<body><aside class="side-rail"><div class="rail-mark">N</div><div class="rail-label">NEMESIS</div><a href="#modes">MODES</a><a href="#brightness">LIGHTS</a><a href="#vehicleConnect">EV6</a><div class="rail-foot">MOON<br>STUDIO</div></aside><main class="shell">
-<header class="top"><div class="brand">NEMESIS<small>MOON STUDIO</small></div><div class="status"><i class="dot" id="dot"></i><span id="status">STANDBY</span></div></header>
-<div class="heading"><div class="eyebrow">PERSONAL AMBIENT EXPERIENCE</div><h1>Set the mood.</h1><p>Take control of your EV6 ambient lighting.</p></div>
-<section class="vehicle-bar panel"><div class="vehicle-copy"><span class="eyebrow">EV6 LIGHTING CONTROL</span><b id="vehicleHeadline">Vehicle disconnected</b><small id="vehicleHint">Park the vehicle before connecting. Your current lighting is saved for restore.</small></div><div class="vehicle-actions"><button class="btn primary start-btn" id="vehicleConnect">▶ START LIGHTS</button><button class="btn stop-btn" id="stop">■ STOP / RESTORE</button></div></section>
+<body>
+<aside class="side-rail"><div class="rail-mark">N</div><div class="rail-label">NEMESIS</div>
+<a href="#home">⌂<br>HOME</a><a href="#modes">✧<br>MODES</a><a href="#color">◉<br>COLOR</a><a href="#brightness">☼<br>LIGHTS</a><a href="#audio">▥<br>AUDIO</a><a href="#vehicleConnect">EV6<br>CAR</a><a href="#settings">⚙<br>SETTINGS</a><div class="rail-foot">MOON<br>STUDIO</div></aside>
+<main class="shell" id="home">
+<header class="top"><div class="brand">NEMESIS<small>MOON STUDIO</small></div><div class="heading" style="margin:0;flex:1;justify-content:center"><h1>LIGHT UP YOUR DRIVE</h1></div><div class="status"><i class="dot" id="dot"></i><span id="status">STANDBY</span></div></header>
+<div class="heading"><div><div class="eyebrow">KIA EV6 · AMBIENT LIGHTING</div><h1>MOON STUDIO DASHBOARD</h1></div><p>Personal ambient experience</p></div>
+<section class="vehicle-bar panel"><div class="vehicle-copy"><span class="eyebrow">VEHICLE CONTROL</span><b id="vehicleHeadline">Kia EV6 · Disconnected</b><small id="vehicleHint">Park before connecting. Original lighting will be saved for restore.</small></div><div class="vehicle-actions"><button class="btn primary start-btn" id="vehicleConnect">▶ START LIGHTS</button><button class="btn stop-btn" id="stop">■ STOP / RESTORE</button></div></section>
 <div class="columns">
 <section class="left panel">
+<div class="section-title"><b>COLOR SELECTION</b><small id="hex">#641CEF</small></div>
+<div class="swatches" id="color"><button class="swatch active" data-color="#641CEF" style="background:#641CEF" aria-label="Purple"></button><button class="swatch" data-color="#1043F4" style="background:#1043F4" aria-label="Blue"></button><button class="swatch" data-color="#FF321D" style="background:#FF321D" aria-label="Red"></button><button class="swatch" data-color="#51E176" style="background:#51E176" aria-label="Green"></button><button class="swatch" data-color="#FF8F3E" style="background:#FF8F3E" aria-label="Orange"></button><button class="swatch" data-color="#DD17AE" style="background:#DD17AE" aria-label="Pink"></button><input class="wheel" type="color" id="wheel" value="#641cef" aria-label="Custom color"><label class="dual-picker">COLOR B <input type="color" id="dualColor" value="#1043f4" aria-label="Second color for Dual Color mode"></label></div>
+<div class="rule"></div><div class="section-title"><b>BRIGHTNESS CONTROL</b><small>50% default</small></div>
+<div class="control" id="brightness"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="50"><output id="brightOut">50%</output></div>
+<div class="section-title" id="audio"><b>AUDIO REACTIVE</b><small id="audioSource">Not active</small></div><div class="tuning"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
 <div class="stage"><div class="orb" id="orb"><span>MOON</span></div><div class="stage-label"><b id="modeName">STATIC</b><small id="stageCaption">Preview · vehicle output disconnected</small></div><div class="bars" id="bars"></div></div>
-<div class="section-title"><b>CHOOSE YOUR COLOR</b><small id="hex">#641CEF</small></div>
-<div class="swatches">
-<button class="swatch active" data-color="#641CEF" style="background:#641CEF" aria-label="Purple"></button><button class="swatch" data-color="#1043F4" style="background:#1043F4" aria-label="Blue"></button><button class="swatch" data-color="#FF321D" style="background:#FF321D" aria-label="Red"></button><button class="swatch" data-color="#51E176" style="background:#51E176" aria-label="Green"></button><button class="swatch" data-color="#FF8F3E" style="background:#FF8F3E" aria-label="Orange"></button><button class="swatch" data-color="#DD17AE" style="background:#DD17AE" aria-label="Pink"></button><input class="wheel" type="color" id="wheel" value="#641cef" aria-label="Custom color"><label class="dual-picker">COLOR B <input type="color" id="dualColor" value="#1043f4" aria-label="Second color for Dual Color mode"></label>
-</div>
-<div class="rule"></div><div class="section-title"><b>COLOR BRIGHTNESS</b><small>Manual · stays fixed</small></div>
-<div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="50"><output id="brightOut">50%</output></div><p class="fixed-note">Vehicle brightness applies only after connecting; 50% is the default.</p>
-<div class="section-title audio-panel"><b>AUDIO RESPONSE</b><small id="audioSource">Disabled in first-test build</small></div>
-<div class="tuning audio-panel"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
-
 </section>
 <div class="right">
-<section class="panel"><div class="section-title"><b>LIGHT EFFECTS</b><small>Choose a motion style</small></div><div class="modes" id="modes">
-<button class="mode active" data-mode="Static"><b>Static</b><small>Hold selected color</small></button><button class="mode" data-mode="Rainbow"><b>Rainbow</b><small>Continuous color cycle</small></button><button class="mode" data-mode="Dual Color"><b>Dual Color</b><small>Alternate Color A / B</small></button>
+<section class="panel"><div class="section-title"><b>LIGHTING MODES</b><small>Select an effect</small></div><div class="modes" id="modes">
+<button class="mode active" data-mode="Static"><b>Static</b><small>Hold one color</small></button><button class="mode" data-mode="Rainbow"><b>Rainbow</b><small>Color cycle</small></button><button class="mode" data-mode="Breathing"><b>Breathing</b><small>Soft pulse</small></button><button class="mode" data-mode="Strobe"><b>Strobe</b><small>Flash effect</small></button><button class="mode" data-mode="Spectrum"><b>Music Sync</b><small>Audio spectrum style</small></button><button class="mode" data-mode="Dual Color"><b>Dual Color</b><small>Alternate two colors</small></button>
 </div></section>
-<section class="panel"><div class="section-title"><b>FINE TUNING</b><small>Optional adjustments</small></div>
+<section class="panel" id="settings"><div class="section-title"><b>QUICK PRESETS</b><small>Tap to apply</small></div><div class="actions"><button class="btn" data-preset="Party">🎉 PARTY MODE</button><button class="btn" data-preset="Relax">🌿 RELAX MODE</button><button class="btn" data-preset="Drive">▰ DRIVE MODE</button><button class="btn" data-preset="Show">☆ SHOW MODE</button></div>
+<div class="rule"></div><div class="section-title"><b>FINE TUNING</b><small>Optional</small></div>
 <div class="control"><label for="sensitivity">Sensitivity</label><input id="sensitivity" type="range" min="0.7" max="3" step="0.1" value="1.5"><output id="sensOut">1.5×</output></div>
 <div class="control"><label for="smooth">Smoothing</label><input id="smooth" type="range" min="0" max="0.95" step="0.05" value="0.65"><output id="smoothOut">65%</output></div>
 <div class="control"><label for="speed">Effect speed</label><input id="speed" type="range" min="1" max="10" value="5"><output id="speedOut">5</output></div>
-<div class="rule"></div><div class="section-title"><b>PROFILES</b><small>Saved on this device</small></div>
-<div class="actions"><button class="btn" id="save">SAVE PROFILE</button><select id="profiles" class="btn"><option value="">Select profile</option></select><button class="btn" id="load">LOAD</button></div>
-</section></div></div>
-<section class="panel vehicle-result-panel"><div class="section-title"><b>VEHICLE CONNECTION</b><small>Direct NEMESIS connection</small></div><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Disconnected. Connect while parked to save your current lighting and enable control.</p></section>
-<div class="notice"><b>Vehicle safety:</b> Connect only while parked. NEMESIS checks the EV6 firmware and Park status, captures the current color and brightness, and restores them when you press STOP / RELEASE or disconnect. The car may ignore colors outside its supported 64-color custom palette; select Custom Color in the factory mood-lamp settings. Keep the vehicle parked during testing.</div>
-<div class="foot">NEMESIS MOON STUDIO · UNOFFICIAL COMMUNITY PROJECT</div>
-</main>
+<div class="actions"><button class="btn" id="save">SAVE PROFILE</button><select id="profiles" class="btn"><option value="">Select profile</option></select><button class="btn" id="load">LOAD</button></div></section>
+</div></div>
+<section class="panel vehicle-result-panel"><div class="section-title"><b>VEHICLE CONNECTION</b><small>Standalone NEMESIS</small></div><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Disconnected. Connect while parked to save your current lighting and enable control.</p></section>
+<div class="notice"><b>Safety:</b> Connect only while parked. Firmware and Park checks remain active. NEMESIS saves the original color and brightness and attempts to restore them when STOP / RESTORE is pressed. Vehicle output remains subject to EV6 service permissions and in-car validation.</div>
+<div class="foot">NEMESIS MOON STUDIO · UNOFFICIAL COMMUNITY PROJECT</div></main>
 <script>
 (function(){
 'use strict';
@@ -166,6 +228,7 @@ function getProfiles(){try{return JSON.parse(localStorage.getItem('nemesisMoonPr
 function refreshProfiles(){var sel=$('profiles'),old=sel.value;sel.innerHTML='<option value="">Select profile</option>';var p=getProfiles(),name;for(name in p){if(p.hasOwnProperty(name)){var opt=document.createElement('option');opt.value=name;opt.appendChild(document.createTextNode(name));sel.appendChild(opt);}}sel.value=old;}
 $('save').onclick=function(){var name=window.prompt('Profile name?');if(!name||!name.replace(/\s/g,''))return;var p=getProfiles();p[name]={color:color,mode:mode,brightness:$('brightness').value,sensitivity:$('sensitivity').value,smooth:$('smooth').value,speed:$('speed').value};try{localStorage.setItem('nemesisMoonProfiles',JSON.stringify(p));refreshProfiles();$('profiles').value=name;}catch(e){alert('Could not save profile on this device.');}};
 $('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)return;setColor(p.color);var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j].getAttribute('data-mode')===p.mode?' active':'');mode=p.mode;$('modeName').innerHTML=mode.toUpperCase();var ids=['brightness','sensitivity','smooth','speed'];for(var j=0;j<ids.length;j++)$(ids[j]).value=p[ids[j]];$('brightOut').innerHTML=p.brightness+'%';$('sensOut').innerHTML=p.sensitivity+'×';$('smoothOut').innerHTML=Math.round(Number(p.smooth)*100)+'%';$('speedOut').innerHTML=p.speed;paint(0,null);};
+document.querySelectorAll('[data-preset]').forEach(function(btn){btn.onclick=function(){var p=btn.getAttribute('data-preset'),target=p==='Party'?'Rainbow':p==='Relax'?'Breathing':p==='Drive'?'Static':'Strobe';var buttons=document.getElementsByClassName('mode');for(var k=0;k<buttons.length;k++){if(buttons[k].getAttribute('data-mode')===target){setMode(buttons[k]);break;}}if(p==='Drive')setColor('#1043F4');else if(p==='Relax')setColor('#51E176');else if(p==='Show')setColor('#DD17AE');};});
 refreshProfiles();setColor(color);window.onunload=stop;
 })();
 </script></body></html>
