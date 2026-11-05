@@ -19,3 +19,14 @@ Do not use this broadcast alone to authorize a lighting write or capture a resto
 - Source edits are committed to `build47-pretest-audit`.
 - No Gradle build, APK, installation, EV6 test, or lighting write was performed in this pass.
 - Build 47 remains a source-only, read-only audit branch. Build 46 remains the last known successful CI baseline.
+
+## Additional Activity hardening
+
+- JavaScript-interface refusal callbacks now post WebView updates onto the Android UI thread. Android may invoke `@JavascriptInterface` methods on a background thread, so direct WebView updates from the bridge were unsafe.
+- The four-second probe timeout is now stored per active probe and canceled when that probe finishes. Previously, a timeout left over from an earlier request could fire during a later request and incorrectly terminate it.
+
+## Manifest and receiver review
+
+- The launcher Activity has an intent filter and does not explicitly declare `android:exported`. On this app's legacy target configuration the launcher component is expected to be externally launchable; make the launcher export decision explicit when modernizing the target SDK.
+- The SML receiver is dynamically registered without a sender permission. This remains unresolved: do not invent a permission string or assume the broadcast is protected. Verify the protected-broadcast policy on the exact EV6 framework image, or replace this path with an authenticated supported API.
+- The JavaScript bridge is attached to the local bundled asset page. Keep that WebView restricted to trusted local content; do not load remote or user-controlled HTML into the same WebView while the bridge is attached.
