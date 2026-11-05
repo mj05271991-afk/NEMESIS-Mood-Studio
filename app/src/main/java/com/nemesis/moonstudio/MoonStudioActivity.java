@@ -22,7 +22,7 @@ public class MoonStudioActivity extends Activity {
   smlReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
    if(!probePending||intent==null)return;
    try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);
-    finishProbe("STATUS CAPTURED - OUTPUT LOCKED","Received and validated an SML status broadcast. Request correlation is not yet proven; this audit build sends no lighting writes.");
+    finishProbe("STATUS RECEIVED - OUTPUT LOCKED","Received and validated an SML status broadcast. Request correlation is not yet proven; this audit build sends no lighting writes.");
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
   registerReceiver(smlReceiver,new IntentFilter(Ev6LightingProbe.STATUS_ACTION));
@@ -33,7 +33,7 @@ public class MoonStudioActivity extends Activity {
   if(probePending)return;
   String mismatch=Ev6LightingProbe.firmwareMismatch();
   if(mismatch!=null){finishProbe("SAFETY GATE BLOCKED",mismatch);return;}
-  probePending=true;callJavascript("window.onVehicleProbeResult('REQUESTING','Reading the current EV6 lighting state before enabling control…')");
+  probePending=true;callJavascript("window.onVehicleProbeResult('REQUESTING','Requesting EV6 lighting status for read-only diagnostics…')");
   mainHandler.postDelayed(new Runnable(){@Override public void run(){if(probePending)finishProbe("NO RESPONSE","No status response within 4 seconds. No lighting changes were sent.");}},4000);
   new Thread(new Runnable(){@Override public void run(){try{Ev6LightingProbe.requestStatus();}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){if(probePending)finishProbe("CONNECT FAILED",e.getMessage());}});}}},"NemesisVehicleConnect").start();
  }
