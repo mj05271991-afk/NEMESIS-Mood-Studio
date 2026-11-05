@@ -51,11 +51,12 @@ public class MoonStudioActivity extends Activity {
  private void startMicCapture(){
   if(micCapture!=null)return;
   micCapture=new MicAudioCapture(new MicAudioCapture.Listener(){
+   public void onStarted(){runOnUiThread(new Runnable(){public void run(){callJavascript("window.onNativeAudioState(true,'Device microphone active')");}});}
    public void onBands(final float bass,final float mids,final float treble){runOnUiThread(new Runnable(){public void run(){callJavascript("window.onNativeBands("+bass+","+mids+","+treble+")");}});}
    public void onError(final String message){runOnUiThread(new Runnable(){public void run(){stopMicCapture();callJavascript("window.onNativeAudioState(false,'"+jsQuote(message)+"')");}});}
   });
+  callJavascript("window.onNativeAudioState(false,'Starting device microphone…')");
   micCapture.start();
-  callJavascript("window.onNativeAudioState(true,'Phone microphone active')");
  }
  private void stopMicCapture(){if(micCapture!=null){micCapture.stop();micCapture=null;}callJavascript("window.onNativeAudioState(false,'Microphone stopped')");}
  private class AudioBridge{
