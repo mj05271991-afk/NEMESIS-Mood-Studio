@@ -35,6 +35,14 @@ jobs:
         with:
           gradle-version: '4.6'
 
+      - name: Audit first-test safety scope
+        run: |
+          grep -F 'android.permission.RECORD_AUDIO' app/src/main/AndroidManifest.xml
+          ! grep -F 'android:exported=' app/src/main/AndroidManifest.xml
+          grep -F 'STATUS_TRANSACTION = 74' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java
+          test "$(grep -c 'binder.transact(' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java)" -eq 1
+          ! grep -E 'setColor|setBrightness|writeColor|writeLighting' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java
+
       - name: Build APK
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
