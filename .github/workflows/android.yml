@@ -37,7 +37,7 @@ jobs:
 
       - name: Audit first-test safety scope
         run: |
-          grep -F 'android.permission.RECORD_AUDIO' app/src/main/AndroidManifest.xml
+          ! grep -F 'android.permission.RECORD_AUDIO' app/src/main/AndroidManifest.xml
           ! grep -F 'android:exported=' app/src/main/AndroidManifest.xml
           grep -F 'STATUS_TRANSACTION = 74' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java
           test "$(grep -c 'binder.transact(' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java)" -eq 1
@@ -69,7 +69,7 @@ jobs:
           name=NEMESIS Moon Studio
           type=application
           package-version=0.2
-          short-desc=Music-reactive lighting studio for Gen5W EV6
+          short-desc=Static, rainbow and dual-color lighting preview for Gen5W EV6
           os=*.260507
           models=any
 
