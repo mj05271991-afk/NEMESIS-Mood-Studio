@@ -106,7 +106,7 @@ This audit is engineering documentation, not proof of on-vehicle behavior. No AP
 
 Two source changes were committed on this audit branch after the initial review:
 
-- `MoonStudioActivity.java`: removed construction and lifecycle of `AudioBandCapture`, removed the `NemesisAudio` JavaScript bridge, and removed the activity-destroy microphone stop call. The dormant `AudioBandCapture.java` source file remains in the repository but is no longer instantiated or exposed to the WebView.
+- `MoonStudioActivity.java`: removed construction and lifecycle of `AudioBandCapture`, removed the `NemesisAudio` JavaScript bridge, and removed the activity-destroy microphone stop call. The unused `AudioBandCapture.java` implementation was subsequently deleted from this branch.
 - `index.html`: replaced the native-microphone and browser `getUserMedia` fallback with an explicit unavailable state. Attempting the live-audio action now reports that EV6 stereo audio is not connected and explicitly states that NEMESIS will not use the phone or head-unit microphone. Demo Signal remains separate for visual testing.
 
 This is a deliberate product-truthfulness and privacy correction. It does **not** provide car-audio capture. The live car-audio feature remains unavailable pending on-device investigation of the EV6 audio route/HAL or another verified source.
@@ -129,3 +129,12 @@ Commit: `4a6801f921724aa1c7ca8e495ab9be64530e4d97`.
 HMG-API's EV6 `CarCallbacks.java` documents that a listener binder was accepted but the regular app-side status callback never received the SML status broadcast. HMG-API instead installs `LightRelay` in `system_server`, where it receives `com.mobis.intent.action.SML_STATUS_CHANGED` and forwards the 9-byte status through the privileged `hmgapi-vehicle` local socket to its vehicle daemon. Therefore NEMESIS's ordinary Activity-context `BroadcastReceiver` cannot be assumed to receive the status broadcast. Its current four-second wait and `LIGHT CONTROL READY` state are unverified and may time out on the target head unit.
 
 Do not bypass this by guessing Binder transaction IDs or relaxing the requirement to capture original state. For standalone NEMESIS, a supported, permissioned status relay is still needed. If HMG-API is installed, investigate a documented integration/IPC contract rather than assuming its private local socket is available to third-party apps. Until then, fail closed and do not send lighting writes without a verified original-state capture.
+
+
+## 10. Audio route investigation
+
+A targeted search of the public HMG-API repository for `REMOTE_SUBMIX`, `AudioRecord`, `audioflinger`, and audio-output capture terms returned no implementation or mapped car-audio capture point. This does not prove no route exists on the vehicle, but there is currently no verified supported app-level stereo loopback path in the available map/repository. The head unit is Android API 19, so Android 10's AudioPlaybackCapture API is not an option. A privileged/system audio tap or a documented OEM service may be required; do not try undocumented Binder transactions or claim feasibility until verified on-device.
+
+The old microphone capture implementation has now been deleted from the Build 47 audit branch entirely.
+
+Commit: `65636c77380b285d292356b1769d4ea11a5d7964`.
