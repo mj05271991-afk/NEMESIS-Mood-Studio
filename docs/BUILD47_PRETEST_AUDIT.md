@@ -156,3 +156,34 @@ Reference source paths in VysseCodes/HMG-API:
 - `docs/hook-points.md` (EV6 MICOM SML method map)
 
 This is a source-level integration finding, not an on-vehicle test result.
+
+
+## 12. Supported HMG-API vehicle-command integration path
+
+A further source review found a documented app-level route that is materially better than attempting to consume HMG-API's private vehicle socket:
+
+- HMG-API's `docs/mod-reference.md` explicitly supports declaring a mod's own APK under `apps` and vehicle commands under `vehicle.commands`.
+- The documented `hmgapi-client.jar` exposes `HmgApi.connect()`, `available()`, `mod()`, `vehicle(...)`, and `command(name, args...)` to an app registered to an enabled mod. Calls are authenticated by the app's UID and the enabled mod declaration; this is the supported client boundary, not the private `@hmgapi-vehicle` socket.
+- The HMG-API client documentation gives `api.command("ambient_light", "color", "ff8000")` as an example. The vehicle command docs specify `color <rrggbb>`, `brightness <0-10>`, `release`, and `owner_change release|keep`.
+- HMG-API's ambient-light command implementation is documented as a single-holder lease: it saves the owner's light, restores it when the mod releases/turns off/is removed or its process disappears, honors the owner's `block_ambient_light` switch, and limits changes to 10 per second. Its vehicle readings include `gear.park`.
+- HMG-API's mod reference says an existing Gen5W project can be offered as an HMG-API mod without changing its existing package; HMG-API runs on top of NEMESIS. This suggests an optional NEMESIS HMG-API mod package can coexist with the standalone app.
+
+### Proposed architecture (not implemented)
+
+1. Keep NEMESIS standalone as the primary product and preserve its existing package/install route.
+2. Add a separate HMG-API mod package that declares the NEMESIS APK and only the required vehicle capabilities, initially `gear.park` and `ambient_light`.
+3. Bundle/use the documented HMG-API client library in the registered app and call the named `ambient_light` command API on a background thread. Use the daemon's lease/restore behavior rather than duplicating HMG-API's private relay or socket.
+4. When HMG-API is absent, retain the standalone backend only if its own status-capture and restore sequence is proven on the actual EV6. Never run both backends against the same lighting session.
+5. Keep the UI explicit about which backend is active and fail closed if the selected backend is unavailable or refuses a command.
+
+### Important qualification
+
+The HMG-API source documents this integration contract, but NEMESIS has not yet integrated the client library, packaged a mod, or tested this route in the car. The vehicle-command introduction says the command set was built and tested off-car against a fake car; the ambient-light section separately describes US EV6 260507 behavior and owner-light restoration. Because those statements are not fully consistent about on-car command validation, confirm the current implementation and test with the HMG-API maintainer/build before treating the route as production-ready.
+
+References inspected in VysseCodes/HMG-API:
+- `docs/mod-reference.md` — app registration, `hmgapi-client.jar`, and `vehicle.commands`.
+- `core/client/java/hmgapi/client/HmgApi.java` — authenticated app client and `command(...)` API.
+- `docs/vehicle-commands.md` — ambient-light command, lease, owner restore, block switch, and rate limit.
+- `core/runtime/java/hmgapi/engine/Vehicle.java` and `core/runtime/java/hmgapi/vehicle/Hub.java` — command enforcement and vehicle-service routing.
+
+This is a source-level integration design, not an implemented feature or an on-car NEMESIS test.
