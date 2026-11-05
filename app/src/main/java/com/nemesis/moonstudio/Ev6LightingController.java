@@ -27,6 +27,7 @@ public final class Ev6LightingController {
  private static byte[] two(int v){return new byte[]{(byte)(v>>8),(byte)v};}
  private static int nearest(int rgb){int r=rgb>>16&255,g=rgb>>8&255,b=rgb&255,best=PALETTE[0];long d0=Long.MAX_VALUE;for(int c:PALETTE){int x=r-(c>>16&255),y=g-(c>>8&255),z=b-(c&255);long d=(long)x*x+(long)y*y+(long)z*z;if(d<d0){d0=d;best=c;}}return best;}
  public static synchronized void capture(byte[] s)throws Exception{
+  if(saved!=null)throw new Exception("An EV6 lighting session is already active. Restore the original lighting before reconnecting.");
   if(s==null||s.length!=9)throw new Exception("Invalid EV6 lighting status");
   int r=(s[0]&255)<<8|s[1]&255,g=(s[2]&255)<<8|s[3]&255,b=(s[4]&255)<<8|s[5]&255,br=s[6]&255;
   if(r>511||g>511||b>511||br<1||br>11)throw new Exception("EV6 lighting status out of range");
