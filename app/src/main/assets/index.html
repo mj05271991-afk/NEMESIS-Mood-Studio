@@ -40,9 +40,48 @@ html,body{width:100%;min-width:0}
 @media(max-width:700px){.shell{padding:12px}.heading h1{font-size:27px}.stage{height:280px}.orb{width:170px;height:170px}}
 @media(orientation:landscape) and (min-width:1100px){.shell{padding-left:clamp(24px,3vw,56px);padding-right:clamp(24px,3vw,56px)}.heading{margin:10px 0 16px}.stage{height:clamp(230px,39vh,340px)}}
 
+
+/* Moon Studio dashboard skin — preview-inspired, while retaining working controls. */
+:root{color-scheme:dark}
+body{background:radial-gradient(ellipse at 78% -8%,#39245f 0,transparent 42%),radial-gradient(ellipse at 35% 100%,#101b39 0,transparent 48%),#080a13}
+.side-rail{position:fixed;z-index:5;left:0;top:0;bottom:0;width:76px;background:rgba(10,12,23,.94);border-right:1px solid #29243e;display:flex;align-items:center;flex-direction:column;padding:20px 8px;gap:18px}
+.rail-mark{width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#a56aff,#5140a8);display:grid;place-items:center;font-size:21px;font-weight:800;box-shadow:0 0 24px #8a50d455}
+.rail-label{font-size:8px;letter-spacing:2px;color:#c9b5f1;font-weight:bold}
+.side-rail a{width:54px;min-height:48px;border:1px solid #292b40;border-radius:12px;color:#aeb3c9;text-decoration:none;display:grid;place-items:center;font-size:8px;letter-spacing:1px;background:#141827}
+.side-rail a:active,.side-rail a:focus{border-color:#a477ef;color:white;background:#29203e}
+.rail-foot{margin-top:auto;color:#7d729b;font-size:8px;letter-spacing:2px;text-align:center;line-height:1.8}
+.shell{margin-left:76px;width:calc(100% - 76px);padding:clamp(16px,2.4vw,38px) clamp(18px,3vw,48px) 30px}
+.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #25283b;padding-bottom:15px}
+.brand{float:none;font-size:17px;letter-spacing:4px}.brand small{font-size:9px}
+.status{float:none;background:#111827}
+.heading{margin:clamp(18px,3vh,34px) 0 20px}
+.heading .eyebrow{color:#bd9aff}
+.heading h1{font-weight:600;letter-spacing:-1px}
+.columns{grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:18px}
+.panel{background:linear-gradient(145deg,rgba(25,29,48,.96),rgba(15,18,31,.96));border:1px solid #33324b;border-radius:18px;box-shadow:0 16px 40px #0005}
+.left.panel{position:relative}
+.stage{height:clamp(230px,32vh,340px);padding-top:25px}
+.orb{width:clamp(150px,16vw,205px);height:clamp(150px,16vw,205px);border-color:#b58bf766;box-shadow:0 0 65px #7542d655,inset 0 0 40px #8e5be744}
+.stage-label b{letter-spacing:3px}
+.section-title b{font-size:11px;letter-spacing:2px;color:#e6e1f6}
+.section-title small{color:#a8a5bd}
+.swatch{width:34px;height:34px;margin-right:clamp(8px,1vw,14px)}
+.mode{width:calc(50% - 8px);min-height:74px;margin:0 8px 9px 0;padding:12px;background:linear-gradient(145deg,#171b2c,#101321);border-radius:13px}
+.mode:nth-child(3){width:calc(100% - 8px)}
+.mode b{font-size:12px}.mode small{font-size:10px}
+.mode.active{background:linear-gradient(120deg,#352451,#1b2037);border-color:#a778f2;box-shadow:0 0 20px #814bd522}
+.control label{font-size:12px}.control input{accent-color:#a77af3}
+.btn{border-radius:11px;padding:11px 15px;background:#1a2033;border-color:#3a3c57;letter-spacing:.4px}
+.primary{background:linear-gradient(110deg,#8c55df,#5e48b7);border-color:#9a6ce9;box-shadow:0 5px 20px #7747c344}
+#vehicleConnect{min-width:230px}
+.notice{background:#201a2c;border-color:#59416f;color:#d6c8ed}
+.foot{letter-spacing:2.5px}
+@media(max-width:900px){.shell{padding:14px 16px 24px}.columns{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.side-rail{width:54px;padding:12px 5px;gap:12px}.rail-mark{width:34px;height:34px}.rail-label{font-size:7px}.side-rail a{width:42px;font-size:7px}.shell{margin-left:54px;width:calc(100% - 54px);padding:12px 10px 22px}.heading h1{font-size:26px}.top{margin-bottom:10px}.status{padding:7px 9px;font-size:9px}.mode{width:calc(50% - 6px);margin-right:6px}}
+
 </style>
 </head>
-<body><main class="shell">
+<body><aside class="side-rail"><div class="rail-mark">N</div><div class="rail-label">NEMESIS</div><a href="#modes">MODES</a><a href="#brightness">LIGHTS</a><a href="#vehicleConnect">EV6</a><div class="rail-foot">MOON<br>STUDIO</div></aside><main class="shell">
 <header class="top"><div class="brand">NEMESIS<small>MOON STUDIO</small></div><div class="status"><i class="dot" id="dot"></i><span id="status">STANDBY</span></div></header>
 <div class="heading"><div class="eyebrow">Personal ambient experience</div><h1>Set the mood.</h1><p>Preview static color, rainbow cycling, or alternating two-color effects.</p></div>
 <div class="columns">
@@ -86,7 +125,9 @@ function rgbString(a){return a[0]+','+a[1]+','+a[2];}
 function hsv(h){h=((h%360)+360)%360;var c=1,x=1-Math.abs((h/60)%2-1),r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}return [Math.round(r*255),Math.round(g*255),Math.round(b*255)];}
 function hueOf(hex){var a=hexRgb(hex),r=a[0]/255,g=a[1]/255,b=a[2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;if(!d)return 0;var h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;return (h*60+360)%360;}
 function paint(energy,hue,forcedColor){var rgb=forcedColor?hexRgb(forcedColor):(hue===null?hexRgb(color):hsv(hue)),br=Number($('brightness').value)/100,orb=$('orb');orb.style.opacity=String(.35+br*.65);orb.style.filter='brightness('+(.45+br*.55)+')';orb.style.boxShadow='0 0 '+Math.round(25+br*35)+'px rgba('+rgbString(rgb)+','+(.15+br*.18)+'), inset 0 0 35px rgba('+rgbString(rgb)+','+(.12+br*.16)+')';orb.style.background='radial-gradient(circle at 38% 32%,#ffffff55,transparent 20%),radial-gradient(circle,rgba('+rgbString(rgb)+',.30),#111421 70%)';var rings=orb.getElementsByTagName('span');}
-function sendVehicleColor(hex){if(vehicleReady&&window.NemesisVehicle&&window.NemesisVehicle.setColor){var now=new Date().getTime();if(now-lastVehicleColorAt>=120){lastVehicleColorAt=now;window.NemesisVehicle.setColor(hex.replace('#',''));}}}\nfunction rgbHex(a){return '#'+((1<<24)+(a[0]<<16)+(a[1]<<8)+a[2]).toString(16).slice(1).toUpperCase();}\nfunction setColor(c){color=c.toUpperCase();$('wheel').value=color;$('hex').innerHTML=color;var sw=document.getElementsByClassName('swatch');for(var j=0;j<sw.length;j++)sw[j].className='swatch'+(sw[j].getAttribute('data-color')===color?' active':'');paint(0,null);if(mode==='Static')sendVehicleColor(color);}
+function sendVehicleColor(hex){if(vehicleReady&&window.NemesisVehicle&&window.NemesisVehicle.setColor){var now=new Date().getTime();if(now-lastVehicleColorAt>=120){lastVehicleColorAt=now;window.NemesisVehicle.setColor(hex.replace('#',''));}}}
+function rgbHex(a){return '#'+((1<<24)+(a[0]<<16)+(a[1]<<8)+a[2]).toString(16).slice(1).toUpperCase();}
+function setColor(c){color=c.toUpperCase();$('wheel').value=color;$('hex').innerHTML=color;var sw=document.getElementsByClassName('swatch');for(var j=0;j<sw.length;j++)sw[j].className='swatch'+(sw[j].getAttribute('data-color')===color?' active':'');paint(0,null);if(mode==='Static')sendVehicleColor(color);}
 function setStatus(on,label){$('dot').style.background=on?'#5ce0a0':'#73798c';$('status').innerHTML=label;}
 function onNativeBands(b,m,t){nativeLevels={bass:clamp(Number(b)),mid:clamp(Number(m)),treble:clamp(Number(t))};}
 window.onNativeBands=onNativeBands;
@@ -106,7 +147,11 @@ function setMode(button){mode=button.getAttribute('data-mode');var all=document.
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
 $('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};
 var modeButtons=document.getElementsByClassName('mode');for(i=0;i<modeButtons.length;i++){modeButtons[i].onclick=function(){setMode(this);};}
-$('stop').onclick=stop;\n$('vehicleConnect').onclick=function(){if(vehicleReady){window.NemesisVehicle.release();$('vehicleResult').innerHTML='Disconnect requested. Restoring original lighting.';$('stageCaption').innerHTML='Preview · restoring original EV6 lighting';}else if(window.NemesisVehicle&&window.NemesisVehicle.connect){window.NemesisVehicle.connect();}};\nwindow.onVehicleProbeResult=function(state,detail){$('vehicleResult').innerHTML=state+': '+detail;if(state==='LIGHT CONTROL READY'){vehicleReady=true;$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';$('stageCaption').innerHTML='Live EV6 lighting control enabled';sendVehicleColor(color);if(mode!=='Static'&&!raf)tick();}else{vehicleReady=false;}};\nwindow.onVehicleWriteError=function(detail){$('vehicleResult').innerHTML='LIGHTING WRITE BLOCKED: '+detail;if(vehicleReady)$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';};\nwindow.onVehicleReleased=function(detail){vehicleReady=false;$('vehicleConnect').innerHTML='CONNECT &amp; ENABLE LIGHTS';$('vehicleResult').innerHTML=detail;$('stageCaption').innerHTML='Preview · vehicle output disconnected';};
+$('stop').onclick=stop;
+$('vehicleConnect').onclick=function(){if(vehicleReady){window.NemesisVehicle.release();$('vehicleResult').innerHTML='Disconnect requested. Restoring original lighting.';$('stageCaption').innerHTML='Preview · restoring original EV6 lighting';}else if(window.NemesisVehicle&&window.NemesisVehicle.connect){window.NemesisVehicle.connect();}};
+window.onVehicleProbeResult=function(state,detail){$('vehicleResult').innerHTML=state+': '+detail;if(state==='LIGHT CONTROL READY'){vehicleReady=true;$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';$('stageCaption').innerHTML='Live EV6 lighting control enabled';sendVehicleColor(color);if(mode!=='Static'&&!raf)tick();}else{vehicleReady=false;}};
+window.onVehicleWriteError=function(detail){$('vehicleResult').innerHTML='LIGHTING WRITE BLOCKED: '+detail;if(vehicleReady)$('vehicleConnect').innerHTML='DISCONNECT &amp; RESTORE';};
+window.onVehicleReleased=function(detail){vehicleReady=false;$('vehicleConnect').innerHTML='CONNECT &amp; ENABLE LIGHTS';$('vehicleResult').innerHTML=detail;$('stageCaption').innerHTML='Preview · vehicle output disconnected';};
 $('brightness').oninput=function(){ $('brightOut').innerHTML=this.value+'%';paint(0,null);if(vehicleReady&&window.NemesisVehicle&&window.NemesisVehicle.setBrightness){var now=new Date().getTime();if(now-lastVehicleBrightnessAt>220){lastVehicleBrightnessAt=now;window.NemesisVehicle.setBrightness(parseInt(this.value,10));}}};
 $('sensitivity').oninput=function(){ $('sensOut').innerHTML=this.value+'×';};
 $('smooth').oninput=function(){ $('smoothOut').innerHTML=Math.round(Number(this.value)*100)+'%';};
@@ -115,6 +160,6 @@ function getProfiles(){try{return JSON.parse(localStorage.getItem('nemesisMoonPr
 function refreshProfiles(){var sel=$('profiles'),old=sel.value;sel.innerHTML='<option value="">Select profile</option>';var p=getProfiles(),name;for(name in p){if(p.hasOwnProperty(name)){var opt=document.createElement('option');opt.value=name;opt.appendChild(document.createTextNode(name));sel.appendChild(opt);}}sel.value=old;}
 $('save').onclick=function(){var name=window.prompt('Profile name?');if(!name||!name.replace(/\s/g,''))return;var p=getProfiles();p[name]={color:color,mode:mode,brightness:$('brightness').value,sensitivity:$('sensitivity').value,smooth:$('smooth').value,speed:$('speed').value};try{localStorage.setItem('nemesisMoonProfiles',JSON.stringify(p));refreshProfiles();$('profiles').value=name;}catch(e){alert('Could not save profile on this device.');}};
 $('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)return;setColor(p.color);var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j].getAttribute('data-mode')===p.mode?' active':'');mode=p.mode;$('modeName').innerHTML=mode.toUpperCase();var ids=['brightness','sensitivity','smooth','speed'];for(var j=0;j<ids.length;j++)$(ids[j]).value=p[ids[j]];$('brightOut').innerHTML=p.brightness+'%';$('sensOut').innerHTML=p.sensitivity+'×';$('smoothOut').innerHTML=Math.round(Number(p.smooth)*100)+'%';$('speedOut').innerHTML=p.speed;paint(0,null);};
-window.onVehicleProbeResult=function(state,detail){var el=$('vehicleResult');if(el){el.innerHTML='<b>'+state+'</b><br>'+detail;}};\n$('vehicleCheck').onclick=function(){if(window.NemesisVehicle&&window.NemesisVehicle.checkVehicleLights){$('vehicleResult').innerHTML='Starting read-only check…';window.NemesisVehicle.checkVehicleLights();}else{$('vehicleResult').innerHTML='Vehicle diagnostic bridge is unavailable in this build.';}};\nrefreshProfiles();setColor(color);window.onunload=stop;
+refreshProfiles();setColor(color);window.onunload=stop;
 })();
 </script></body></html>
