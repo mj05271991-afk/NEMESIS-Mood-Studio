@@ -2,7 +2,7 @@ name: Build NEMESIS Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, build47-pretest-audit ]
   workflow_dispatch:
 
 jobs:
@@ -37,7 +37,10 @@ jobs:
 
       - name: Audit first-test safety scope
         run: |
-          ! grep -F 'android.permission.RECORD_AUDIO' app/src/main/AndroidManifest.xml
+          grep -F 'android.permission.RECORD_AUDIO' app/src/main/AndroidManifest.xml
+          grep -F 'MediaRecorder.AudioSource.MIC' app/src/main/java/com/nemesis/moonstudio/MicAudioCapture.java
+          grep -F 'onRequestPermissionsResult' app/src/main/java/com/nemesis/moonstudio/MoonStudioActivity.java
+          grep -F 'window.NemesisAudio.start()' app/src/main/assets/index.html
           ! grep -F 'android:exported=' app/src/main/AndroidManifest.xml
           grep -F 'requestSMLStatus' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java
           ! grep -F 'binder.transact(' app/src/main/java/com/nemesis/moonstudio/Ev6LightingProbe.java
