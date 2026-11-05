@@ -216,3 +216,23 @@ Reference: VysseCodes/HMG-API core/runtime/java/hmgapi/vehicle/Commands.java, ta
 ### Existing upstream test confirms the gap
 
 The HMG-API unit test at core/runtime/test/hmgapi/vehicle/CommandsTest.java explicitly sets the fake car's light state to null, expects a brightness command to return ok, then expects release to report not restored. This is not merely an untested edge case: the current off-car test suite codifies the behavior. NEMESIS should request an upstream change to make missing initial state a refusal, with a revised test asserting that no color/brightness write is sent and no lease is taken.
+
+## 14. HMG-API app lifecycle and standalone-preserving bridge
+
+Review of HMG-API core/runtime/java/hmgapi/engine/ModApps.java and core/client/java/hmgapi/client/HmgApi.java adds an important packaging constraint:
+
+- HMG-API only authenticates an app as a mod app when its package is declared in an enabled mod; HmgapiClient `mod()` returns null when the caller is not an enabled mod app.
+- HMG-API's ModApps manager installs declared APKs, disables them when the owning mod is turned off, and uninstalls them when the mod is removed.
+- If the same package is already installed outside HMG-API, HMG-API leaves it alone by default. Its `hmgapi.json` `overrides.replace_apps` setting can allow the mod to take over that package, but then the app becomes subject to the mod's disable/remove lifecycle.
+- NEMESIS's package is `com.nemesis.moonstudio`; the Build 47 Android manifest and Gradle applicationId agree.
+- The NEMESIS installer data is generated inside `.github/workflows/android.yml`, rather than checked in as a repository-root NEMESIS.data file. It declares the same package.
+
+### Architecture correction
+
+Do not register the main `com.nemesis.moonstudio` APK as an HMG-API-managed app if the requirement is that the standalone NEMESIS installation remain independent when the optional HMG-API mod is disabled or removed. Do not use `overrides.replace_apps` for the main app as a shortcut.
+
+Preferred future design: a separate, small NEMESIS HMG-API bridge APK with its own package, declared and managed by the optional HMG-API mod. The standalone NEMESIS app remains installed and independently launchable. The bridge can use the documented hmgapi-client.jar and its own mod authorization; it must communicate with the main app through a deliberately designed, permission-protected IPC boundary. Both apps must be signed consistently for any signature-level permission. The bridge must fail closed if HMG-API is absent, the mod is disabled, or the ambient-light command refuses.
+
+This bridge architecture is a design recommendation only; no bridge APK, IPC contract, HMG-API mod folder, or HMG-API integration has been implemented or tested. It also does not remove the ambient-light first-use restore gap in Section 13: upstream fail-closed behavior and actual EV6 validation remain prerequisites.
+
+References: VysseCodes/HMG-API core/runtime/java/hmgapi/engine/ModApps.java; core/client/java/hmgapi/client/HmgApi.java; docs/mod-reference.md. NEMESIS app identity: app/build.gradle and app/src/main/AndroidManifest.xml.
