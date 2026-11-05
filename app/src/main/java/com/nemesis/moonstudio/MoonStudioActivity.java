@@ -22,7 +22,7 @@ public class MoonStudioActivity extends Activity {
   smlReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
    if(!probePending||intent==null)return;
    try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);Ev6LightingController.capture(status);
-    finishProbe("LIGHT CONTROL READY","Connected directly to the EV6. Original color and brightness saved for restore. Changes are enabled only in Park.");
+    finishProbe("STATUS CAPTURED - OUTPUT LOCKED","Received and validated the EV6 lighting status. This audit build does not send color or brightness writes.");
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
   registerReceiver(smlReceiver,new IntentFilter(Ev6LightingProbe.STATUS_ACTION));
