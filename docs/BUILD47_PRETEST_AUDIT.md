@@ -348,3 +348,11 @@ Before any future write-capable build, establish from the EV6 framework image or
 Also retain the current request-pending and exact 9-byte/range checks, but recognize that those checks prove payload shape and timing only—not sender identity or causal correlation to the request.
 
 Source inspected: HMG-API `core/runtime/java/hmgapi/hook/LightRelay.java`. No framework image, Android 9 broadcast-protection declaration, or on-device sender identity was available in this source review; protection status remains unverified.
+
+## 22. Status parser no longer assumes undocumented dim/drive enum ranges
+
+The 9-byte SML status layout exposes RGB (three 16-bit values), brightness, dim option, and drive mode. The parser previously rejected dim and drive values outside 1–2, but the reviewed source comments identify those fields without establishing their valid enum ranges for this exact EV6 firmware. That check was an unsupported assumption and could reject a genuine status response.
+
+Source-only correction: retain exact 9-byte length validation and validate only the established RGB (0–511) and brightness (1–11) ranges. Dim and drive values are decoded for diagnostics but treated as opaque until their enum definitions are confirmed from the target firmware. The unused hard-coded transaction constant and unused Parcel import were also removed; the probe continues to invoke the mapped `requestSMLStatus()` method rather than a numeric transaction.
+
+No build or device validation has been performed.
