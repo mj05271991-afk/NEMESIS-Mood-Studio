@@ -44,23 +44,18 @@ public final class Ev6LightingProbe {
         String mismatch = firmwareMismatch();
         if (mismatch != null) throw new Exception("Safety gate blocked request. " + mismatch);
 
+        // Use the EV6's mapped AIDL interface method instead of a hard-coded
+        // Binder transaction number. This is the same method HMG-API maps as
+        // framework.system_service.sml_status for the EV6 260507 firmware.
         Class<?> manager = Class.forName("android.os.ServiceManager");
         Method getService = manager.getMethod("getService", String.class);
         IBinder binder = (IBinder) getService.invoke(null, SERVICE_NAME);
         if (binder == null) throw new Exception("Vehicle lighting Binder service is unavailable");
 
-        Parcel data = Parcel.obtain();
-        Parcel reply = Parcel.obtain();
-        try {
-            data.writeInterfaceToken(DESCRIPTOR);
-            if (!binder.transact(STATUS_TRANSACTION, data, reply, 0)) {
-                throw new Exception("Vehicle service rejected read-only status request");
-            }
-            reply.readException();
-        } finally {
-            data.recycle();
-            reply.recycle();
-        }
+        Class<?> stub = Class.forName("com.hkmc.micom.ISystemService$Stub");
+        Object service = stub.getMethod("asInterface", IBinder.class).invoke(null, binder);
+        if (service == null) throw new Exception("EV6 ISystemService interface unavailable");
+        service.getClass().getMethod("requestSMLStatus").invoke(service);
     }
 
     public static String decodeStatus(byte[] bytes) throws Exception {
