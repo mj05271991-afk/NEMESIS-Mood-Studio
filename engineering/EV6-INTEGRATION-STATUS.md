@@ -1,34 +1,43 @@
 # EV6 integration status
 
-Target reported by owner: 2022 Kia EV6.
+Target reported by owner: 2022 Kia EV6 GT-Line.
 Expected head-unit fingerprint:
 - `ro.product.model=wp_daudioplus`
 - `ro.product.device=wp_daudioplus_cvev_us`
 - `ro.build.product2=CVEV.USA.S5W_M.V015.012.260507`
-- Android SDK/runtime level: API 19.
+- Android runtime: API 19.
 
-## Current implementation: read-only diagnostic stage
+## Implemented in NEMESIS source
 
-`Ev6LightingProbe` is firmware-gated and performs only the documented SML status request:
-- Binder service: `com.hkmc.micom.system`
-- Interface descriptor: `com.hkmc.micom.ISystemService`
-- Transaction: `74` (request status)
-- Response broadcast: `com.mobis.intent.action.SML_STATUS_CHANGED`
-- Response extra: `com.mobis.intent.extra.SML_STATUS`
-- Expected response: 9 bytes containing 16-bit big-endian RGB followed by brightness, dim option, and drive mode.
+NEMESIS now has a standalone direct SML controller; it does not require HMG-API:
+- Read current lighting state using `ISystemService` status transaction 74 and the SML status broadcast.
+- Save the original RGB and brightness before enabling writes.
+- Set RGB using `ISystemService.setSMLRGB(byte[], byte[], byte[])` (documented Binder method 78); each channel is encoded as a two-byte big-endian value.
+- Set brightness using `ISystemService.setSMLConfiguration(5, rawLevel)` (documented Binder method 77); raw values 1=off and 2-11=levels 1-10.
+- Map requested colors to the EV6's 64 supported custom colors.
+- Limit writes to no more than 10 per second.
+- Require the exact expected firmware and Park status before every write.
+- Restore the captured original color and brightness on STOP / RELEASE or disconnect, and attempt restore when the activity is destroyed.
 
-The UI's **CHECK VEHICLE LIGHTS** action requests status and displays validated values. It fails closed if any of the three system-property fingerprint values differ, if the Binder service is absent, if the transaction fails, if no broadcast arrives, or if the response length/ranges are invalid.
+The source is wired to Static, Rainbow, Dual Color, color selection, and manual brightness. Audio-reactive and party modes remain out of this test build.
 
-## Safety boundary
+## Not yet validated
 
-This version contains no Binder lighting write calls. In particular, it does not issue transactions 75 or 76, does not set brightness or RGB, and does not change the vehicle's lighting. It does not use HMG-API.
+The controller code has been committed, but compilation and actual vehicle operation must still be verified. In particular:
+- The app process must have permission to access the MICOM system service and invoke its SML methods on this head unit.
+- The 74 status broadcast must arrive with the expected nine-byte payload.
+- Method 77/78 calls must succeed and the physical lights must respond.
+- Restore behavior must be confirmed on the owner's exact firmware.
 
-The transaction and response contract comes from public EV6 head-unit research and is not yet confirmed on this owner's exact firmware. A successful diagnostic result would be evidence of read-path compatibility only, not permission to enable writes.
+The interface method names, signatures, palette, channel encoding, and command values are sourced from HMG-API's EV6 USA 260507 hook map and vehicle command implementation. HMG-API is used only as source documentation; NEMESIS does not call its runtime or depend on it.
 
-## Next validation
+## Safe first vehicle test
 
-1. Build the APK and install it through NEMESIS.
-2. With the vehicle in a safe parked state, tap **CHECK VEHICLE LIGHTS** once.
-3. Record the exact diagnostic status and returned values.
-4. Repeat the read-only check after changing a color or brightness using factory settings, and confirm the reported values change accordingly.
-5. Only after repeatable readback should a separately reviewed write/restore design be considered. No write implementation is authorized by this diagnostic stage.
+1. Keep the EV6 parked and select Custom Color in the factory mood-lamp settings.
+2. Launch NEMESIS and press CONNECT & ENABLE LIGHTS.
+3. Confirm the UI reports LIGHT CONTROL READY before selecting a color.
+4. Test one static preset first, then brightness.
+5. Test Rainbow and Dual Color only after Static writes and readback work.
+6. Press STOP / RELEASE and confirm the original color and brightness return.
+
+If connection, Park validation, or status capture fails, the app must not send lighting writes. If a write fails, record the exact UI error and do not repeatedly retry. This build is not considered vehicle-validated until the physical response and restoration have both been confirmed.
