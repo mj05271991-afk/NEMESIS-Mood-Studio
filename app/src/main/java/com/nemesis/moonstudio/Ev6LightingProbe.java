@@ -1,7 +1,6 @@
 package com.nemesis.moonstudio;
 
 import android.os.IBinder;
-import android.os.Parcel;
 import java.lang.reflect.Method;
 
 /**
@@ -16,7 +15,6 @@ public final class Ev6LightingProbe {
     public static final String DESCRIPTOR = "com.hkmc.micom.ISystemService";
     public static final String STATUS_ACTION = "com.mobis.intent.action.SML_STATUS_CHANGED";
     public static final String STATUS_EXTRA = "com.mobis.intent.extra.SML_STATUS";
-    public static final int STATUS_TRANSACTION = 74;
 
     private Ev6LightingProbe() { }
 
@@ -68,10 +66,11 @@ public final class Ev6LightingProbe {
         int brightness = bytes[6] & 255;
         int dim = bytes[7] & 255;
         int drive = bytes[8] & 255;
+        // Validate only fields with established ranges. Keep dim/drive opaque:
+        // their enum values have not yet been confirmed on this exact head unit.
         if (red > 511 || green > 511 || blue > 511 ||
-                brightness < 1 || brightness > 11 ||
-                dim < 1 || dim > 2 || drive < 1 || drive > 2) {
-            throw new Exception("Status values were outside the documented ranges");
+                brightness < 1 || brightness > 11) {
+            throw new Exception("RGB or brightness status was outside the supported range");
         }
         return "RGB " + red + ", " + green + ", " + blue +
                 " · Brightness raw " + brightness +
