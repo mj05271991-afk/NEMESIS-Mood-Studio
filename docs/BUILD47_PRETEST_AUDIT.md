@@ -250,3 +250,30 @@ Before the first lighting write, persist and validate the captured original stat
 An Android service in the same app process is not by itself proof against process death or force-stop. Any root/system recovery service or watchdog needs a separate security, installer, permission, and lifecycle review. Until a durable recovery design is implemented and tested, standalone direct writes remain an unverified test path and should not be described as crash-safe.
 
 This is a source-level lifecycle finding, not an observed vehicle failure. No lighting writes or vehicle tests were performed during this audit.
+
+## 16. HMG-API upstream test confirms the exact fail-open path
+
+Located and read `core/runtime/test/hmgapi/vehicle/CommandsTest.java` (the path is `core/runtime/test/...`, not `core/runtime/tests/...`). Its ambient-light tests explicitly assert this sequence:
+
+1. First `ambient_light color ff8000` calls `lightStatus`, then immediately writes RGB even though FakeCar.lightState() is still null.
+2. After a holder change, `tick()` releases the holder and requests status again.
+3. Another mod is allowed to set brightness with no state snapshot.
+4. Release returns `not restored: the car hadn't reported its light yet`.
+
+The matching implementation is `core/runtime/java/hmgapi/vehicle/Commands.java`: `takeLight(String)` polls ten times at 50 ms but returns `void` and sets `lightBy = mod` even if `lightSaved` remains null. Both color and brightness handlers then proceed to the vehicle write. `releaseLight()` clears the lease and returns without restoring when the snapshot is null.
+
+### Proposed upstream change (not applied)
+
+Make acquisition a prerequisite, not a best-effort side effect:
+
+- Replace `void takeLight(String mod)` with a result-bearing acquisition method that obtains a valid snapshot before setting `lightBy`.
+- If no valid state arrives within the bounded wait, return a refusal such as `refused: the car's original ambient light state wasn't reported; no change was sent`.
+- In both `color` and `brightness` branches, return that refusal immediately; do not update `lightAt`, add a `lightSent` record, or call `car.lightColor` / `car.lightBrightness`.
+- Set `lightBy` only after validating and retaining the complete snapshot (RGB/theme channels and brightness in supported ranges).
+- Preserve the current release behavior for a valid snapshot, and ensure no lease remains after a failed acquisition.
+
+### Required test changes
+
+Update FakeCar to simulate: (a) no status ever arrives; (b) status arrives during the bounded wait; (c) a valid status is already present. Assert that case (a) returns refusal for both color and brightness, makes only the `light status` request, leaves `lightBy` and `lightSaved` unset, and sends no write. Assert cases (b) and (c) capture the exact owner state, acquire the lease, and restore all four values on release. Also assert malformed/out-of-range status is treated exactly like no status. Keep the existing valid-theme restore test.
+
+These are concrete proposed upstream code/test changes based on current source. They have not been submitted to or merged into VysseCodes/HMG-API, and the NEMESIS repository remains source-audit only.
