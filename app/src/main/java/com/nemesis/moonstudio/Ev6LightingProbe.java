@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public final class Ev6LightingProbe {
     public static final String EXPECTED_MODEL = "wp_daudioplus";
     public static final String EXPECTED_DEVICE = "wp_daudioplus_cvev_us";
-    public static final String EXPECTED_FIRMWARE = "CVEV.USA.S5W_M.V015.012.260507";
+    public static final String EXPECTED_FIRMWARE = "CVEV.USA.0000.V015.012.260507";
     public static final String SERVICE_NAME = "com.hkmc.micom.system";
     public static final String DESCRIPTOR = "com.hkmc.micom.ISystemService";
     public static final String STATUS_ACTION = "com.mobis.intent.action.SML_STATUS_CHANGED";
@@ -33,7 +33,7 @@ public final class Ev6LightingProbe {
     public static String firmwareMismatch() {
         String model = getSystemProperty("ro.product.model");
         String device = getSystemProperty("ro.product.device");
-        String firmware = getSystemProperty("ro.build.product2");
+        String firmware = getSystemProperty("ro.build.product");
         if (!EXPECTED_MODEL.equals(model)) return "Model mismatch: " + model;
         if (!EXPECTED_DEVICE.equals(device)) return "Device mismatch: " + device;
         if (!EXPECTED_FIRMWARE.equals(firmware)) return "Firmware mismatch: " + firmware;
