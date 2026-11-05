@@ -40,7 +40,9 @@ final class MicAudioCapture {
             source = new AudioRecord(MediaRecorder.AudioSource.MIC, RATE,
                     AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
                     Math.max(min, WINDOW * 4));
+            recorder = source;
             if (source.getState() != AudioRecord.STATE_INITIALIZED) {
+                recorder = null;
                 source.release();
                 listener.onError("Microphone could not be initialized.");
                 return;
@@ -51,7 +53,6 @@ final class MicAudioCapture {
                 listener.onError("Microphone did not enter the recording state.");
                 return;
             }
-            recorder = source;
             running = true;
             worker = new Thread(new Runnable() {
                 public void run() { captureLoop(source); }
