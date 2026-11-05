@@ -277,3 +277,17 @@ Make acquisition a prerequisite, not a best-effort side effect:
 Update FakeCar to simulate: (a) no status ever arrives; (b) status arrives during the bounded wait; (c) a valid status is already present. Assert that case (a) returns refusal for both color and brightness, makes only the `light status` request, leaves `lightBy` and `lightSaved` unset, and sends no write. Assert cases (b) and (c) capture the exact owner state, acquire the lease, and restore all four values on release. Also assert malformed/out-of-range status is treated exactly like no status. Keep the existing valid-theme restore test.
 
 These are concrete proposed upstream code/test changes based on current source. They have not been submitted to or merged into VysseCodes/HMG-API, and the NEMESIS repository remains source-audit only.
+
+## 17. EV6 SML status delivery path is not proven for the standalone app
+
+Further source review of HMG-API `core/runtime/java/hmgapi/hook/LightRelay.java`, `vehicle/CarCallbacks.java`, and `vehicle/Hub.java` clarifies the status-delivery architecture:
+
+- HMG-API registers `com.mobis.intent.action.SML_STATUS_CHANGED` in `system_server` via `LightRelay`, then relays the 9-byte payload to the vehicle service over its private local socket.
+- HMG-API explicitly documents that a binder listener registered against the car's system-service callback interface was accepted but never received SML status broadcasts on the EV6. That is why it uses the `system_server` broadcast relay.
+- HMG-API's vehicle process itself cannot receive Android broadcasts because it runs under `app_process` without an application context.
+
+NEMESIS Build 47 currently registers a dynamic `BroadcastReceiver` from its ordinary Activity process and expects that receiver to receive the SML status broadcast after calling `requestSMLStatus()`. HMG-API's architecture does not prove that this ordinary app receiver is blocked, but it also provides no evidence that the app receiver works. This is a hard on-device validation gate: do not treat the receiver registration or successful method invocation as proof that the original state was captured.
+
+Before any write can be enabled, test the standalone app on the exact EV6 firmware and establish that (1) the app can look up and invoke `ISystemService.requestSMLStatus()`, (2) the app's receiver actually receives a status broadcast, (3) the payload is exactly 9 bytes and passes range validation, and (4) the capture corresponds to the current owner's state. If ordinary-app delivery fails, use a supported relay/service integration with a clear permission boundary; do not guess Binder transaction codes or weaken the requirement to capture a valid original state.
+
+Source references: HMG-API `core/runtime/java/hmgapi/hook/LightRelay.java`, `core/runtime/java/hmgapi/vehicle/CarCallbacks.java`, `core/runtime/java/hmgapi/vehicle/Hub.java`. No EV6 hardware test was performed.
