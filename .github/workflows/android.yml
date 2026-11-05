@@ -71,7 +71,7 @@ jobs:
           name=NEMESIS Moon Studio
           type=application
           package-version=0.2
-          short-desc=Static, rainbow and dual-color lighting preview for Gen5W EV6
+          short-desc=Direct EV6 ambient lighting control with static, rainbow and dual-color effects
           os=*.260507
           models=any
 
