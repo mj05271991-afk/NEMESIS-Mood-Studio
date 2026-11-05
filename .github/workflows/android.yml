@@ -49,8 +49,10 @@ jobs:
       - name: Verify APK package identity
         run: |
           test -s app/build/outputs/apk/debug/app-debug.apk
-          aapt dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "package: name='com.nemesis.moonstudio'"
-          aapt dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
+          AAPT="$ANDROID_HOME/build-tools/28.0.3/aapt"
+          test -x "$AAPT"
+          "$AAPT" dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "package: name='com.nemesis.moonstudio'"
+          "$AAPT" dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
