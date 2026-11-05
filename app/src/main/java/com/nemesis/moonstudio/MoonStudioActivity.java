@@ -40,7 +40,7 @@ public class MoonStudioActivity extends Activity {
  private void finishProbe(String state,String detail){probePending=false;callJavascript("window.onVehicleProbeResult('"+jsQuote(state)+"','"+jsQuote(detail==null?"No details":detail)+"')");}
  private String jsQuote(String s){if(s==null)return "Unknown error";return s.replace("\\","\\\\").replace("'","\\'").replace("\r"," ").replace("\n"," ");}
  private void callJavascript(String s){if(web!=null)web.loadUrl("javascript:"+s);}
- private void vehicleError(Exception e){callJavascript("window.onVehicleWriteError('"+jsQuote(e.getMessage())+"')");}
+ private void vehicleError(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onVehicleWriteError('"+jsQuote(e.getMessage())+"')");}});}
  private class VehicleBridge{
   // Defense in depth: this audit Activity never dispatches vehicle writes or release calls.
   private void readOnly(){vehicleError(new Exception("This diagnostic build is read-only. Vehicle lighting commands are disabled."));}
