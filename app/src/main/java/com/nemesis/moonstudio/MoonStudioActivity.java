@@ -30,7 +30,9 @@ public class MoonStudioActivity extends Activity {
   setContentView(web);web.loadUrl("file:///android_asset/index.html");
  }
  private void beginConnect(){
-  if(probePending)return;String mismatch=Ev6LightingProbe.firmwareMismatch();
+  if(probePending)return;
+  if(Ev6LightingController.enabled()){finishProbe("SESSION ALREADY ACTIVE","The original EV6 lighting state is already saved. Restore the lighting before starting another session.");return;}
+  String mismatch=Ev6LightingProbe.firmwareMismatch();
   if(mismatch!=null){finishProbe("SAFETY GATE BLOCKED",mismatch);return;}
   probePending=true;callJavascript("window.onVehicleProbeResult('REQUESTING','Reading the current EV6 lighting state before enabling control…')");
   mainHandler.postDelayed(new Runnable(){@Override public void run(){if(probePending)finishProbe("NO RESPONSE","No status response within 4 seconds. No lighting changes were sent.");}},4000);
