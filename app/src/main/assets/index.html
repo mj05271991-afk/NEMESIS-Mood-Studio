@@ -15,7 +15,7 @@ body{background:radial-gradient(ellipse at 50% 0,#302044 0,transparent 45%),#090
 .section-title{overflow:hidden;margin:2px 0 12px}.section-title b{float:left;font-size:10px;letter-spacing:2px}.section-title small{float:right;font-size:10px;color:#969db2}
 .swatches{overflow:hidden}.swatch{float:left;width:31px;height:31px;border:2px solid #ffffff33;border-radius:50%;margin:5px 12px 5px 2px;cursor:pointer}.swatch.active{outline:2px solid white;outline-offset:2px}.wheel{width:36px;height:36px;float:left;margin:2px;background:transparent;border:0}.dual-picker{display:inline-block;vertical-align:middle;margin:4px 0 4px 8px;color:#969db2;font-size:10px}.dual-picker input{width:34px;height:30px;vertical-align:middle;background:transparent;border:0}
 .rule{height:1px;background:#2a3043;margin:16px 0}.control{overflow:hidden;margin:13px 0}.control label{float:left;width:112px;padding-top:5px;color:#d6d9e8;font-size:11px}.control input{width:calc(100% - 155px);margin-top:5px;accent-color:#8b55df}.control output{float:right;width:35px;text-align:right;color:#d9c9ff;font-size:11px}.fixed-note{font-size:10px;color:#969db2;margin:0 0 10px 112px}
-.tuning{overflow:hidden}.tune{float:left;width:31%;margin-right:2%;background:#0d101b;border:1px solid #2a3043;border-radius:10px;padding:9px}.tune label{display:block;color:#969db2;font-size:9px;letter-spacing:1px}.tune output{font-size:17px;font-weight:bold}
+.audio-panel{display:none}.tuning{overflow:hidden}.tune{float:left;width:31%;margin-right:2%;background:#0d101b;border:1px solid #2a3043;border-radius:10px;padding:9px}.tune label{display:block;color:#969db2;font-size:9px;letter-spacing:1px}.tune output{font-size:17px;font-weight:bold}
 .actions{margin-top:14px}.btn{display:inline-block;border:1px solid #303449;background:#1b2030;color:white;border-radius:10px;padding:10px 12px;margin:3px 4px 3px 0;font-size:10px;font-weight:bold}.primary{background:#7045c6;border-color:#7045c6}.modes{overflow:hidden}.mode{float:left;width:31.3%;height:58px;margin:0 2% 8px 0;text-align:left;border:1px solid #303449;background:#101421;color:white;border-radius:10px;padding:8px}.mode b{display:block;font-size:10px}.mode small{display:block;color:#969db2;font-size:8px;margin-top:4px}.mode.active{border-color:#8b55df;background:#292039}
 .notice{clear:both;margin-top:4px;padding:11px 13px;border:1px solid #66502f;background:#211a13;border-radius:11px;color:#e7c995;font-size:10px;line-height:1.5}.foot{text-align:center;color:#626a81;font-size:9px;letter-spacing:2px;margin-top:18px}
 select.btn{max-width:125px}
@@ -27,15 +27,15 @@ select.btn{max-width:125px}
 <div class="heading"><div class="eyebrow">Personal ambient experience</div><h1>Set the mood.</h1><p>Preview static color, rainbow cycling, or alternating two-color effects.</p></div>
 <div class="columns">
 <section class="left panel">
-<div class="stage"><div class="orb" id="orb"><span>MOON</span></div><div class="stage-label"><b id="modeName">SPECTRUM FLOW</b><small id="stageCaption">Your color · music-reactive effects</small></div><div class="bars" id="bars"></div></div>
+<div class="stage"><div class="orb" id="orb"><span>MOON</span></div><div class="stage-label"><b id="modeName">STATIC</b><small id="stageCaption">Preview only · no vehicle control</small></div><div class="bars" id="bars"></div></div>
 <div class="section-title"><b>CHOOSE YOUR COLOR</b><small id="hex">#641CEF</small></div>
 <div class="swatches">
 <button class="swatch active" data-color="#641CEF" style="background:#641CEF" aria-label="Purple"></button><button class="swatch" data-color="#1043F4" style="background:#1043F4" aria-label="Blue"></button><button class="swatch" data-color="#FF321D" style="background:#FF321D" aria-label="Red"></button><button class="swatch" data-color="#51E176" style="background:#51E176" aria-label="Green"></button><button class="swatch" data-color="#FF8F3E" style="background:#FF8F3E" aria-label="Orange"></button><button class="swatch" data-color="#DD17AE" style="background:#DD17AE" aria-label="Pink"></button><input class="wheel" type="color" id="wheel" value="#641cef" aria-label="Custom color"><label class="dual-picker">COLOR B <input type="color" id="dualColor" value="#1043f4" aria-label="Second color for Dual Color mode"></label>
 </div>
 <div class="rule"></div><div class="section-title"><b>COLOR BRIGHTNESS</b><small>Manual · stays fixed</small></div>
-<div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="80"><output id="brightOut">80%</output></div><p class="fixed-note">Music never changes this setting.</p>
-<div class="section-title"><b>MUSIC RESPONSE</b><small id="audioSource">Audio off</small></div>
-<div class="tuning"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
+<div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="50"><output id="brightOut">50%</output></div><p class="fixed-note">Preview brightness only. No vehicle output is enabled.</p>
+<div class="section-title audio-panel"><b>AUDIO RESPONSE</b><small id="audioSource">Disabled in first-test build</small></div>
+<div class="tuning audio-panel"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
 <div class="actions"><button class="btn" id="stop">STOP / RELEASE PREVIEW</button></div>
 </section>
 <div class="right">
@@ -50,7 +50,7 @@ select.btn{max-width:125px}
 <div class="actions"><button class="btn" id="save">SAVE PROFILE</button><select id="profiles" class="btn"><option value="">Select profile</option></select><button class="btn" id="load">LOAD</button></div>
 </section></div></div>
 <section class="panel" style="margin-top:14px"><div class="section-title"><b>EV6 VEHICLE CONNECTION</b><small>Read-only diagnostic</small></div><button class="btn primary" id="vehicleCheck">CHECK VEHICLE LIGHTS</button><p id="vehicleResult" style="color:#c7cadd;font-size:11px;line-height:1.5;margin:10px 0 0">Not checked. This test does not change color or brightness.</p></section>
-<div class="notice"><b>Preview-only safety:</b> Static, Rainbow and Dual Color currently animate the on-screen preview only. STOP / RELEASE PREVIEW stops microphone/demo capture and returns the preview to the selected primary color; it does not send a vehicle release command. No EV6 lighting writes are enabled. Do not treat the preview as a vehicle-control test.</div>
+<div class="notice"><b>Preview-only safety:</b> Static, Rainbow and Dual Color animate only the on-screen preview. STOP / RELEASE PREVIEW stops the animation and returns the preview to the selected primary color; it does not send a vehicle release command. No EV6 lighting writes are enabled. Do not treat this preview as a vehicle-control test.</div>
 <div class="foot">NEMESIS MOON STUDIO · UNOFFICIAL COMMUNITY PROJECT</div>
 </main>
 <script>
