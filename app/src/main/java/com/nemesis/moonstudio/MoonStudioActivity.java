@@ -72,6 +72,12 @@ public class MoonStudioActivity extends Activity {
   @JavascriptInterface public void setBrightness(int percent){readOnly();}
   @JavascriptInterface public void release(){readOnly();}
  }
+ @Override protected void onPause(){
+  // Release the microphone whenever the app is no longer in the foreground.
+  stopMicCapture();
+  super.onPause();
+ }
+
  @Override protected void onDestroy(){
   probePending=false;stopMicCapture();mainHandler.removeCallbacksAndMessages(null);
   // No session snapshot is acquired in this read-only diagnostic build; do not issue restore calls.
