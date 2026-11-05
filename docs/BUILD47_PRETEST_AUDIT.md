@@ -100,3 +100,19 @@ Describe this as alternating dual-color mode until separate independently addres
 - HMG-API mapped MICOM data service: `framework.micomdata_service.register` / `unregister`
 
 This audit is engineering documentation, not proof of on-vehicle behavior. No APK was built or hardware behavior validated by this audit.
+
+
+## 7. Build 47 microphone-path correction (source change, not yet built)
+
+Two source changes were committed on this audit branch after the initial review:
+
+- `MoonStudioActivity.java`: removed construction and lifecycle of `AudioBandCapture`, removed the `NemesisAudio` JavaScript bridge, and removed the activity-destroy microphone stop call. The dormant `AudioBandCapture.java` source file remains in the repository but is no longer instantiated or exposed to the WebView.
+- `index.html`: replaced the native-microphone and browser `getUserMedia` fallback with an explicit unavailable state. Attempting the live-audio action now reports that EV6 stereo audio is not connected and explicitly states that NEMESIS will not use the phone or head-unit microphone. Demo Signal remains separate for visual testing.
+
+This is a deliberate product-truthfulness and privacy correction. It does **not** provide car-audio capture. The live car-audio feature remains unavailable pending on-device investigation of the EV6 audio route/HAL or another verified source.
+
+Commits:
+- Activity bridge removal: `95f5bd012bdc3de78dc69414b1706ab14fdb8928`
+- UI microphone fallback removal: `3a0d4ac4bd0018838d911293c68a7d62f48a9c87`
+
+The repository workflow currently triggers on pushes to `main` or manual dispatch; no branch build has run for this audit branch. These changes have not been compiled, installed, or tested in a vehicle. Do not distribute as a replacement APK until a build and review pass.
