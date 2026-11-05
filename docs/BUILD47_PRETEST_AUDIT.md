@@ -138,3 +138,21 @@ A targeted search of the public HMG-API repository for `REMOTE_SUBMIX`, `AudioRe
 The old microphone capture implementation has now been deleted from the Build 47 audit branch entirely.
 
 Commit: `65636c77380b285d292356b1769d4ea11a5d7964`.
+
+## 11. HMG-API integration boundary
+
+A source review of HMG-API's current EV6 implementation confirms that its SML status path is internal to HMG-API:
+
+- `LightRelay` is installed in `system_server` and listens for `com.mobis.intent.action.SML_STATUS_CHANGED`.
+- It forwards the nine-byte status to the HMG-API vehicle daemon over the local socket named `hmgapi-vehicle`.
+- HMG-API's `CarCallbacks` notes that a listener binder registered through the regular app-side route was accepted but did not receive the EV6 SML status broadcast.
+- HMG-API's hook-point map documents the MICOM methods for requesting status, setting RGB, and setting brightness, but the inspected files do not define a documented third-party application IPC contract for obtaining the relayed status or issuing ambient-light commands.
+
+This makes HMG-API a valuable reference and potential integration dependency, but not yet a drop-in app-level backend for NEMESIS. Do not connect to the private local socket, assume its permissions, or duplicate its privileged relay. First identify a documented public IPC/service contract or obtain an explicit integration path from the HMG-API maintainers. Until then, standalone NEMESIS must remain fail-closed when it cannot capture and validate the original lighting state.
+
+Reference source paths in VysseCodes/HMG-API:
+- `core/runtime/java/hmgapi/hook/LightRelay.java`
+- `core/runtime/java/hmgapi/vehicle/CarCallbacks.java`
+- `docs/hook-points.md` (EV6 MICOM SML method map)
+
+This is a source-level integration finding, not an on-vehicle test result.
