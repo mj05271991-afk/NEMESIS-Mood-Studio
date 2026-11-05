@@ -36,7 +36,13 @@ jobs:
           gradle-version: '4.6'
 
       - name: Build APK
-        run: gradle --no-daemon :app:assembleDebug
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
+      - name: Verify APK package identity
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          aapt dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "package: name='com.nemesis.moonstudio'"
+          aapt dump badging app/build/outputs/apk/debug/app-debug.apk | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -66,8 +72,16 @@ jobs:
           component=com.nemesis.moonstudio/com.nemesis.moonstudio.MoonStudioActivity
           EOF
 
-      - name: Upload NEMESIS installer contents (no nested ZIP)
+      - name: Validate and zip NEMESIS installer
+        run: |
+          test -s nemesis-package/NEMESIS.data
+          test -s nemesis-package/app/NEMESIS-Moon-Studio.apk
+          grep -F "package=com.nemesis.moonstudio" nemesis-package/NEMESIS.data
+          (cd nemesis-package && zip -qr ../NEMESIS-Moon-Studio-installer.zip .)
+          unzip -l NEMESIS-Moon-Studio-installer.zip
+
+      - name: Upload NEMESIS installer ZIP
         uses: actions/upload-artifact@v4
         with:
           name: NEMESIS-Moon-Studio-installer
-          path: nemesis-package/
+          path: NEMESIS-Moon-Studio-installer.zip
