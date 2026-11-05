@@ -33,8 +33,10 @@ final class MicAudioCapture {
             worker = new Thread(new Runnable() { public void run() { captureLoop(); } }, "NemesisMicAudio");
             worker.start();
         } catch (SecurityException e) {
+            releaseRecorder();
             listener.onError("Microphone permission was not granted.");
         } catch (Exception e) {
+            releaseRecorder();
             listener.onError("Microphone start failed: " + e.getMessage());
         }
     }
@@ -71,6 +73,14 @@ final class MicAudioCapture {
         }
         double level = bins == 0 ? 0 : (energy / bins) / 8500.0;
         return (float)Math.max(0, Math.min(1, level));
+    }
+
+    private void releaseRecorder() {
+        AudioRecord current = recorder;
+        recorder = null;
+        if (current != null) {
+            try { current.release(); } catch (Exception ignored) { }
+        }
     }
 
     synchronized void stop() {
