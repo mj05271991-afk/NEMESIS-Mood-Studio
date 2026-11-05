@@ -24,17 +24,17 @@ The documented color channels are 2-byte big-endian values. The vehicle accepts 
 
 ## Important status/restore blocker
 
-HMG-API's own source explicitly says a listener registered from the ordinary app-process Binder callback path did not receive `SML_STATUS_CHANGED` on the EV6. HMG-API solves this with `LightRelay` running inside `system_server`: it receives the system broadcast and forwards the 9-byte status to the privileged HMG vehicle service over a local socket.
+HMG-API's source distinguishes two mechanisms: a Binder callback listener registered from its vehicle daemon did not receive the SML event on the EV6, so HMG-API adds `LightRelay` inside `system_server`. That relay receives the system broadcast and forwards the 9-byte status to the HMG vehicle daemon, which runs without a normal Android app context.
 
-NEMESIS currently registers a receiver in its ordinary app process. That is **not equivalent** to HMG-API's privileged relay and cannot be assumed to receive the event. Therefore NEMESIS cannot yet guarantee it has captured the owner's original color/brightness. The app must not report LIGHT CONTROL READY or enable writes until a supported status source is proven.
+NEMESIS is a normal Android app and registers a dynamic `BroadcastReceiver` using its Activity context. The HMG source does **not** prove that this ordinary app receiver will fail; it only proves the daemon's Binder callback route did not work. Whether NEMESIS's app-context receiver receives the protected/system broadcast on this exact firmware remains unverified and must be tested on the head unit before claiming original-state capture works.
 
-A normal APK cannot install a receiver into `system_server`. A standalone implementation needs a separately installed privileged component/approved system hook with a secure relay, or an explicitly supported HMG-assisted integration. Do not fake this capability in the app process.
+If the app-context receiver is denied or receives no event, a standalone solution will need an approved privileged relay or another supported status source. Do not claim the relay exists until it is actually implemented and verified.
 
 ## Current implementation status
 
 - Direct named MICOM method calls and Park/firmware gates exist in source.
 - The status request now uses the mapped `requestSMLStatus()` method rather than a hard-coded transaction ID.
-- The app-process status receiver remains insufficient until the privileged relay question is solved.
+- The app-process status receiver is implemented, but delivery of the SML broadcast to a normal app remains unverified on the target firmware.
 - Physical RGB/brightness writes, status readback, and restore have not been verified on the owner's EV6.
 - Do not treat a successful Android build as proof of vehicle control.
 
