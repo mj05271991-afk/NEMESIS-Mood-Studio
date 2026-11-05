@@ -21,7 +21,7 @@ public class MoonStudioActivity extends Activity {
   web=new WebView(this);WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);web.setWebChromeClient(new WebChromeClient());
   smlReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
    if(!probePending||intent==null)return;
-   try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);Ev6LightingController.capture(status);
+   try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);
     finishProbe("STATUS CAPTURED - OUTPUT LOCKED","Received and validated the EV6 lighting status. This audit build does not send color or brightness writes.");
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
@@ -31,7 +31,6 @@ public class MoonStudioActivity extends Activity {
  }
  private void beginConnect(){
   if(probePending)return;
-  if(Ev6LightingController.enabled()){finishProbe("SESSION ALREADY ACTIVE","The original EV6 lighting state is already saved. Restore the lighting before starting another session.");return;}
   String mismatch=Ev6LightingProbe.firmwareMismatch();
   if(mismatch!=null){finishProbe("SAFETY GATE BLOCKED",mismatch);return;}
   probePending=true;callJavascript("window.onVehicleProbeResult('REQUESTING','Reading the current EV6 lighting state before enabling control…')");
