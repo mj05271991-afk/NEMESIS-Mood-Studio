@@ -116,3 +116,16 @@ Commits:
 - UI microphone fallback removal: `3a0d4ac4bd0018838d911293c68a7d62f48a9c87`
 
 The repository workflow currently triggers on pushes to `main` or manual dispatch; no branch build has run for this audit branch. These changes have not been compiled, installed, or tested in a vehicle. Do not distribute as a replacement APK until a build and review pass.
+
+
+## 8. Firmware gate correction
+
+The earlier firmware gate was incorrect: it read `ro.build.product2` and expected `CVEV.USA.S5W_M.V015.012.260507`. HMG-API's EV6 test fixtures and verified map identify the actual product string as `CVEV.USA.0000.V015.012.260507` in `ro.build.product`. The NEMESIS probe now reads that property and compares the exact mapped product string. This is source-corrected from HMG-API evidence; actual property values on this particular vehicle still need confirmation on-device.
+
+Commit: `4a6801f921724aa1c7ca8e495ab9be64530e4d97`.
+
+## 9. EV6 lighting status delivery limitation
+
+HMG-API's EV6 `CarCallbacks.java` documents that a listener binder was accepted but the regular app-side status callback never received the SML status broadcast. HMG-API instead installs `LightRelay` in `system_server`, where it receives `com.mobis.intent.action.SML_STATUS_CHANGED` and forwards the 9-byte status through the privileged `hmgapi-vehicle` local socket to its vehicle daemon. Therefore NEMESIS's ordinary Activity-context `BroadcastReceiver` cannot be assumed to receive the status broadcast. Its current four-second wait and `LIGHT CONTROL READY` state are unverified and may time out on the target head unit.
+
+Do not bypass this by guessing Binder transaction IDs or relaxing the requirement to capture original state. For standalone NEMESIS, a supported, permissioned status relay is still needed. If HMG-API is installed, investigate a documented integration/IPC contract rather than assuming its private local socket is available to third-party apps. Until then, fail closed and do not send lighting writes without a verified original-state capture.
