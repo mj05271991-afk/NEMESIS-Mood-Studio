@@ -316,3 +316,13 @@ Write ordering: atomically persist `WRITE_PENDING` and intended target before se
 An Activity `onDestroy()` callback is only a best-effort cleanup path. A future implementation needs an explicit user-visible `Restore`/`Recover` action on every launch, plus a boot/session recovery trigger only if the target EV6's Android 9 build and installer support it. A boot receiver or background service must not issue blind writes: it follows the same fresh-status, Park, and compare-before-restore rules. Force-stop and power-loss behavior must be tested on the vehicle; Android may defer or suppress automatic startup.
 
 This protocol is a design requirement, not implemented code. It deliberately prefers a visible unresolved recovery state over silently restoring stale values or discarding the saved owner state.
+
+## 19. Fixed a repeat-connect snapshot overwrite hazard
+
+Source review found that `MoonStudioActivity.beginConnect()` previously allowed a second connection attempt while `Ev6LightingController.saved` already held the owner's original state. A second status capture could replace that original snapshot with the current NEMESIS-modified color/brightness; a later restore would then restore the modified state instead of the owner's pre-session state.
+
+Source-only correction committed on `build47-pretest-audit`: `beginConnect()` now refuses a new session while a saved session is active, and `Ev6LightingController.capture()` independently rejects replacement of an existing snapshot. The duplicate guard at the controller boundary protects against alternate callers as well as the current UI.
+
+Commits: `a6e15bd454d57c79e23556f282bdc73c40a0499d` (controller guard) and `aa1cb2e806aa336c1ebe082c2dfea467b5713a98` (Activity guard).
+
+Verification status: source diff inspected after each update; no Gradle build, APK, runtime test, or EV6 test has been performed. This closes only the repeat-connect overwrite path; it does not solve process-death recovery, status delivery, or upstream HMG-API fail-open behavior.
