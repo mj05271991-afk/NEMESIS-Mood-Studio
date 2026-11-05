@@ -161,6 +161,10 @@ body{background:radial-gradient(ellipse at 78% 34%,#12234d 0,transparent 34%),ra
 <section class="left panel">
 <div class="section-title"><b>COLOR SELECTION</b><small id="hex">#641CEF</small></div>
 <div class="swatches" id="color"><button class="swatch active" data-color="#641CEF" style="background:#641CEF" aria-label="Purple"></button><button class="swatch" data-color="#1043F4" style="background:#1043F4" aria-label="Blue"></button><button class="swatch" data-color="#FF321D" style="background:#FF321D" aria-label="Red"></button><button class="swatch" data-color="#51E176" style="background:#51E176" aria-label="Green"></button><button class="swatch" data-color="#FF8F3E" style="background:#FF8F3E" aria-label="Orange"></button><button class="swatch" data-color="#DD17AE" style="background:#DD17AE" aria-label="Pink"></button><input class="wheel" type="color" id="wheel" value="#641cef" aria-label="Custom color"><label class="dual-picker">COLOR B <input type="color" id="dualColor" value="#1043f4" aria-label="Second color for Dual Color mode"></label></div>
+<div class="rule"></div><div class="section-title"><b>DUAL COLOR THEMES</b><small>Choose two colors</small></div>
+<div class="control"><label for="themeCategory">Theme collection</label><select id="themeCategory" class="btn" style="width:100%;margin-top:6px"><option value="holiday">Holiday &amp; Seasonal</option><option value="lifestyle">Lifestyle</option></select></div>
+<div class="control"><label for="themePreset">Preset</label><select id="themePreset" class="btn" style="width:100%;margin-top:6px"><option value="">Choose a theme</option></select></div>
+<p style="color:#969db2;font-size:10px;line-height:1.5;margin:8px 0 0">Themes set both color pickers and switch to Dual Color. You can edit either color afterward. Dual Color currently alternates colors; separate cabin zones require EV6 firmware support verification.</p>
 <div class="rule"></div><div class="section-title"><b>BRIGHTNESS CONTROL</b><small>50% default</small></div>
 <div class="control" id="brightness-control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="50"><output id="brightOut">50%</output></div>
 <div class="section-title" id="audio"><b>AUDIO REACTIVE</b><small id="audioSource">Not active</small></div><div class="tuning"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
@@ -187,6 +191,28 @@ function $(id){return document.getElementById(id);}
 var color='#641CEF',secondaryColor='#1043F4',mode='Static',ctx=null,stream=null,analyser=null,raf=0,demo=false,nativeAudio=false,startAt=0,vehicleReady=false,lastVehicleColorAt=0,lastVehicleBrightnessAt=0;
 var levels={bass:0,mid:0,treble:0},nativeLevels={bass:0,mid:0,treble:0},bars=$('bars'),barEls=[],i;
 for(i=0;i<27;i++){var el=document.createElement('i');bars.appendChild(el);barEls.push(el);}
+var themeCatalog={
+holiday:[
+{name:'Christmas',a:'#D51F32',b:'#FFFFFF'},
+{name:'Halloween',a:'#FF7518',b:'#7B2CBF'},
+{name:'Valentine\'s Day',a:'#FF2768',b:'#FFFFFF'},
+{name:'Fourth of July',a:'#D92338',b:'#2463D8'},
+{name:'Easter',a:'#C6A0F6',b:'#F8D77A'},
+{name:'St. Patrick\'s Day',a:'#159447',b:'#F4D342'},
+{name:'New Year\'s Eve',a:'#D7B75B',b:'#FFFFFF'},
+{name:'Autumn',a:'#D66A20',b:'#A52D20'},
+{name:'Thanksgiving',a:'#C65D24',b:'#E8B84A'}
+],
+lifestyle:[
+{name:'Birthday',a:'#FF3D9A',b:'#8A45E8'},
+{name:'Ocean',a:'#20C9C3',b:'#123E83'},
+{name:'Sunset',a:'#FF812E',b:'#8737A8'},
+{name:'Galaxy',a:'#813BEA',b:'#21C7E8'},
+{name:'Sports',a:'#D52B35',b:'#2459C7'},
+{name:'Custom',a:'#641CEF',b:'#1043F4'}
+]};
+function refreshThemeOptions(){var category=$('themeCategory').value,list=themeCatalog[category],sel=$('themePreset');sel.innerHTML='<option value="">Choose a theme</option>';for(var n=0;n<list.length;n++){var o=document.createElement('option');o.value=String(n);o.appendChild(document.createTextNode(list[n].name));sel.appendChild(o);}}
+function applyTheme(){var list=themeCatalog[$('themeCategory').value],item=list[Number($('themePreset').value)];if(!item)return;setColor(item.a);secondaryColor=item.b;$('dualColor').value=secondaryColor;var buttons=document.getElementsByClassName('mode');for(var n=0;n<buttons.length;n++){if(buttons[n].getAttribute('data-mode')==='Dual Color'){setMode(buttons[n]);break;}}}
 function clamp(v){return Math.max(0,Math.min(1,v));}
 function hexRgb(h){var n=parseInt(h.substring(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
 function rgbString(a){return a[0]+','+a[1]+','+a[2];}
@@ -213,7 +239,7 @@ raf=window.requestAnimationFrame?window.requestAnimationFrame(tick):window.setTi
 }
 function setMode(button){mode=button.getAttribute('data-mode');var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j]===button?' active':'');$('modeName').innerHTML=button.getElementsByTagName('b')[0].innerHTML.toUpperCase();if(mode==='Static'){if(raf){window.cancelAnimationFrame(raf);raf=0;}paint(0,null);$('orb').style.transform='scale(1)';sendVehicleColor(color);}else if(!raf){tick();}}
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
-$('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};
+$('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};$('themeCategory').onchange=function(){refreshThemeOptions();};$('themePreset').onchange=applyTheme;refreshThemeOptions();
 var modeButtons=document.getElementsByClassName('mode');for(i=0;i<modeButtons.length;i++){modeButtons[i].onclick=function(){setMode(this);};}
 $('stop').onclick=function(){stop();};
 $('vehicleConnect').onclick=function(){if(vehicleReady){return;}if(window.NemesisVehicle&&window.NemesisVehicle.connect){$('vehicleResult').innerHTML='Connecting… checking firmware and Park status.';$('vehicleConnect').innerHTML='CONNECTING…';window.NemesisVehicle.connect();}};
@@ -226,8 +252,8 @@ $('smooth').oninput=function(){ $('smoothOut').innerHTML=Math.round(Number(this.
 $('speed').oninput=function(){ $('speedOut').innerHTML=this.value;};
 function getProfiles(){try{return JSON.parse(localStorage.getItem('nemesisMoonProfiles')||'{}');}catch(e){return {};}}
 function refreshProfiles(){var sel=$('profiles'),old=sel.value;sel.innerHTML='<option value="">Select profile</option>';var p=getProfiles(),name;for(name in p){if(p.hasOwnProperty(name)){var opt=document.createElement('option');opt.value=name;opt.appendChild(document.createTextNode(name));sel.appendChild(opt);}}sel.value=old;}
-$('save').onclick=function(){var name=window.prompt('Profile name?');if(!name||!name.replace(/\s/g,''))return;var p=getProfiles();p[name]={color:color,mode:mode,brightness:$('brightness').value,sensitivity:$('sensitivity').value,smooth:$('smooth').value,speed:$('speed').value};try{localStorage.setItem('nemesisMoonProfiles',JSON.stringify(p));refreshProfiles();$('profiles').value=name;}catch(e){alert('Could not save profile on this device.');}};
-$('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)return;setColor(p.color);var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j].getAttribute('data-mode')===p.mode?' active':'');mode=p.mode;$('modeName').innerHTML=mode.toUpperCase();var ids=['brightness','sensitivity','smooth','speed'];for(var j=0;j<ids.length;j++)$(ids[j]).value=p[ids[j]];$('brightOut').innerHTML=p.brightness+'%';$('sensOut').innerHTML=p.sensitivity+'×';$('smoothOut').innerHTML=Math.round(Number(p.smooth)*100)+'%';$('speedOut').innerHTML=p.speed;paint(0,null);};
+$('save').onclick=function(){var name=window.prompt('Profile name?');if(!name||!name.replace(/\s/g,''))return;var p=getProfiles();p[name]={color:color,secondaryColor:secondaryColor,mode:mode,brightness:$('brightness').value,sensitivity:$('sensitivity').value,smooth:$('smooth').value,speed:$('speed').value};try{localStorage.setItem('nemesisMoonProfiles',JSON.stringify(p));refreshProfiles();$('profiles').value=name;}catch(e){alert('Could not save profile on this device.');}};
+$('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)return;setColor(p.color);if(p.secondaryColor){secondaryColor=p.secondaryColor;$('dualColor').value=secondaryColor;}var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j].getAttribute('data-mode')===p.mode?' active':'');mode=p.mode;$('modeName').innerHTML=mode.toUpperCase();var ids=['brightness','sensitivity','smooth','speed'];for(var j=0;j<ids.length;j++)$(ids[j]).value=p[ids[j]];$('brightOut').innerHTML=p.brightness+'%';$('sensOut').innerHTML=p.sensitivity+'×';$('smoothOut').innerHTML=Math.round(Number(p.smooth)*100)+'%';$('speedOut').innerHTML=p.speed;paint(0,null);};
 document.querySelectorAll('[data-preset]').forEach(function(btn){btn.onclick=function(){var p=btn.getAttribute('data-preset'),target=p==='Party'?'Rainbow':p==='Relax'?'Breathing':p==='Drive'?'Static':'Strobe';var buttons=document.getElementsByClassName('mode');for(var k=0;k<buttons.length;k++){if(buttons[k].getAttribute('data-mode')===target){setMode(buttons[k]);break;}}if(p==='Drive')setColor('#1043F4');else if(p==='Relax')setColor('#51E176');else if(p==='Show')setColor('#DD17AE');};});
 refreshProfiles();setColor(color);window.onunload=stop;
 })();
