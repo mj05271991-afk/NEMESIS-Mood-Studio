@@ -4,7 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
-/** Phone-microphone spectrum input. Captures mono PCM and reports normalized band levels. */
+/** Default-device microphone spectrum input. Captures mono PCM and reports normalized band levels. */
 final class MicAudioCapture {
     interface Listener { void onBands(float bass, float mids, float treble); void onError(String message); }
     private static final int RATE = 16000;
