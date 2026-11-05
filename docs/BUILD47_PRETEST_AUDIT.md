@@ -236,3 +236,17 @@ Preferred future design: a separate, small NEMESIS HMG-API bridge APK with its o
 This bridge architecture is a design recommendation only; no bridge APK, IPC contract, HMG-API mod folder, or HMG-API integration has been implemented or tested. It also does not remove the ambient-light first-use restore gap in Section 13: upstream fail-closed behavior and actual EV6 validation remain prerequisites.
 
 References: VysseCodes/HMG-API core/runtime/java/hmgapi/engine/ModApps.java; core/client/java/hmgapi/client/HmgApi.java; docs/mod-reference.md. NEMESIS app identity: app/build.gradle and app/src/main/AndroidManifest.xml.
+
+## 15. Standalone restore state is process-local
+
+Inspection of app/src/main/java/com/nemesis/moonstudio/Ev6LightingController.java and MoonStudioActivity.java found that the original SML snapshot is held only in the static in-memory `saved` array. It is cleared after a successful restore. MoonStudioActivity calls restore() from onDestroy(), but that is only a best-effort normal lifecycle callback.
+
+If Android kills the process, the app crashes, or the head unit loses power, the process-local snapshot is lost and onDestroy() is not guaranteed to run. The current installer declares only the APK; it does not install a persistent standalone recovery service or durable state journal.
+
+### Required standalone recovery design
+
+Before the first lighting write, persist and validate the captured original state atomically. A recovery component must own the session independently of the Activity, monitor process/session lifecycle, attempt restore on orderly stop, and recover a pending session after app restart or head-unit reboot when the vehicle is safely in Park. The UI must show a pending-restore/recovery state and must not start another lighting session over an unresolved one. Define behavior when the car is not in Park at recovery time; do not silently discard the snapshot.
+
+An Android service in the same app process is not by itself proof against process death or force-stop. Any root/system recovery service or watchdog needs a separate security, installer, permission, and lifecycle review. Until a durable recovery design is implemented and tested, standalone direct writes remain an unverified test path and should not be described as crash-safe.
+
+This is a source-level lifecycle finding, not an observed vehicle failure. No lighting writes or vehicle tests were performed during this audit.
