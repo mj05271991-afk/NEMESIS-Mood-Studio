@@ -24,7 +24,7 @@ select.btn{max-width:125px}
 </head>
 <body><main class="shell">
 <header class="top"><div class="brand">NEMESIS<small>MOON STUDIO</small></div><div class="status"><i class="dot" id="dot"></i><span id="status">STANDBY</span></div></header>
-<div class="heading"><div class="eyebrow">Personal ambient experience</div><h1>Set the mood.</h1><p>Choose your color. Let the music move it.</p></div>
+<div class="heading"><div class="eyebrow">Personal ambient experience</div><h1>Set the mood.</h1><p>Preview static color, rainbow cycling, or alternating two-color effects.</p></div>
 <div class="columns">
 <section class="left panel">
 <div class="stage"><div class="orb" id="orb"><span>MOON</span></div><div class="stage-label"><b id="modeName">SPECTRUM FLOW</b><small id="stageCaption">Your color · music-reactive effects</small></div><div class="bars" id="bars"></div></div>
@@ -36,11 +36,11 @@ select.btn{max-width:125px}
 <div class="control"><label for="brightness">Brightness</label><input id="brightness" type="range" min="5" max="100" value="80"><output id="brightOut">80%</output></div><p class="fixed-note">Music never changes this setting.</p>
 <div class="section-title"><b>MUSIC RESPONSE</b><small id="audioSource">Audio off</small></div>
 <div class="tuning"><div class="tune"><label>BASS</label><output id="bass">—</output></div><div class="tune"><label>MIDS</label><output id="mid">—</output></div><div class="tune"><label>TREBLE</label><output id="treble">—</output></div></div>
-<div class="actions"><button class="btn primary" id="mic">ENABLE MICROPHONE</button><button class="btn" id="demo">DEMO</button><button class="btn" id="stop">STOP / RELEASE PREVIEW</button></div>
+<div class="actions"><button class="btn" id="stop">STOP / RELEASE PREVIEW</button></div>
 </section>
 <div class="right">
 <section class="panel"><div class="section-title"><b>LIGHT EFFECTS</b><small>Choose a motion style</small></div><div class="modes" id="modes">
-<button class="mode active" data-mode="Static"><b>Static</b><small>Hold selected color</small></button><button class="mode" data-mode="Rainbow"><b>Rainbow</b><small>Continuous color cycle</small></button><button class="mode" data-mode="Dual Color"><b>Dual Color</b><small>Alternate Color A / B</small></button><button class="mode" data-mode="Spectrum"><b>Spectrum Flow</b><small>Color follows music</small></button><button class="mode" data-mode="Pulse"><b>Pulse</b><small>Beat-led shifts</small></button><button class="mode" data-mode="Bass Boost"><b>Bass Boost</b><small>Low-end response</small></button><button class="mode" data-mode="Disco"><b>Disco</b><small>Full color rotation</small></button><button class="mode" data-mode="Ambient"><b>Ambient</b><small>Gentle movement</small></button><button class="mode" data-mode="Wave"><b>Wave</b><small>Flowing transitions</small></button><button class="mode" data-mode="Breathing"><b>Breathing</b><small>Slow color fade</small></button><button class="mode" data-mode="Equalizer"><b>Equalizer</b><small>Band-based color</small></button><button class="mode" data-mode="Strobe"><b>Strobe</b><small>Fast color accents</small></button>
+<button class="mode active" data-mode="Static"><b>Static</b><small>Hold selected color</small></button><button class="mode" data-mode="Rainbow"><b>Rainbow</b><small>Continuous color cycle</small></button><button class="mode" data-mode="Dual Color"><b>Dual Color</b><small>Alternate Color A / B</small></button>
 </div></section>
 <section class="panel"><div class="section-title"><b>FINE TUNING</b><small>Optional adjustments</small></div>
 <div class="control"><label for="sensitivity">Sensitivity</label><input id="sensitivity" type="range" min="0.7" max="3" step="0.1" value="1.5"><output id="sensOut">1.5×</output></div>
@@ -86,7 +86,7 @@ function setMode(button){mode=button.getAttribute('data-mode');var all=document.
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
 $('wheel').oninput=function(){setColor(this.value);};$('dualColor').oninput=function(){secondaryColor=this.value.toUpperCase();};
 var modeButtons=document.getElementsByClassName('mode');for(i=0;i<modeButtons.length;i++){modeButtons[i].onclick=function(){setMode(this);};}
-$('mic').onclick=startMic;$('demo').onclick=startDemo;$('stop').onclick=stop;
+$('stop').onclick=stop;
 $('brightness').oninput=function(){ $('brightOut').innerHTML=this.value+'%';paint(0,null);};
 $('sensitivity').oninput=function(){ $('sensOut').innerHTML=this.value+'×';};
 $('smooth').oninput=function(){ $('smoothOut').innerHTML=Math.round(Number(this.value)*100)+'%';};
