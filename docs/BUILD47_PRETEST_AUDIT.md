@@ -291,3 +291,28 @@ NEMESIS Build 47 currently registers a dynamic `BroadcastReceiver` from its ordi
 Before any write can be enabled, test the standalone app on the exact EV6 firmware and establish that (1) the app can look up and invoke `ISystemService.requestSMLStatus()`, (2) the app's receiver actually receives a status broadcast, (3) the payload is exactly 9 bytes and passes range validation, and (4) the capture corresponds to the current owner's state. If ordinary-app delivery fails, use a supported relay/service integration with a clear permission boundary; do not guess Binder transaction codes or weaken the requirement to capture a valid original state.
 
 Source references: HMG-API `core/runtime/java/hmgapi/hook/LightRelay.java`, `core/runtime/java/hmgapi/vehicle/CarCallbacks.java`, `core/runtime/java/hmgapi/vehicle/Hub.java`. No EV6 hardware test was performed.
+
+## 18. Recovery journal must not overwrite a newer owner choice
+
+A durable snapshot alone is not a safe crash-recovery solution. The car's own lighting menu may be used after NEMESIS loses its process or while the app is closed. Blindly replaying the original snapshot after a reboot could overwrite that newer owner choice.
+
+### Safer recovery journal protocol
+
+Persist a versioned journal atomically before the first vehicle write. Minimum fields:
+
+- schema version and session ID;
+- firmware/product identity and capture timestamp;
+- original 9-byte status (all RGB/theme channels plus brightness and any validated status fields);
+- last NEMESIS-commanded full status, updated only after the corresponding command is confirmed by a fresh status report;
+- session phase (`CAPTURED`, `WRITE_PENDING`, `ACTIVE`, `RESTORE_PENDING`, `CONFLICT`, `RESTORED`);
+- monotonically increasing command sequence to reject stale confirmations.
+
+Recovery must request a fresh status and validate firmware, payload length, channel ranges, and Park before doing anything. If the fresh state matches the last confirmed NEMESIS state, restore the original state. If it differs, do not overwrite it: enter `CONFLICT`, keep the journal, show the current and saved states, and require an explicit owner decision. If no fresh state arrives or Park cannot be confirmed, keep the journal pending and send no writes. Never clear the journal merely because an Activity or service started or stopped.
+
+Write ordering: atomically persist `WRITE_PENDING` and intended target before sending a command; send one command; wait for a fresh status confirmation; atomically update the last-confirmed state and phase. On restore, persist `RESTORE_PENDING`, restore color and brightness with status confirmation between them, then mark `RESTORED` and clear/rotate the journal only after the final state is confirmed. A crash at any point therefore leaves enough information to retry safely or surface a conflict.
+
+### Recovery lifecycle
+
+An Activity `onDestroy()` callback is only a best-effort cleanup path. A future implementation needs an explicit user-visible `Restore`/`Recover` action on every launch, plus a boot/session recovery trigger only if the target EV6's Android 9 build and installer support it. A boot receiver or background service must not issue blind writes: it follows the same fresh-status, Park, and compare-before-restore rules. Force-stop and power-loss behavior must be tested on the vehicle; Android may defer or suppress automatic startup.
+
+This protocol is a design requirement, not implemented code. It deliberately prefers a visible unresolved recovery state over silently restoring stale values or discarding the saved owner state.
