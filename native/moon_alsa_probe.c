@@ -19,8 +19,8 @@ static int run(int capture,int loopback){
  printf("Loopback original=%d\n",original);
  if(!capture){mixer_close(m);return 0;}
  if(loopback&&original==0){
+  changed=1; /* attempt restoration even after partial enable failure */
   if(mixer_ctl_set_value(ctl,0,1)||mixer_ctl_get_value(ctl,0)!=1){fputs("Loopback enable failed\n",stderr);rc=5;goto done;}
-  changed=1;
  }
  if(interrupted){rc=8;goto done;}
  struct pcm_config cfg={0};
