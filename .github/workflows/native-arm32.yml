@@ -25,6 +25,19 @@ jobs:
           bash native/verify-arm32-library.sh
           test -s native/arm32-ndk-build/moonstudiod
           file native/arm32-ndk-build/moonstudiod | grep -E 'ELF 32-bit.*ARM'
+      - name: Run offline audio regression tests
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O2 native/moonstudiod.c native/moon_audio_backend.c -lm -o /tmp/moonstudiod-host
+          /tmp/moonstudiod-host --self-test
+          python3 - <<'PY'
+          import math, struct
+          with open('/tmp/moon-test.raw', 'wb') as f:
+              for i in range(4800):
+                  v = int(12000 * math.sin(2 * math.pi * 440 * i / 48000))
+                  f.write(struct.pack('<hh', v, v))
+          PY
+          /tmp/moonstudiod-host --analyze /tmp/moon-test.raw | tee /tmp/moon-meter.txt
+          grep -E 'frames=4800 rms=0\\.[12][0-9]+ peak=0\\.3[0-9]+' /tmp/moon-meter.txt
       - name: Install Zig for static ARMv7 build
         run: |
           python3 -m pip install --user ziglang==0.13.0
