@@ -7,7 +7,7 @@
     "Moon Studio"
   ],
   "license": "AGPL-3.0",
-  "description": "Development-only Moon Studio audio daemon integration. Requires a compiled Moon-owned audio service; do not install until validated.",
+  "description": "Development staging only: Moon Studio native audio daemon and loopback capture not yet integrated or validated.",
   "live": true,
   "apps": [
     {
