@@ -30,6 +30,14 @@ mkdir -p build/native
   engineering/native/moon_audio_probe.c \
   "$TINY/src/pcm.c" "$TINY/src/pcm_hw.c" \
   "$TINY/src/limits.c" "$TINY/src/snd_card_plugin.c" -lm
+"${ZIG[@]}" cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -Os \
+  -I"$TINY/include" \
+  -o build/native/moonaudiod \
+  engineering/native/moonaudiod.c \
+  "$TINY/src/pcm.c" "$TINY/src/pcm_hw.c" \
+  "$TINY/src/limits.c" "$TINY/src/snd_card_plugin.c" \
+  "$TINY/src/mixer.c" "$TINY/src/mixer_hw.c" -lm
+file build/native/moonaudiod
 file build/native/moon_audio_probe
-echo "Diagnostic binary ready at build/native/moon_audio_probe"
-echo "Do not install as a service; the capture path still requires on-car validation."
+echo "Native binaries ready: build/native/moon_audio_probe and build/native/moonaudiod"
+echo "Do not install yet; native integration requires packaging and on-car validation."
