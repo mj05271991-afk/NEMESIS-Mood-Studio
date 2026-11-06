@@ -99,7 +99,7 @@ jobs:
           with open('native/hmg-staging/mod.json') as f: m=json.load(f)
           assert m['id']=='moon-studio'
           assert m['services'][0]['script']=='moon.sh'
-          assert m['services'][0]['restart'] is False
+          assert m['services'][0]['restart'] is True
           assert m['services'][0]['name']=='moon-lighting'
           PY
           (cd native/hmg-staging && zip -qr ../moon-hmg-diagnostics-staging.zip .)

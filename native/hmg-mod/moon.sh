@@ -5,7 +5,10 @@ MOD=/data/hmgapi/mods/${HMGAPI_MOD:-moon-studio}
 SETTINGS=/data/data/com.nemesis.moonstudio/files/settings
 ENABLE=/data/data/com.nemesis.moonstudio/files/enable_moon_lighting
 LOCK=/data/hmgapi/moon-studio-lighting.lock
-[ -f "$ENABLE" ] || exit 0
+# Keep the HMG service alive while disabled, so the app can opt in later.
+# No MICOM or ALSA access occurs until the marker and enabled setting exist.
+while [ ! -f "$ENABLE" ]; do sleep 2; done
+[ "$(cat "$SETTINGS/enabled" 2>/dev/null)" = "1" ] || exit 0
 [ -x "$MOD/moon-lightd" ] || exit 1
 # Fail closed if Kyle's daemon appears active; both use the same MICOM and ALSA mixer.
 if pidof lightvibesd >/dev/null 2>&1; then

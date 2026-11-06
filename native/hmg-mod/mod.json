@@ -14,7 +14,7 @@
       "name": "moon-lighting",
       "script": "moon.sh",
       "user": "root",
-      "restart": false,
+      "restart": true,
       "start": "android"
     }
   ]
