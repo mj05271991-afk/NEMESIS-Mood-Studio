@@ -32,18 +32,18 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '11'
       - name: Install Android SDK and Gradle
         run: |
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-28" "build-tools;28.0.3"
-          wget -q https://services.gradle.org/distributions/gradle-4.6-bin.zip -O /tmp/gradle.zip
+          wget -q https://services.gradle.org/distributions/gradle-6.7.1-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /tmp
-          /tmp/gradle-4.6/bin/gradle --version
+          /tmp/gradle-6.7.1/bin/gradle --version
       - name: Compile APK
         run: |
           java -version
-          /tmp/gradle-4.6/bin/gradle --no-daemon --stacktrace :app:assembleDebug
+          /tmp/gradle-6.7.1/bin/gradle --no-daemon --stacktrace :app:assembleDebug
       - name: Stage combined HMG-API development payload
         run: |
           test -s app/build/outputs/apk/debug/app-debug.apk
