@@ -257,6 +257,9 @@ $('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)retu
 document.querySelectorAll('[data-preset]').forEach(function(btn){btn.onclick=function(){var p=btn.getAttribute('data-preset'),target=p==='Party'?'Rainbow':p==='Relax'?'Breathing':p==='Drive'?'Static':'Strobe';var buttons=document.getElementsByClassName('mode');for(var k=0;k<buttons.length;k++){if(buttons[k].getAttribute('data-mode')===target){setMode(buttons[k]);break;}}if(p==='Drive')setColor('#1043F4');else if(p==='Relax')setColor('#51E176');else if(p==='Show')setColor('#DD17AE');};});
 window.onMoonServiceConfigured=function(message){$('vehicleResult').textContent=message;};
 var moonConfig=document.createElement('button');moonConfig.className='btn';moonConfig.textContent='SAVE BACKGROUND MUSIC SETTINGS';
+var moonStop=document.createElement('button');moonStop.className='btn stop-btn';moonStop.textContent='DISABLE BACKGROUND LIGHTING';
+moonStop.onclick=function(){if(window.MoonService&&window.MoonService.stopBackground)window.MoonService.stopBackground();else $('vehicleResult').textContent='Background control unavailable in preview.';};
+$('vehicleConnect').parentNode.appendChild(moonStop);
 moonConfig.onclick=function(){if(!window.MoonService){$('vehicleResult').textContent='Background service settings unavailable in this preview.';return;}var m=(mode==='Pulse')?'pulse':(mode==='Spectrum'||mode==='Equalizer')?'spectrum':'beat';window.MoonService.configure(m,Number($('brightness').value));};
 $('vehicleConnect').parentNode.appendChild(moonConfig);
 refreshProfiles();setColor(color);window.onunload=stop;

@@ -56,6 +56,16 @@ public class MoonStudioActivity extends Activity {
   if(!temp.renameTo(target))throw new java.io.IOException("Settings update failed");
  }
  private class MoonServiceBridge{
+  @JavascriptInterface public void stopBackground(){
+   new Thread(new Runnable(){@Override public void run(){
+    try{
+     writeMoonSetting("enabled","0");
+     java.io.File marker=new java.io.File(getFilesDir(),"enable_moon_lighting");
+     if(marker.exists()&&!marker.delete())throw new java.io.IOException("Could not clear service start marker");
+     runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Background lighting disabled in settings. An already-running HMG service must be stopped by its manager.')");}});
+    }catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}
+   }},"MoonStopBackground").start();
+  }
   @JavascriptInterface public void configure(final String mode,final int brightness){
    new Thread(new Runnable(){@Override public void run(){
     try{
