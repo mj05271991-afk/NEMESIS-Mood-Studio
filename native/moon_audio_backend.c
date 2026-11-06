@@ -18,27 +18,41 @@ int moon_audio_analyze(const void *data,size_t bytes,MoonAudioMeter *out){
  return 0;
 }
 
-/* Hann-windowed spectral energy, O(N^2) reference implementation.
-   Offline correctness first; optimize FFT after verified tests. */
+/* In-place radix-2 FFT: 2048 stereo frames, Hann window, 48kHz. */
 int moon_audio_bands(const void *data,size_t bytes,MoonAudioBands *out){
- if(!data||!out||bytes!=2048u*4u) return -1;
+ enum { N=2048 };
+ if(!data||!out||bytes!=N*4u)return -1;
  const unsigned char *p=(const unsigned char *)data;
- double samples[2048],power[3]={0,0,0};
- for(int i=0;i<2048;i++){
-  size_t k=(size_t)i*4;
+ double re[N],im[N]={0},power[3]={0};
+ for(int i=0;i<N;i++){
+  int k=i*4;
   int16_t l=(int16_t)((unsigned)p[k]|((unsigned)p[k+1]<<8));
   int16_t r=(int16_t)((unsigned)p[k+2]|((unsigned)p[k+3]<<8));
-  samples[i]=((double)l+(double)r)/65536.0*(0.5-0.5*cos(6.283185307179586*i/2047.0));
+  re[i]=((double)l+(double)r)/65536.0*(0.5-0.5*cos(6.283185307179586*i/(N-1)));
+ }
+ for(unsigned i=1,j=0;i<N;i++){
+  unsigned bit=N>>1;
+  for(;j&bit;bit>>=1)j^=bit;
+  j^=bit;
+  if(i<j){double t=re[i];re[i]=re[j];re[j]=t;}
+ }
+ for(int len=2;len<=N;len<<=1){
+  double a=-6.283185307179586/len,wr=cos(a),wi=sin(a);
+  for(int i=0;i<N;i+=len){
+   double cr=1,ci=0;
+   for(int j=0;j<len/2;j++){
+    int x=i+j,y=x+len/2;
+    double tr=cr*re[y]-ci*im[y],ti=cr*im[y]+ci*re[y];
+    re[y]=re[x]-tr;im[y]=im[x]-ti;
+    re[x]+=tr;im[x]+=ti;
+    double nr=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=nr;
+   }
+  }
  }
  for(int bin=2;bin<=341;bin++){
-  double hz=48000.0*bin/2048.0;
+  double hz=48000.0*bin/N;
   int band=hz<250?0:hz<2000?1:2;
-  double re=0,im=0;
-  for(int i=0;i<2048;i++){
-   double angle=6.283185307179586*(double)(bin*i)/2048.0;
-   re+=samples[i]*cos(angle);im-=samples[i]*sin(angle);
-  }
-  power[band]+=(re*re+im*im)/(2048.0*2048.0);
+  power[band]+=(re[bin]*re[bin]+im[bin]*im[bin])/(N*(double)N);
  }
  out->bass=fmin(1.0,sqrt(power[0])*4.0);
  out->mid=fmin(1.0,sqrt(power[1])*4.0);
