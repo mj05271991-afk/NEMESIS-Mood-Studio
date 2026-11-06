@@ -19,6 +19,7 @@
 #include <stdint.h>
 
 #define RATE 48000
+/* Initial 48 kHz diagnostic; production daemon must detect 44.1/48 kHz. */
 #define CHANNELS 2
 #define FRAMES 4800
 static volatile sig_atomic_t running=1;
