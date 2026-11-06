@@ -7,7 +7,7 @@
     "Moon Studio contributors"
   ],
   "license": "AGPL-3.0",
-  "description": "Standalone audio-reactive lighting integration derived from Kyle's Light Vibes; disabled until explicit opt-in; not vehicle verified.",
+  "description": "Moon Studio EV6 audio-reactive lighting and launcher; opt-in service, not vehicle verified.",
   "live": true,
   "services": [
     {
@@ -17,5 +17,24 @@
       "restart": true,
       "start": "android"
     }
-  ]
+  ],
+  "apps": [
+    {
+      "package": "com.nemesis.moonstudio",
+      "apk": "app/MoonStudio.apk"
+    }
+  ],
+  "provides": {
+    "launcher": [
+      {
+        "title": "Moon Studio",
+        "package": "com.nemesis.moonstudio",
+        "class": ".MoonStudioActivity",
+        "icon": "icons/tile.png",
+        "icon_night": "icons/tile.png",
+        "icon_disabled": "icons/tile_disabled.png",
+        "icon_disabled_night": "icons/tile_disabled.png"
+      }
+    ]
+  }
 }
