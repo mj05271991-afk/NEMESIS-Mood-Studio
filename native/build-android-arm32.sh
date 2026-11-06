@@ -19,6 +19,6 @@ objects=(); for f in "${files[@]}"; do objects+=("$OUT/$f.o"); done
 echo 'ARM32 static library built; NOT a runnable EV6 daemon.'
 
 # Staging-only executable: offline lifecycle tests, no vehicle writes or audio capture.
-"$HOST/bin/clang" --target=armv7a-linux-androideabi21 --sysroot="$HOST/sysroot" -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -O2 "$ROOT/moonstudiod.c" -o "$OUT/moonstudiod"
+"$HOST/bin/clang" --target=armv7a-linux-androideabi21 --sysroot="$HOST/sysroot" -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -O2 "$ROOT/moonstudiod.c" "$OUT/moon_audio_backend.o" -lm -o "$OUT/moonstudiod"
 "$HOST/bin/llvm-readelf" -h "$OUT/moonstudiod" | grep -q 'Machine:.*ARM'
 echo 'Built offline ARM32 daemon harness; hardware control is disabled.'
