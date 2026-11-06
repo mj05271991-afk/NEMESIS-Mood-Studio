@@ -28,18 +28,22 @@ jobs:
           test -s build/native/moonaudiod
           file build/native/moon_audio_probe | grep -E 'ARM|arm'
           file build/native/moonaudiod | grep -E 'ARM|arm'
-      - name: Build Android application
+      - name: Set up Java for Android build
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '8'
       - name: Install Android SDK and Gradle
         run: |
-          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3"
+          yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-28" "build-tools;28.0.3"
           wget -q https://services.gradle.org/distributions/gradle-4.6-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /tmp
+          /tmp/gradle-4.6/bin/gradle --version
       - name: Compile APK
-        run: /tmp/gradle-4.6/bin/gradle --no-daemon :app:assembleDebug
+        run: |
+          java -version
+          /tmp/gradle-4.6/bin/gradle --no-daemon --stacktrace :app:assembleDebug
       - name: Stage combined HMG-API development payload
         run: |
           test -s app/build/outputs/apk/debug/app-debug.apk
