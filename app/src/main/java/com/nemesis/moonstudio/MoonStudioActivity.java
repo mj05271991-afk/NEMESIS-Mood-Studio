@@ -106,7 +106,7 @@ public class MoonStudioActivity extends Activity {
    int lo=1,hi=8;
    try{lo=Integer.parseInt(read("brightness_min","1"));}catch(NumberFormatException ignored){}
    try{hi=Integer.parseInt(read("brightness_max","8"));}catch(NumberFormatException ignored){}
-   return "{\\"enabled\\":"+("1".equals(read("enabled","0"))?"true":"false")+",\\"mode\\":\\""+m+"\\",\\"brightnessMin\\":"+lo+",\\"brightnessMax\\":"+hi+"}";
+   return "{\"enabled\":"+("1".equals(read("enabled","0"))?"true":"false")+",\"mode\":\""+m+"\",\"brightnessMin\":"+lo+",\"brightnessMax\":"+hi+"}";
   }
   @JavascriptInterface public String setEnabled(boolean enabled){return write("enabled",enabled?"1":"0");}
   @JavascriptInterface public String setMode(String mode){
