@@ -104,22 +104,11 @@ jobs:
           PY
           (cd native/hmg-staging && zip -qr ../moon-hmg-diagnostics-staging.zip .)
           unzip -t native/moon-hmg-diagnostics-staging.zip
-          # An unsigned staging ZIP must never be presented as an installable HMG package.
-          ! unzip -Z1 native/moon-hmg-diagnostics-staging.zip | grep -q '^META-HMGAPI/manifest.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: moon-arm32-staging-library
-          path: |
-            native/moon-hmg-diagnostics-staging.zip
-            native/ev6-diagnostics.zip
-            native/arm32-ndk-build/moonstudiod
-            native/arm32-ndk-build/moonstudiod-static
-            native/arm32-static-build/moon-lightd
-            native/arm32-static-build/moon-alsa-probe
-            native/arm32-ndk-build/libmoon_controller.a
-            native/arm32-ndk-build/archive-members.txt
-            native/arm32-ndk-build/unresolved-symbols.txt
-
+          # The staging archive is not a signed installer.
+          if unzip -Z1 native/moon-hmg-diagnostics-staging.zip | grep -q '^META-HMGAPI/manifest.json$'; then
+            echo 'Unexpected signed manifest in staging archive'
+            exit 1
+          fi
           test -s native/hmg-staging/moon-lightd
           test -s native/hmg-staging/LICENSE
       - uses: actions/upload-artifact@v4
