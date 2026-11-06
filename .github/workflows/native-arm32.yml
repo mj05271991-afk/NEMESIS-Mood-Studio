@@ -81,22 +81,28 @@ jobs:
         with:
           distribution: temurin
           java-version: '8'
-      - name: Set up Gradle 4.6
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '4.6'
       - name: Install Android SDK for Moon Studio
         run: |
           yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-28" "build-tools;28.0.3"
-      - name: Build and verify Moon Studio launcher APK
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-28" "build-tools;35.0.0"
+      - name: Build APK with Kyle's direct Java D8 AAPT signing pipeline
         run: |
-          gradle --no-daemon :app:assembleDebug
+          set -e
+          BT="$ANDROID_HOME/build-tools/35.0.0"
+          JAR="$ANDROID_HOME/platforms/android-28/android.jar"
+          A=app/build/direct
+          mkdir -p "$A/classes" "$A/dex" app/build/outputs/apk/debug
+          javac -source 8 -target 8 -cp "$JAR" -d "$A/classes" app/src/main/java/com/nemesis/moonstudio/*.java
+          "$BT/d8" --release --min-api 19 --lib "$JAR" --output "$A/dex" $(find "$A/classes" -name '*.class')
+          "$BT/aapt" package -f -M app/src/main/AndroidManifest.xml -A app/src/main/assets -I "$JAR" -F "$A/unsigned.apk"
+          (cd "$A/dex" && zip -q -X ../unsigned.apk classes.dex)
+          "$BT/zipalign" -f 4 "$A/unsigned.apk" "$A/aligned.apk"
+          keytool -genkeypair -keystore "$A/app.keystore" -storepass moonstudio -keypass moonstudio -alias app -keyalg RSA -keysize 2048 -validity 15000 -dname "CN=Moon Studio" -noprompt
           APK=app/build/outputs/apk/debug/app-debug.apk
-          test -s "$APK"
-          "$ANDROID_HOME/build-tools/28.0.3/aapt" dump badging "$APK" | grep -F "package: name='com.nemesis.moonstudio'"
-          "$ANDROID_HOME/build-tools/28.0.3/aapt" dump badging "$APK" | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
-          "$ANDROID_HOME/build-tools/28.0.3/apksigner" verify --min-sdk-version 19 --verbose "$APK" | grep -F 'Verified using v1 scheme (JAR signing): true'
+          "$BT/apksigner" sign --ks "$A/app.keystore" --ks-pass pass:moonstudio --min-sdk-version 19 --v1-signing-enabled true --v2-signing-enabled false --out "$APK" "$A/aligned.apk"
+          "$BT/aapt" dump badging "$APK" | grep -F "package: name='com.nemesis.moonstudio'"
+          "$BT/aapt" dump badging "$APK" | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
+          "$BT/apksigner" verify --min-sdk-version 19 --verbose "$APK" | grep -F 'Verified using v1 scheme (JAR signing): true'
       - name: Package HMG opt-in diagnostic service staging
         run: |
           mkdir -p native/hmg-staging/app native/hmg-staging/icons
