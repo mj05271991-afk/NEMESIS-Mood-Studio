@@ -113,41 +113,32 @@ jobs:
           (cd combined-staging && zip -qr ../Moon-Studio-combined-staging.zip .)
           unzip -t Moon-Studio-combined-staging.zip
 
-      - name: Assemble dual-descriptor NEMESIS USB staging layout
+      - name: Assemble Moon Studio launcher NEMESIS USB installer
         run: |
-          mkdir -p usb-staging/packages
-          cp NEMESIS-Moon-Studio-installer.zip usb-staging/packages/moon.studio.zip
-          cat > usb-staging/NEMESIS.data <<'EOF'
+          mkdir -p launcher-usb/packages
+          cp NEMESIS-Moon-Studio-installer.zip launcher-usb/packages/moon.studio.zip
+          cat > launcher-usb/NEMESIS.data <<'EOF'
           [nemesis]
-          version=1.1
-          id=moon.studio.usb
-          name=Moon Studio USB Staging
-          type=application
-          package-version=0.2
-          short-desc=Moon Studio application installer
-          os=*.260507
-          models=any
+          version=1.0
+          type=install
+          path=packages/moon.studio.zip
           EOF
-          cat > usb-staging/NEMESIS.sh <<'EOF'
-          #!/system/bin/sh
-          # USB staging only; NEMESIS package handling is vehicle-version dependent.
-          exit 0
+          cat > launcher-usb/README.txt <<'EOF'
+          Moon Studio Android launcher installer (not the HMG-API lighting daemon).
+          Installs com.nemesis.moonstudio. Use with the separately signed Moon Studio HMG mod.
+          Only test while parked. Do not activate both Moon Studio and Light Vibes services.
           EOF
-          chmod 755 usb-staging/NEMESIS.sh
-          test -s usb-staging/NEMESIS.data
-          test -s usb-staging/NEMESIS.sh
-          test -s usb-staging/packages/moon.studio.zip
-          unzip -p usb-staging/packages/moon.studio.zip NEMESIS.data | grep -F 'package=com.nemesis.moonstudio'
-          unzip -l usb-staging/packages/moon.studio.zip | grep -F 'app/NEMESIS-Moon-Studio.apk'
-          (cd usb-staging && zip -qr ../Moon-Studio-USB-staging.zip .)
-          unzip -t Moon-Studio-USB-staging.zip
-          unzip -l Moon-Studio-USB-staging.zip | grep -F 'packages/moon.studio.zip'
+          unzip -p launcher-usb/packages/moon.studio.zip NEMESIS.data | grep -F 'package=com.nemesis.moonstudio'
+          unzip -l launcher-usb/packages/moon.studio.zip | grep -F 'app/NEMESIS-Moon-Studio.apk'
+          (cd launcher-usb && zip -qr ../Moon-Studio-Launcher-NEMESIS-USB.zip .)
+          unzip -t Moon-Studio-Launcher-NEMESIS-USB.zip
+          unzip -p Moon-Studio-Launcher-NEMESIS-USB.zip NEMESIS.data | grep -F 'path=packages/moon.studio.zip'
 
-      - name: Upload USB staging ZIP
+      - name: Upload launcher NEMESIS USB installer
         uses: actions/upload-artifact@v4
         with:
-          name: Moon-Studio-USB-staging
-          path: Moon-Studio-USB-staging.zip
+          name: Moon-Studio-Launcher-NEMESIS-USB
+          path: Moon-Studio-Launcher-NEMESIS-USB.zip
 
       - name: Upload combined staging bundle
         uses: actions/upload-artifact@v4
