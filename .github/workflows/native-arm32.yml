@@ -55,10 +55,18 @@ jobs:
       - name: Compile read-only EV6 tinyalsa probe
         run: |
           ZIG="python3 -m ziglang" bash native/build-alsa-probe.sh
+      - name: Package EV6 diagnostic binaries
+        run: |
+          mkdir -p native/ev6-diagnostics
+          cp native/arm32-static-build/moon-alsa-probe native/ev6-diagnostics/
+          cp native/arm32-ndk-build/moonstudiod-static native/ev6-diagnostics/
+          printf '%s\\n' 'EV6 diagnostic build, NOT a NEMESIS installable package.' 'No vehicle writes are enabled.' 'Do not run --monitor-loopback until in-car recovery procedure is verified.' 'Read-only: moon-alsa-probe --probe' > native/ev6-diagnostics/README.txt
+          (cd native && zip -q -r ev6-diagnostics.zip ev6-diagnostics)
       - uses: actions/upload-artifact@v4
         with:
           name: moon-arm32-staging-library
           path: |
+            native/ev6-diagnostics.zip
             native/arm32-ndk-build/moonstudiod
             native/arm32-ndk-build/moonstudiod-static
             native/arm32-static-build/moon-alsa-probe
