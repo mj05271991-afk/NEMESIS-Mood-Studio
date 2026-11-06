@@ -257,6 +257,9 @@ $('load').onclick=function(){var p=getProfiles()[$('profiles').value];if(!p)retu
 document.querySelectorAll('[data-preset]').forEach(function(btn){btn.onclick=function(){var p=btn.getAttribute('data-preset'),target=p==='Party'?'Rainbow':p==='Relax'?'Breathing':p==='Drive'?'Static':'Strobe';var buttons=document.getElementsByClassName('mode');for(var k=0;k<buttons.length;k++){if(buttons[k].getAttribute('data-mode')===target){setMode(buttons[k]);break;}}if(p==='Drive')setColor('#1043F4');else if(p==='Relax')setColor('#51E176');else if(p==='Show')setColor('#DD17AE');};});
 window.onMoonServiceConfigured=function(message){$('vehicleResult').textContent=message;};
 var moonConfig=document.createElement('button');moonConfig.className='btn';moonConfig.textContent='SAVE BACKGROUND MUSIC SETTINGS';
+var moonStart=document.createElement('button');moonStart.className='btn';moonStart.textContent='START BACKGROUND MUSIC LIGHTING';
+moonStart.onclick=function(){if(!window.MoonService||!window.MoonService.startBackground){$('vehicleResult').textContent='Background service unavailable in preview.';return;}if(!window.confirm('Only start while parked, after confirming HMG-API is installed and Kyle Light Vibes is not running. Start Moon Studio background lighting?'))return;var m=(mode==='Pulse')?'pulse':(mode==='Spectrum'||mode==='Equalizer')?'spectrum':'beat';window.MoonService.startBackground(m,Number($('brightness').value));};
+$('vehicleConnect').parentNode.appendChild(moonStart);
 var moonStop=document.createElement('button');moonStop.className='btn stop-btn';moonStop.textContent='DISABLE BACKGROUND LIGHTING';
 moonStop.onclick=function(){if(window.MoonService&&window.MoonService.stopBackground)window.MoonService.stopBackground();else $('vehicleResult').textContent='Background control unavailable in preview.';};
 $('vehicleConnect').parentNode.appendChild(moonStop);

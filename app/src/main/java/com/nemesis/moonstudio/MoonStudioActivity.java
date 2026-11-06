@@ -52,10 +52,24 @@ public class MoonStudioActivity extends Activity {
   java.io.File temp=new java.io.File(dir,name+".tmp");
   java.io.File target=new java.io.File(dir,name);
   java.io.FileOutputStream out=new java.io.FileOutputStream(temp);
-  try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+  try{out.write((value+"\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
   if(!temp.renameTo(target))throw new java.io.IOException("Settings update failed");
  }
  private class MoonServiceBridge{
+  @JavascriptInterface public void startBackground(final String mode,final int brightness){
+   new Thread(new Runnable(){@Override public void run(){
+    try{
+     String m=mode.toLowerCase(java.util.Locale.US);
+     if(!m.equals("beat")&&!m.equals("spectrum")&&!m.equals("pulse")&&!m.equals("speed"))throw new IllegalArgumentException("Unsupported music mode");
+     writeMoonSetting("mode",m);
+     writeMoonSetting("brightness_max",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("enabled","1");
+     java.io.File marker=new java.io.File(getFilesDir(),"enable_moon_lighting");
+     if(!marker.exists()&&!marker.createNewFile())throw new java.io.IOException("Unable to enable background service");
+     runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Background lighting requested. HMG-API must be installed and its Moon Studio service running; verify output while parked.')");}});
+    }catch(final Exception e){try{writeMoonSetting("enabled","0");}catch(Exception ignored){}runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}
+   }},"MoonStartBackground").start();
+  }
   @JavascriptInterface public void stopBackground(){
    new Thread(new Runnable(){@Override public void run(){
     try{
