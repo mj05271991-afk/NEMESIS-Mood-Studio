@@ -50,7 +50,17 @@ static int run(int capture,int loopback,int continuous){
  else{
   MoonAudioMeter meter;MoonAudioBands bands;
   if(moon_audio_analyze(samples,sizeof samples,&meter)||moon_audio_bands(samples,sizeof samples,&bands))rc=8;
-  else printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble);
+  else {
+   /* Diagnostic color preview only: never sends a MICOM command. */
+   double strength=bands.bass+bands.mid+bands.treble;
+   double level=meter.rms*3.0;
+   if(level>1.0)level=1.0;
+   if(level<0.0)level=0.0;
+   unsigned red=(unsigned)(255.0*level*(strength>0?bands.bass/strength:0));
+   unsigned green=(unsigned)(255.0*level*(strength>0?bands.mid/strength:0));
+   unsigned blue=(unsigned)(255.0*level*(strength>0?bands.treble/strength:0));
+   printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f preview_rgb=%u,%u,%u\\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble,red,green,blue);
+  }
  }
  fflush(stdout);
   blocks++;
