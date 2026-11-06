@@ -1,0 +1,63 @@
+name: Build Moon Native Audio and Android Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/audio-loopback-ui]
+    paths:
+      - 'engineering/native/**'
+      - 'engineering/hmgapi-mod/**'
+      - 'app/**'
+      - '.github/workflows/native-audio-probe.yml'
+
+jobs:
+  native-probe:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Zig and pinned TinyALSA
+        run: |
+          python3 -m pip install --user ziglang
+          git clone https://github.com/tinyalsa/tinyalsa third_party/tinyalsa
+          git -C third_party/tinyalsa checkout a7cd26a17fe2add2ff38d2f281ed0b919187a068
+      - name: Compile ARMv7 audio diagnostic
+        run: bash engineering/native/build-probe.sh
+      - name: Check ARM architecture
+        run: |
+          test -s build/native/moon_audio_probe
+          test -s build/native/moonaudiod
+          file build/native/moon_audio_probe | grep -E 'ARM|arm'
+          file build/native/moonaudiod | grep -E 'ARM|arm'
+      - name: Build Android application
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+      - name: Install Android SDK and Gradle
+        run: |
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3"
+          wget -q https://services.gradle.org/distributions/gradle-4.6-bin.zip -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+      - name: Compile APK
+        run: /tmp/gradle-4.6/bin/gradle --no-daemon :app:assembleDebug
+      - name: Stage combined HMG-API development payload
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          mkdir -p build/moon-hmgapi-dev/app
+          cp build/native/moonaudiod build/moon-hmgapi-dev/moonaudiod
+          cp app/build/outputs/apk/debug/app-debug.apk build/moon-hmgapi-dev/app/MoonStudio.apk
+          cp engineering/hmgapi-mod/mod.json engineering/hmgapi-mod/audio.sh build/moon-hmgapi-dev/
+          chmod 755 build/moon-hmgapi-dev/audio.sh build/moon-hmgapi-dev/moonaudiod
+          (cd build && zip -qr Moon-HMGAPI-INTEGRATION-UNTESTED.zip moon-hmgapi-dev)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-HMGAPI-INTEGRATION-UNTESTED
+          path: |
+            build/Moon-HMGAPI-INTEGRATION-UNTESTED.zip
+            app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-ALSA-ARMv7-diagnostic-NOT-INSTALLER
+          path: |
+            build/native/moon_audio_probe
+            build/native/moonaudiod
