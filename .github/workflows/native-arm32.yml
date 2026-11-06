@@ -111,6 +111,28 @@ jobs:
           fi
           test -s native/hmg-staging/moon-lightd
           test -s native/hmg-staging/LICENSE
+      - name: Sign HMG package and wrap for NEMESIS when signing key is configured
+        env:
+          MOON_SIGNING_KEY_B64: ${{ secrets.MOON_HMG_SIGNING_KEY_B64 }}
+          MOON_SIGNING_PUB_B64: ${{ secrets.MOON_HMG_SIGNING_PUB_B64 }}
+        run: |
+          if [ -z "$MOON_SIGNING_KEY_B64" ] || [ -z "$MOON_SIGNING_PUB_B64" ]; then
+            echo 'Signing secrets absent: unsigned staging only (not installable).'
+            exit 0
+          fi
+          mkdir -p native/signed-dist
+          umask 077
+          printf '%s' "$MOON_SIGNING_KEY_B64" | base64 -d > /tmp/moon-signing-key
+          printf '%s' "$MOON_SIGNING_PUB_B64" | base64 -d > /tmp/moon-signing-key.pub
+          git clone --depth 1 https://github.com/VysseCodes/HMG-API.git /tmp/moon-hmgapi
+          python3 native/tools/sign-hmg.py native/hmg-staging native/signed-dist /tmp/moon-signing-key /tmp/moon-hmgapi
+          rm -f /tmp/moon-signing-key /tmp/moon-signing-key.pub
+          test -n "$(find native/signed-dist -name '*nemesis-usb.zip' -print -quit)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moon-signed-nemesis-installers
+          if-no-files-found: ignore
+          path: native/signed-dist/*.zip
       - uses: actions/upload-artifact@v4
         with:
           name: moon-arm32-staging-library
