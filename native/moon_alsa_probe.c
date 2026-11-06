@@ -21,7 +21,7 @@ static int music_playing(void){
 }
 static volatile sig_atomic_t interrupted=0;
 static void stop(int sig){(void)sig;interrupted=1;}
-static int run(int capture,int loopback,int continuous){
+static int run(int capture,int loopback,int continuous,int rgb_only){
  unsigned blocks=0;
  struct mixer *m=mixer_open(0);
  if(!m){fputs("ALSA card0 unavailable\n",stderr);return 3;}
@@ -59,7 +59,8 @@ static int run(int capture,int loopback,int continuous){
    unsigned red=(unsigned)(255.0*level*(strength>0?bands.bass/strength:0));
    unsigned green=(unsigned)(255.0*level*(strength>0?bands.mid/strength:0));
    unsigned blue=(unsigned)(255.0*level*(strength>0?bands.treble/strength:0));
-   printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f preview_rgb=%u,%u,%u\\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble,red,green,blue);
+   if(rgb_only)printf("RGB %u %u %u\n",red,green,blue);
+   else printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f preview_rgb=%u,%u,%u\\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble,red,green,blue);
   }
  }
  fflush(stdout);
@@ -78,9 +79,10 @@ done:
 int main(int argc,char **argv){
  signal(SIGINT,stop);signal(SIGTERM,stop);
  if(argc!=2){fputs("Usage: moon-alsa-probe --probe|--capture-once|--capture-loopback-once|--monitor-loopback\n",stderr);return 2;}
- if(!strcmp(argv[1],"--probe"))return run(0,0,0);
- if(!strcmp(argv[1],"--capture-once"))return run(1,0,0);
- if(!strcmp(argv[1],"--capture-loopback-once"))return run(1,1,0);
- if(!strcmp(argv[1],"--monitor-loopback"))return run(1,1,1);
+ if(!strcmp(argv[1],"--probe"))return run(0,0,0,0);
+ if(!strcmp(argv[1],"--capture-once"))return run(1,0,0,0);
+ if(!strcmp(argv[1],"--capture-loopback-once"))return run(1,1,0,0);
+ if(!strcmp(argv[1],"--monitor-rgb"))return run(1,1,1,1);
+ if(!strcmp(argv[1],"--monitor-loopback"))return run(1,1,1,0);
  return 2;
 }
