@@ -23,4 +23,11 @@ trap 'exit 130' INT
 mkdir -p "$SETTINGS"
 # The daemon independently restores the original MICOM state on normal exit.
 # HMG runs this script independently of Moon Studio's UI.
-exec "$MOD/moon-lightd" "$SETTINGS" "$MOD/defaults"
+"$MOD/moon-lightd" "$SETTINGS" "$MOD/defaults" &
+CHILD=$!
+trap 'kill "$CHILD" 2>/dev/null; wait "$CHILD" 2>/dev/null; cleanup; exit 143' TERM
+trap 'kill "$CHILD" 2>/dev/null; wait "$CHILD" 2>/dev/null; cleanup; exit 130' INT
+wait "$CHILD"
+STATUS=$?
+cleanup
+exit "$STATUS"
