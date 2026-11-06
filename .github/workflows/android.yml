@@ -113,6 +113,37 @@ jobs:
           (cd combined-staging && zip -qr ../Moon-Studio-combined-staging.zip .)
           unzip -t Moon-Studio-combined-staging.zip
 
+      - name: Assemble dual-descriptor NEMESIS USB staging layout
+        run: |
+          mkdir -p usb-staging/packages
+          cp NEMESIS-Moon-Studio-installer.zip usb-staging/packages/moon.studio.zip
+          cat > usb-staging/NEMESIS.data <<'EOF'
+          [nemesis]
+          version=1.1
+          id=moon.studio.usb
+          name=Moon Studio USB Staging
+          type=application
+          package-version=0.2
+          short-desc=Moon Studio application installer
+          os=*.260507
+          models=any
+          EOF
+          cat > usb-staging/NEMESIS.sh <<'EOF'
+          #!/system/bin/sh
+          # USB staging only; NEMESIS package handling is vehicle-version dependent.
+          exit 0
+          EOF
+          chmod 755 usb-staging/NEMESIS.sh
+          test -s usb-staging/packages/moon.studio.zip
+          (cd usb-staging && zip -qr ../Moon-Studio-USB-staging.zip .)
+          unzip -t Moon-Studio-USB-staging.zip
+
+      - name: Upload USB staging ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moon-Studio-USB-staging
+          path: Moon-Studio-USB-staging.zip
+
       - name: Upload combined staging bundle
         uses: actions/upload-artifact@v4
         with:
