@@ -131,6 +131,51 @@ jobs:
           PY
           "${ANDROID_HOME}/build-tools/28.0.3/aapt" dump badging build/moon-hmgapi-dev/app/MoonStudio.apk | grep -F "package: name='com.nemesis.moonstudio'"
           file build/moon-hmgapi-dev/moonaudiod | grep -Ei 'arm|ARM'
+      - name: Build NEMESIS USB installer (APK only, daemon disabled pending validation)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, zipfile, io
+          apk=pathlib.Path('app/build/outputs/apk/debug/app-debug.apk')
+          assert apk.is_file() and apk.stat().st_size > 10000
+          inner_desc='''[nemesis]
+          version=1.1
+          id=moon.studio
+          name=Moon Studio
+          type=application
+          package-version=0.3.0
+          short-desc=Moon Studio EV6 lighting dashboard
+          os=any
+          models=any
+
+          [app.0]
+          kind=apk
+          path=app/NEMESIS-Moon-Studio.apk
+          package=com.nemesis.moonstudio
+          '''
+          inner_desc='\\n'.join(line.strip() for line in inner_desc.splitlines())+'\\n'
+          inner=io.BytesIO()
+          with zipfile.ZipFile(inner,'w',zipfile.ZIP_DEFLATED) as z:
+              z.writestr('NEMESIS.data',inner_desc)
+              z.write(apk,'app/NEMESIS-Moon-Studio.apk')
+          outer_desc='[nemesis]\\nversion=1.0\\ntype=install\\npath=packages/moon.studio.zip\\n'
+          out=pathlib.Path('build/Moon-Studio-NEMESIS-USB-APK-ONLY.zip')
+          with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as z:
+              z.writestr('NEMESIS.data',outer_desc)
+              z.writestr('packages/moon.studio.zip',inner.getvalue())
+          with zipfile.ZipFile(out) as z:
+              assert z.testzip() is None
+              assert set(z.namelist()) == {'NEMESIS.data','packages/moon.studio.zip'}
+              with zipfile.ZipFile(io.BytesIO(z.read('packages/moon.studio.zip'))) as n:
+                  assert n.testzip() is None
+                  assert 'app/NEMESIS-Moon-Studio.apk' in n.namelist()
+                  assert 'id=moon.studio' in n.read('NEMESIS.data').decode()
+          print('PASS: USB and nested NEMESIS package structures')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-Studio-NEMESIS-USB-APK-ONLY
+          path: build/Moon-Studio-NEMESIS-USB-APK-ONLY.zip
       - uses: actions/upload-artifact@v4
         with:
           name: Moon-HMGAPI-INTEGRATION-UNTESTED
