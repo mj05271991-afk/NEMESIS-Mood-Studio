@@ -11,6 +11,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.view.View;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MoonStudioActivity extends Activity {
  private WebView web; private AudioBandCapture capture; private Handler mainHandler;
@@ -32,7 +35,7 @@ public class MoonStudioActivity extends Activity {
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
   registerReceiver(smlReceiver,new IntentFilter(Ev6LightingProbe.STATUS_ACTION));
-  web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
+  web.addJavascriptInterface(new NativeDaemonBridge(),"MoonDaemon");web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
   setContentView(web);web.loadUrl("file:///android_asset/index.html");
  }
  private void beginConnect(){
@@ -46,6 +49,32 @@ public class MoonStudioActivity extends Activity {
  private String jsQuote(String s){if(s==null)return "Unknown error";return s.replace("\\","\\\\").replace("'","\\'").replace("\r"," ").replace("\n"," ");}
  private void callJavascript(String s){if(web!=null)web.loadUrl("javascript:"+s);}
  private void vehicleError(Exception e){callJavascript("window.onVehicleWriteError('"+jsQuote(e.getMessage())+"')");}
+ private class NativeDaemonBridge{
+  private File settingsDir(){return new File(getFilesDir(),"settings");}
+  private void write(String key,String value) throws IOException {
+   File dir=settingsDir();
+   if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("Cannot create native settings directory");
+   File temp=new File(dir,key+".tmp");
+   FileOutputStream out=new FileOutputStream(temp);
+   try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+   File target=new File(dir,key);
+   if(!temp.renameTo(target))throw new IOException("Cannot save "+key);
+  }
+  @JavascriptInterface public void configure(String requestedMode,boolean enabled){
+   String mode=requestedMode==null?"":requestedMode.toLowerCase(java.util.Locale.US);
+   if(!mode.equals("beat")&&!mode.equals("spectrum")&&!mode.equals("pulse")){
+    mode="beat";
+   }
+   try{
+    write("mode",mode);
+    write("enabled",enabled?"1":"0");
+   }catch(final IOException e){
+    runOnUiThread(new Runnable(){@Override public void run(){
+     callJavascript("window.onNativeAudioError('"+jsQuote(e.getMessage())+"')");
+    }});
+   }
+  }
+ }
  private class AudioBridge{
   @JavascriptInterface public void start(){if(capture!=null)capture.start();}
   @JavascriptInterface public void stop(){if(capture!=null)capture.stop();}
