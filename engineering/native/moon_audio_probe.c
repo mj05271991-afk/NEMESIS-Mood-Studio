@@ -4,7 +4,7 @@
  * Never enable or change the vehicle mixer switch from this tool.
  * Capture only if an existing authorized loopback is already enabled.
  *
- * Usage: moon_audio_probe [card] [device]
+ * Usage: moon_audio_probe <verified-card> <verified-device>
  * Emits BANDS bass mid treble (0..1) every ~100 ms.
  */
 #include <tinyalsa/asoundlib.h>
@@ -21,8 +21,11 @@ static volatile sig_atomic_t running=1;
 static void quit(int signum){(void)signum;running=0;}
 static float clamp01(double x){return x<0?0:x>1?1:(float)x;}
 int main(int argc,char **argv){
- unsigned card=argc>1?(unsigned)atoi(argv[1]):0;
- unsigned device=argc>2?(unsigned)atoi(argv[2]):2;
+ if(argc<3){fprintf(stderr,"MOON_AUDIO_ERROR explicit ALSA card and device required; usage: moon_audio_probe <card> <device>\n");return 64;}
+ char *endCard=NULL,*endDevice=NULL;
+ unsigned long cardValue=strtoul(argv[1],&endCard,10),deviceValue=strtoul(argv[2],&endDevice,10);
+ if(!endCard||*endCard||!endDevice||*endDevice||cardValue>255||deviceValue>255){fprintf(stderr,"MOON_AUDIO_ERROR invalid card/device\n");return 64;}
+ unsigned card=(unsigned)cardValue,device=(unsigned)deviceValue;
  struct pcm_config cfg={0};
  cfg.channels=CHANNELS;cfg.rate=RATE;cfg.period_size=1024;cfg.period_count=4;
  cfg.format=PCM_FORMAT_S16_LE;
