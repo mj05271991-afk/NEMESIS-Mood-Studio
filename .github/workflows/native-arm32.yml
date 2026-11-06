@@ -38,6 +38,10 @@ jobs:
           PY
           /tmp/moonstudiod-host --analyze /tmp/moon-test.raw | tee /tmp/moon-meter.txt
           python3 -c "import re; s=open('/tmp/moon-meter.txt').read(); m=re.search(r'frames=(\\d+) rms=([0-9.]+) peak=([0-9.]+)',s); assert m and int(m[1])==4800 and .25<float(m[2])<.27 and .36<float(m[3])<.38, s"
+      - name: Verify FFT bass mid and treble classification
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O2 native/test_audio_bands.c native/moon_audio_backend.c -lm -o /tmp/test_audio_bands
+          /tmp/test_audio_bands
       - name: Install Zig for static ARMv7 build
         run: |
           python3 -m pip install --user ziglang==0.13.0
