@@ -22,7 +22,9 @@ public class MoonStudioActivity extends Activity {
   web=new WebView(this);WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);web.setWebChromeClient(new WebChromeClient());
   capture=new AudioBandCapture(new AudioBandCapture.Listener(){@Override public void onBands(final float bass,final float mid,final float treble){if(android.os.SystemClock.uptimeMillis()-lastBandUiMs<100)return;
    lastBandUiMs=android.os.SystemClock.uptimeMillis();
-   runOnUiThread(new Runnable(){@Override public void run(){if(web!=null)web.evaluateJavascript("window.onNativeBands("+bass+","+mid+","+treble+")",null);}});}});
+   runOnUiThread(new Runnable(){@Override public void run(){if(web!=null)web.evaluateJavascript("window.onNativeBands("+bass+","+mid+","+treble+")",null);}});}
+   @Override public void onError(final String message){runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onNativeAudioError(\'"+jsQuote(message)+"\')");}});}
+  });
   smlReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
    if(!probePending||intent==null)return;
    try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);Ev6LightingController.capture(status);
