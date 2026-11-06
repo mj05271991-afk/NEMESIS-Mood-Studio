@@ -1,0 +1,30 @@
+name: Build Moon ALSA Diagnostic ARMv7
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/audio-loopback-ui]
+    paths:
+      - 'engineering/native/**'
+      - '.github/workflows/native-audio-probe.yml'
+
+jobs:
+  native-probe:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Zig and pinned TinyALSA
+        run: |
+          python3 -m pip install --user ziglang
+          git clone https://github.com/tinyalsa/tinyalsa third_party/tinyalsa
+          git -C third_party/tinyalsa checkout a7cd26a17fe2add2ff38d2f281ed0b919187a068
+      - name: Compile ARMv7 audio diagnostic
+        run: bash engineering/native/build-probe.sh
+      - name: Check ARM architecture
+        run: |
+          test -s build/native/moon_audio_probe
+          file build/native/moon_audio_probe | grep -E 'ARM|arm'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-ALSA-ARMv7-diagnostic-NOT-INSTALLER
+          path: build/native/moon_audio_probe
