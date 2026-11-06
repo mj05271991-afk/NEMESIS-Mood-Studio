@@ -64,9 +64,12 @@ jobs:
           print('Extracted',len(parts),'inline scripts')
           PY
           npm install --prefix /tmp/moon-dashboard --no-save @babel/core@7 @babel/cli@7 @babel/preset-env@7
-          for js in /tmp/moon-dashboard/script-*.js; do
-            /tmp/moon-dashboard/node_modules/.bin/babel "$js" --no-babelrc --presets '@babel/preset-env' --out-file "${js%.js}.legacy.js"
-          done
+          (
+            cd /tmp/moon-dashboard
+            for js in script-*.js; do
+              ./node_modules/.bin/babel "$js" --no-babelrc --presets '@babel/preset-env' --out-file "${js%.js}.legacy.js"
+            done
+          )
           python3 - <<'PY'
           import pathlib
           folder=pathlib.Path('/tmp/moon-dashboard')
