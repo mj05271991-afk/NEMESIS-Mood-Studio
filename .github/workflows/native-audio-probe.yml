@@ -48,6 +48,7 @@ jobs:
           import pathlib, re
           html=pathlib.Path('design/approved-moon-studio-concept.html').read_text()
           assert '<script' in html and 'MoodLighting' in html
+          assert 'id="bridgePower"' not in html, 'bridge toolbar should be created by JavaScript'
           parts=[]
           def extract(match):
               opening,body=match.group(1),match.group(2)
@@ -59,6 +60,7 @@ jobs:
           (out/'template.html').write_text(templ)
           for i,part in enumerate(parts):(out/f'script-{i}.js').write_text(part)
           (out/'count').write_text(str(len(parts)))
+          assert len(parts) >= 3, 'no scripts extracted from approved interface'
           print('Extracted',len(parts),'inline scripts')
           PY
           npm install --prefix /tmp/moon-dashboard --no-save @babel/core@7 @babel/cli@7 @babel/preset-env@7
