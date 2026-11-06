@@ -22,6 +22,7 @@ static int music_playing(void){
 static volatile sig_atomic_t interrupted=0;
 static void stop(int sig){(void)sig;interrupted=1;}
 static int run(int capture,int loopback,int continuous){
+ unsigned blocks=0;
  struct mixer *m=mixer_open(0);
  if(!m){fputs("ALSA card0 unavailable\n",stderr);return 3;}
  const char *name="Device2 Tx to Rx Internal Loopback Mode";
@@ -52,7 +53,9 @@ static int run(int capture,int loopback,int continuous){
   else printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble);
  }
  fflush(stdout);
- } while(continuous&&!interrupted);
+  blocks++;
+ } while(continuous&&!interrupted&&blocks<200);
+ if(continuous&&blocks>=200)puts("Monitor session limit reached; restoring loopback");
  pcm_close(pcm);
 done:
  if(changed){
@@ -64,7 +67,7 @@ done:
 }
 int main(int argc,char **argv){
  signal(SIGINT,stop);signal(SIGTERM,stop);
- if(argc!=2){fputs("Usage: moon-alsa-probe --probe|--capture-once|--capture-loopback-once\n",stderr);return 2;}
+ if(argc!=2){fputs("Usage: moon-alsa-probe --probe|--capture-once|--capture-loopback-once|--monitor-loopback\n",stderr);return 2;}
  if(!strcmp(argv[1],"--probe"))return run(0,0,0);
  if(!strcmp(argv[1],"--capture-once"))return run(1,0,0);
  if(!strcmp(argv[1],"--capture-loopback-once"))return run(1,1,0);
