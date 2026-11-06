@@ -1,12 +1,26 @@
 #!/system/bin/sh
-# Moon Studio HMG service staging: independent of the Android UI.
-# This service is disabled until an explicit opt-in marker exists.
+# Moon Studio standalone service, derived from Kyle's HMG mod lifecycle.
+# Explicit opt-in required. Never run concurrently with Kyle's Light Vibes.
 MOD=/data/hmgapi/mods/${HMGAPI_MOD:-moon-studio}
-SETTINGS=/data/data/com.nemesis.moonstudio/files
-[ -f "$SETTINGS/enable_native_audio" ] || exit 0
-[ -x "$MOD/moon-alsa-probe" ] || exit 1
-# No MICOM commands: only audio analysis. Each run restores the mixer state.
-while [ -f "$SETTINGS/enable_native_audio" ]; do
-  "$MOD/moon-alsa-probe" --monitor-rgb >> "$SETTINGS/native-audio.log" 2>&1
-  sleep 2
-done
+SETTINGS=/data/data/com.nemesis.moonstudio/files/settings
+ENABLE=/data/data/com.nemesis.moonstudio/files/enable_moon_lighting
+LOCK=/data/hmgapi/moon-studio-lighting.lock
+[ -f "$ENABLE" ] || exit 0
+[ -x "$MOD/moon-lightd" ] || exit 1
+# Fail closed if Kyle's daemon appears active; both use the same MICOM and ALSA mixer.
+if pidof lightvibesd >/dev/null 2>&1; then
+  echo "Moon Studio: Light Vibes is active; refusing concurrent lighting control" >&2
+  exit 2
+fi
+if ! mkdir "$LOCK" 2>/dev/null; then
+  echo "Moon Studio: another lighting session owns the lock" >&2
+  exit 3
+fi
+cleanup() { rmdir "$LOCK" 2>/dev/null; }
+trap cleanup EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
+mkdir -p "$SETTINGS"
+# The daemon independently restores the original MICOM state on normal exit.
+# HMG runs this script independently of Moon Studio's UI.
+exec "$MOD/moon-lightd" "$SETTINGS" "$MOD/defaults"

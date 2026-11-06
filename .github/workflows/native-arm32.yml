@@ -82,18 +82,25 @@ jobs:
           cp native/hmg-mod/moon.sh native/hmg-staging/moon.sh
           cp native/hmg-mod/mod.json native/hmg-staging/mod.json
           cp native/arm32-static-build/moon-alsa-probe native/hmg-staging/moon-alsa-probe
-          chmod 755 native/hmg-staging/moon.sh native/hmg-staging/moon-alsa-probe
+          cp native/arm32-static-build/moon-lightd native/hmg-staging/moon-lightd
+          mkdir -p native/hmg-staging/defaults
+          printf '0\\n' > native/hmg-staging/defaults/enabled
+          cp native/upstream-lightvibes/LICENSE native/hmg-staging/LICENSE
+          chmod 755 native/hmg-staging/moon.sh native/hmg-staging/moon-alsa-probe native/hmg-staging/moon-lightd
           sh -n native/hmg-staging/moon.sh
           file native/hmg-staging/moon-alsa-probe | grep -E 'ELF 32-bit.*ARM'
           ! readelf -l native/hmg-staging/moon-alsa-probe | grep -q INTERP
-          grep -F 'enable_native_audio' native/hmg-staging/moon.sh
-          ! grep -E 'setSMLRGB|setSMLConfiguration|micom' native/hmg-staging/moon.sh
+          grep -F 'enable_moon_lighting' native/hmg-staging/moon.sh
+          grep -F 'pidof lightvibesd' native/hmg-staging/moon.sh
+          grep -F 'moon-lightd' native/hmg-staging/moon.sh
+          test "$(cat native/hmg-staging/defaults/enabled)" = 0
           python3 - <<'PY'
           import json
           with open('native/hmg-staging/mod.json') as f: m=json.load(f)
           assert m['id']=='moon-studio'
           assert m['services'][0]['script']=='moon.sh'
           assert m['services'][0]['restart'] is False
+          assert m['services'][0]['name']=='moon-lighting'
           PY
           (cd native/hmg-staging && zip -qr ../moon-hmg-diagnostics-staging.zip .)
           unzip -t native/moon-hmg-diagnostics-staging.zip
