@@ -113,6 +113,11 @@ jobs:
               assert 'classes.dex' in z.namelist()
               assert 'AndroidManifest.xml' in z.namelist()
               assert 'assets/index.html' in z.namelist()
+              dashboard=z.read('assets/index.html').decode('utf-8')
+              assert 'Mood Studio' in dashboard and 'MoodLighting' in dashboard
+              assert 'bridgePower' in dashboard and 'bridgeBrightness' in dashboard
+              assert 'Browser preview only' in dashboard
+              assert len(dashboard) > 85000, 'approved dashboard not packaged'
           with zipfile.ZipFile('build/Moon-HMGAPI-INTEGRATION-UNTESTED.zip') as z:
               names = set(z.namelist())
               for p in ('moonaudiod','mod.json','audio.sh','app/MoonStudio.apk'):
