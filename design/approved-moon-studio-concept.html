@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#080e1b" name="theme-color"/><title>Mood Studio · Lighting Lab</title><style>
+:root{font-family:Arial,sans-serif;color:#ecf7ff;background:#080e1b;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#193952,transparent 42%),#080e1b;min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}.shell{max-width:1150px;margin:auto;padding:18px 15px 70px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.logo{color:#70e2ef;letter-spacing:.23em;font-weight:700;font-size:13px}.muted{color:#91a8be;font-size:12px}.badge{border:1px solid #35576d;border-radius:25px;padding:9px 12px;font-size:11px;color:#8de9f0}.title{font-size:clamp(28px,5vw,46px);letter-spacing:-.035em;margin:25px 0 6px;font-weight:500}.desc{color:#94acc2;margin:0 0 20px;font-size:14px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:linear-gradient(145deg,#17283a,#101a2b);border:1px solid #2b435a;border-radius:22px;padding:18px;min-width:0}.panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:#8cacc4;font-weight:600;margin:0 0 16px}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mode{border:1px solid #35536b;background:#192d42;color:#d7eaf6;border-radius:13px;padding:13px 6px;font-size:12px}.mode.active{background:#1c505c;border-color:#70e2ef;box-shadow:inset 0 0 0 1px #70e2ef}.mode small{display:block;color:#91aabd;margin-top:5px;font-size:10px}.section{border-top:1px solid #2d4359;padding-top:16px;margin-top:18px}.label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:15px 0 8px;font-size:13px}.label output{color:#7ee8f1;font-size:12px}input[type=range]{width:100%;accent-color:#5cdeec}.swatches{display:flex;flex-wrap:wrap;gap:9px}.swatch{height:31px;width:31px;border-radius:50%;border:2px solid transparent}.swatch.active{outline:2px solid #d8f8ff;outline-offset:2px}.colorpair{display:grid;grid-template-columns:1fr 1fr;gap:15px}.colorhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;color:#bcd3e4;font-size:13px}.colorhead input{width:42px;height:34px;background:none;border:0}.preview{height:85px;border-radius:16px;display:flex;gap:3px;padding:5px;background:#0a1424;border:1px solid #35526b;overflow:hidden}.preview div{flex:1;border-radius:10px;transition:background .2s,opacity .2s}.presets{display:flex;flex-wrap:wrap;gap:8px}.preset{background:#1b3044;border:1px solid #37546b;color:#d7ebf5;border-radius:18px;padding:10px 12px;font-size:12px}.preset.active{background:#255866;border-color:#6fe4ee}.switch{display:flex;gap:9px;align-items:center;font-size:13px;color:#c7ddec}.switch input{accent-color:#63e5eb}.bands{display:grid;gap:8px}.band{display:grid;grid-template-columns:1fr 62px 1fr;align-items:center;gap:10px;font-size:12px;color:#c6d9e9}.band input[type=color]{width:50px;height:31px;border:0;background:none}.band input[type=range]{min-width:0}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:13px;padding:13px 17px;background:#69e3ec;color:#07242b;font-weight:bold}.btn.secondary{background:#203a50;color:#d8edf8;border:1px solid #406078}.notice{border:1px solid #37536b;color:#b4cbdd;background:#12253a;padding:12px;border-radius:13px;font-size:12px;line-height:1.5;margin-top:15px}.status{margin-top:12px;color:#88e8e7;font-size:12px;min-height:18px}.hidden{display:none!important}@media(max-width:760px){.layout{grid-template-columns:1fr}.modes{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.title{margin-top:24px}.band{grid-template-columns:70px 50px 1fr}}
+.wheel-btn{width:37px;height:37px;border-radius:50%;border:3px solid #c5e6f4;background:conic-gradient(red,#ff0,lime,cyan,blue,magenta,red);cursor:pointer;box-shadow:0 0 0 3px #203b53;flex-shrink:0}.wheel-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}.colorhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.colorhead input[type=color]{width:44px;height:37px;cursor:pointer}.colorhint{font-size:11px;color:#a5c1d2;margin:7px 0 10px}.hexlabel{font:12px monospace;color:#d1eaf5;min-width:68px} 
+.color-slot-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}.color-slot-tools span{font-size:12px;color:#a9c6d8;margin-right:auto}.color-slot-tools .btn{padding:9px 11px;font-size:12px}
+.color-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.color-slot{background:#102236;border:1px solid #304b62;border-radius:14px;padding:13px;min-width:0}.slot-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#dceef9}.slot-color{display:inline-block;width:19px;height:19px;border-radius:50%;border:1px solid #b9d2e2}.color-slot .swatches{gap:7px;align-items:center}.color-slot .swatch{height:27px;width:27px}.color-slot .wheel-btn{width:30px;height:30px;border-width:2px;box-shadow:none}.preset{display:flex;align-items:center;gap:9px;padding:6px 11px 6px 6px}.preset-thumb{width:38px;height:38px;flex-shrink:0;object-fit:cover;border-radius:10px;border:1px solid #ffffff24}.presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.preset{text-align:left;border-radius:13px}.preview{gap:4px}.preview div{min-width:0}@media(max-width:470px){.color-slots{grid-template-columns:1fr}.presets{grid-template-columns:repeat(2,minmax(0,1fr))}.preset{font-size:11px}.preset-thumb{width:32px;height:32px}}
+ 
+.preset-editor{margin-top:18px;border:1px solid #4b8198;border-radius:18px;background:#102438;padding:16px;box-shadow:0 12px 35px #0004}
+.preset-editor[hidden]{display:none!important}.editor-heading{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:18px}.editor-heading h2{margin:4px 0}.eyebrow{color:#58d8ec;font-size:11px;letter-spacing:.13em;font-weight:800}
+.editor-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.editor-controls label,.preset-editor>label{display:flex;flex-direction:column;gap:8px;color:#c5dcec;font-size:12px;font-weight:600;min-width:0}
+.editor-controls select,.preset-editor>label input{background:#0b1b2c;color:#eefbff;border:1px solid #42627a;border-radius:10px;padding:12px;min-width:0;width:100%;box-sizing:border-box}
+.editor-controls input[type=range]{width:100%}.preset-editor h3{font-size:15px}.preset-editor h3 span{font-size:11px;margin-left:8px}.preset-editor .actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+@media(max-width:490px){.editor-controls{grid-template-columns:1fr}.editor-heading .btn{font-size:11px;padding:8px}}
+
+/* Full-screen animated, diffuse ambient glow. Decorative only; all controls stay accessible. */
+html{background:#080e1b}body{background:#080e1b;isolation:isolate}
+.ambient-hues{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;background:radial-gradient(ellipse at 50% 110%,#142449 0%,transparent 65%)}
+.hue{position:absolute;display:block;width:80vmax;height:80vmax;border-radius:50%;filter:blur(75px);opacity:.42;mix-blend-mode:screen;will-change:transform}
+.hue-a{background:radial-gradient(circle,#0ccce3 0%,#1766c0 38%,transparent 69%);top:-45vmax;left:-32vmax;animation:drift-a 19s ease-in-out infinite alternate}
+.hue-b{background:radial-gradient(circle,#a444f1 0%,#5c35ac 38%,transparent 70%);top:3vmax;right:-42vmax;animation:drift-b 23s ease-in-out infinite alternate}
+.hue-c{background:radial-gradient(circle,#ed3b9b 0%,#773cbd 37%,transparent 70%);bottom:-57vmax;left:-15vmax;animation:drift-c 25s ease-in-out infinite alternate}
+.hue-d{background:radial-gradient(circle,#08bcb5 0%,#167b95 35%,transparent 68%);bottom:-52vmax;right:-35vmax;animation:drift-d 29s ease-in-out infinite alternate}
+@keyframes drift-a{from{transform:translate(0,0) scale(.88)}to{transform:translate(22vw,19vh) scale(1.14)}}
+@keyframes drift-b{from{transform:translate(0,0) scale(1.12)}to{transform:translate(-23vw,17vh) scale(.86)}}
+@keyframes drift-c{from{transform:translate(0,0) scale(.9)}to{transform:translate(24vw,-26vh) scale(1.13)}}
+@keyframes drift-d{from{transform:translate(0,0) scale(1.1)}to{transform:translate(-24vw,-20vh) scale(.91)}}
+.shell{position:relative;z-index:1}.panel,.preset-editor{background-color:rgba(12,26,43,.88)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.top{position:relative}.title{text-shadow:0 0 32px #64dffb4d}.logo{text-shadow:0 0 24px #60dff7aa}
+@media(prefers-reduced-motion:reduce){.hue{animation:none!important;will-change:auto}}
+@media(max-width:600px){.hue{filter:blur(50px);opacity:.34}}
+
+/* V28 adaptive display engine: based on usable CSS viewport, not physical diagonal. */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.shell{width:100%;max-width:none;margin-inline:auto;min-width:0}
+.panel,.mode-workspace,.preset-workspace,.mode-list,.mode-detail,.preset-library,.preset-detail{min-width:0}
+img,svg,canvas{max-width:100%}
+button{touch-action:manipulation}
+body[data-display-layout="ultrawide"] .shell{padding-inline:clamp(12px,1.15vw,28px)}
+body[data-display-layout="ultrawide"] .mode-workspace{grid-template-columns:minmax(260px,29%) minmax(0,1fr)}
+body[data-display-layout="ultrawide"] .preset-workspace{grid-template-columns:minmax(280px,32%) minmax(0,1fr)}
+body[data-display-layout="ultrawide"] .mode-list .modes{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-display-layout="landscape"] .mode-workspace,body[data-display-layout="landscape"] .preset-workspace{grid-template-columns:minmax(220px,36%) minmax(0,1fr)}
+body[data-display-layout="compact"] .mode-workspace,body[data-display-layout="compact"] .preset-workspace{grid-template-columns:minmax(145px,38%) minmax(0,1fr)}
+body[data-display-layout="compact"] .mode-list .modes{grid-template-columns:1fr}
+body[data-display-layout="portrait"] .mode-workspace,body[data-display-layout="portrait"] .preset-workspace{grid-template-columns:1fr}
+body[data-display-layout="portrait"] .mode-list .modes{grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-display-layout="portrait"] .mode-list,body[data-display-layout="portrait"] .preset-library{max-height:none;overflow:visible}
+body[data-display-height="short"] .top{min-height:110px;padding-block:8px}
+body[data-display-height="short"] .studio-visualizer-full .visual-bars{height:42px}
+body[data-display-height="short"] .panel{padding:clamp(8px,1vw,16px)}
+body[data-display-height="short"] .title{margin-block:6px}
+body[data-display-height="short"] .mode-detail,body[data-display-height="short"] .preset-detail{max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain}
+/* Always retain visible illustrations beside labels. */
+.mode-art,.preset-art{flex-shrink:0;object-fit:cover}
+@media(max-width:700px){body[data-display-layout="portrait"] .shell{padding-inline:10px}}
+</style><style>
+.tabnav{position:sticky;top:0;z-index:10;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:12px 0;background:#080e1bf2;backdrop-filter:blur(12px);border-bottom:1px solid #28405b;margin-bottom:15px}
+.tabnav::-webkit-scrollbar{display:none}.tabbutton{flex:1 0 auto;white-space:nowrap;border:1px solid #34506a;background:#12253a;color:#b8d0e2;border-radius:12px;padding:13px 12px;font-size:13px;font-weight:700}
+.tabbutton.selected{background:#12526a;color:#f1fcff;border-color:#43d8ed;box-shadow:inset 0 -2px #43d8ed}
+section[data-tab][hidden]{display:none!important}
+@media(min-width:850px){.shell{padding-left:188px}.tabnav{position:fixed;left:12px;top:110px;width:164px;display:flex;flex-direction:column;overflow:visible;background:transparent;border:0;padding:0}.tabbutton{width:100%;text-align:left;flex:auto}.tabnav .tabbutton{padding:17px 12px}}
+</style><style>
+/* Persistent, compact preview visible in every category. */
+.global-preview{position:sticky;top:61px;z-index:9;margin:10px 0 14px;padding:13px 17px;background:#101f32df;border:1px solid #42657b;border-radius:16px;box-shadow:0 8px 28px #0006;backdrop-filter:blur(16px)}
+.global-preview h2{font-size:14px;margin:0 0 9px}.global-preview .preview{height:36px;display:flex;gap:4px;overflow:hidden;border-radius:9px}.global-preview .preview>div{flex:1;transition:background .35s,opacity .25s;min-width:0}.global-preview .label{margin-top:8px}
+.preset-workspace{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}.preset-editor{margin-top:0;min-width:0}.preset-library{min-width:0}.preset-library .presets{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Subtle, color-shifting ambient lighting across the entire application. */
+.ambient-hues{opacity:.66!important;filter:saturate(1.25);animation:moodColorShift 22s linear infinite}
+@keyframes moodColorShift{0%{filter:hue-rotate(0deg) saturate(1.25)}50%{filter:hue-rotate(165deg) saturate(1.35)}100%{filter:hue-rotate(360deg) saturate(1.25)}}
+@media(min-width:850px){
+ .global-preview{top:12px;margin:0 0 14px}
+ .preset-workspace{grid-template-columns:minmax(185px, .65fr) minmax(360px, 1.8fr);gap:16px;transition:grid-template-columns .3s ease}
+ .preset-library{position:sticky;top:116px;max-height:calc(100vh - 132px);overflow-y:auto;scrollbar-width:thin;padding-right:3px}
+ .preset-library .presets{grid-template-columns:repeat(1,minmax(0,1fr))}
+ .preset-detail{min-width:0;max-height:calc(100vh - 126px);overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}
+ .preset-editor{padding:18px}
+ .preset-editor .editor-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .preset-editor .color-slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:490px){.global-preview{top:58px}.preset-editor .editor-controls{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.ambient-hues{animation:none!important}.global-preview .preview>div{transition:none}}
+.preset-workspace.editing .preset-library{transition:transform .28s ease,opacity .28s ease}.preset-workspace.editing .preset-detail{animation:editorEnter .25s ease-out}@keyframes editorEnter{from{opacity:.3;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+@media(min-width:700px) and (max-width:849px){.preset-workspace{grid-template-columns:minmax(180px,.7fr) minmax(360px,1.7fr)}.preset-library .presets{grid-template-columns:1fr}.preset-library{max-height:calc(100vh - 180px);overflow-y:auto}.preset-detail{max-height:calc(100vh - 180px);overflow-y:auto}}
+</style><style>
+.run-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-left:auto}.master-toggle{border:1px solid #55dff2;background:linear-gradient(135deg,#137d95,#23509c);border-radius:14px;color:#fff;font-weight:800;padding:13px 17px;cursor:pointer}.master-toggle.running{background:linear-gradient(135deg,#96304b,#6c2d70);border-color:#f49bc5}.master-status{font-size:11px;color:#b5d3e4}.wave-panel{margin-top:18px;padding:16px;background:#102438b8;border:1px solid #375d78;border-radius:18px}.wave-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wave-controls label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:#cde6f4}.wave-controls select{padding:11px;border-radius:10px;background:#0b1c2e;color:white;border:1px solid #52728c}.wave-controls input[type=range]{width:100%}.wave-controls .wave-check{flex-direction:row;align-items:center}.wave-strip{display:flex;gap:4px;height:50px;margin-top:18px;padding:7px;background:#091421;border-radius:13px}.wave-strip>div{flex:1;min-width:0;border-radius:7px;transition:opacity .15s,filter .15s}.wave-panel h2{margin-top:0}@media(max-width:500px){.wave-controls{grid-template-columns:1fr}.run-controls{margin-left:0;width:100%}}
+</style><style>
+.studio-visualizer{position:relative;z-index:1;background:rgba(13,28,46,.82);border:1px solid #2d5870;border-radius:18px;padding:12px 16px;margin:12px 0;backdrop-filter:blur(14px)}
+.visual-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#d8f4ff}.visual-title span{font-size:10px;color:#91b6c9}.visual-bars{display:flex;align-items:end;justify-content:space-between;height:57px;gap:3px;padding:8px 0 0}.visual-bars i{flex:1;border-radius:5px 5px 1px 1px;min-height:3px;background:linear-gradient(to top,#3466b5,#3cd8d7,#a15ef5);transition:height .13s ease}.visual-footer{display:flex;justify-content:space-between;color:#8ba7bc;font-size:9px;letter-spacing:.15em;margin-top:5px}
+.favorite-save{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.favorite-save input,.night-grid input[type=time],.feature-grid select{background:#11253a;color:#e6f8ff;border:1px solid #3a6178;border-radius:10px;padding:12px;min-width:0}.favorite-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}.favorite-card{border:1px solid #3b647c;background:#10283d;border-radius:14px;padding:12px;display:grid;gap:10px}.favorite-colors{height:20px;display:flex;overflow:hidden;border-radius:7px}.favorite-colors span{flex:1}.favorite-actions{display:flex;gap:8px}.favorite-actions button{flex:1}.night-grid,.feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.night-grid label,.feature-grid label{display:flex;flex-direction:column;gap:8px;font-size:13px;color:#cde5f1}.night-grid input[type=range],.feature-grid input[type=range]{width:100%}
+@media(max-width:600px){.night-grid,.feature-grid{grid-template-columns:1fr}.studio-visualizer{margin:9px 0}}
+
+.studio-visualizer-full{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:5px 0 10px!important;margin:4px 0 10px!important;width:100%;overflow:hidden}
+.studio-visualizer-full .visual-bars{height:105px;gap:3px;padding:5px 0 0;width:100%}
+.studio-visualizer-full .visual-bars i{background:linear-gradient(to top,#31a2c9,#55f1e4 48%,#d181ff);box-shadow:0 0 12px #4bd8f58a,0 0 24px #b75bff44;opacity:.9}
+.studio-visualizer-full .visual-title,.studio-visualizer-full .visual-footer{padding:0 3px}
+.feature-control-group[hidden]{display:none!important}
+.feature-selector{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.feature-selector button{background:#10283de0;color:#cde8f7;border:1px solid #375c78;border-radius:12px;padding:12px 15px;font-weight:700}
+.feature-selector button.selected{border-color:#58e4e7;background:#17617a;color:#fff}
+.feature-controls-heading{font-size:17px;margin:12px 0 8px}
+@media(max-width:600px){.studio-visualizer-full .visual-bars{height:80px}}
+</style><style>
+/* V13: mode chooser on left, dedicated active-mode settings on right */
+.mode-workspace{width:100%;min-width:0;display:grid;grid-template-columns:minmax(205px,.78fr) minmax(340px,1.5fr);gap:16px;align-items:start}
+.mode-list{min-width:0}.mode-list .modes{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mode-list .mode{min-height:54px}
+.mode-list{min-width:0}.mode-list .modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mode-list .mode{min-width:0;white-space:normal}.mode-detail{min-width:0;border:1px solid #345b73;border-radius:17px;padding:16px;background:#081729a8}
+.mode-detail .section{margin-top:12px}.mode-detail h2{margin-top:0}.mode-specific{display:none}.mode-specific.active{display:block}
+.mode-specific label{display:grid;gap:8px;margin:14px 0;color:#cce6f4}.mode-specific input,.mode-specific select{width:100%}
+.mode-specific .muted{font-size:12px}.mode-detail .wave-panel{display:none}.mode-detail .wave-panel.active{display:block}
+.mode-detail .feature-controls-heading{margin:8px 0}.mode-detail .feature-control-group{display:none!important}.mode-detail .feature-control-group.active{display:block!important}
+.studio-visualizer-full{position:relative;height:128px;display:flex;flex-direction:column;justify-content:space-between}
+.studio-visualizer-full .visual-bars{display:flex!important}
+.flow-visualizer{width:100%;height:90px;overflow:visible;display:block;pointer-events:none}
+.flow-visualizer path{fill:none;stroke-width:2.3;filter:drop-shadow(0 0 6px currentColor)}
+@media(max-width:820px){.mode-workspace{grid-template-columns:minmax(115px,36%) minmax(0,64%);gap:8px}.mode-list .modes{grid-template-columns:1fr}.mode-detail{padding:9px}.mode-specific label{min-width:0}.mode-specific input{max-width:100%}}
+</style><style>
+/* V16: spectrum extends from below the tagline to the very top of the header */
+.top{position:relative;display:flex;flex-wrap:wrap;min-height:230px;overflow:hidden;isolation:isolate;align-items:flex-start;padding:18px 18px 12px;gap:10px 16px;border-radius:18px}
+.top> :not(.header-spectrum){position:relative;z-index:2}
+.header-spectrum{position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;width:100%!important;height:100%!important;overflow:hidden!important}
+.header-spectrum .visual-bars{position:absolute!important;inset:0!important;display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:3px!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important}
+.header-spectrum .visual-bars i{flex:1;min-width:2px;min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(to top,#12a7e07a 0%,#48dce9b8 38%,#b45cf5dc 70%,#ff79d5ef 100%);box-shadow:0 0 10px #56d8ff7a,0 0 18px #b45cf56e;transition:height 90ms linear;opacity:.8}
+.header-copy{width:100%;align-self:flex-end;order:10;padding-top:42px;pointer-events:none;text-shadow:0 2px 10px #05101d,0 0 12px #05101d}
+.header-copy .title{margin:0 0 4px!important}.header-copy .desc{margin:0!important}
+.top .run-controls{margin-left:auto;background:#08182bd9;padding:7px;border-radius:12px}
+.top .logo,.top .muted,.top .badge{background:#08182ba6;border-radius:6px;padding:3px 6px}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:650px){.top{min-height:245px}.top .badge{display:none}.header-copy{padding-top:24px}.top .run-controls{margin-left:0}}
+
+.mode-list .mode{position:relative;text-align:left;padding-left:53px!important;min-height:65px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.mode-list .mode .mode-art{position:absolute;left:9px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,#3b8de1a8,#bb54dbb0);color:white;font-size:23px;line-height:1;box-shadow:0 0 13px #6bdcf548;flex-shrink:0}
+.mode-list .mode small{font-size:10px;opacity:.7;display:block}
+@media(max-width:520px){.mode-list .mode{padding-left:45px!important}.mode-list .mode .mode-art{left:5px;width:32px;height:32px}}
+
+.preset-art{overflow:hidden;display:grid;place-items:center;flex-shrink:0;width:42px;height:42px;border-radius:12px;font-size:26px;color:#fff;background:#0b1028;box-shadow:inset 0 1px 1px #ffffff55,0 0 16px color-mix(in srgb,var(--art-color) 55%,transparent);text-shadow:0 2px 7px #10192a99;line-height:1}
+.preset{gap:10px;min-height:55px}.preset.active .preset-art{box-shadow:0 0 0 1px #d6fcff,0 0 18px var(--art-color)}
+@media(max-width:520px){.preset-art{width:36px;height:36px;font-size:23px}}
+
+.signature-row{margin:13px 0;padding:14px;border:1px solid #3e6381;border-radius:15px;background:#10253b9c}
+.signature-row h3{margin:0 0 5px;font-size:17px}.signature-row p{margin:0 0 10px;color:#a6c7d8;font-size:13px}
+.signature-row label{display:block;margin:9px 0;color:#d5eaff;font-size:13px}
+.signature-row input[type=range]{width:100%}
+.signature-preview{display:flex;gap:4px;height:50px;overflow:hidden;border-radius:12px;margin:12px 0;background:#09182b;padding:6px}
+.signature-preview span{flex:1;border-radius:6px;min-width:0;transition:background .2s,opacity .12s;box-shadow:0 0 13px currentColor}
+.signature-badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#16405d;color:#76e9ef;font-size:11px;letter-spacing:.04em}
+
+.mode-templates{margin:12px 0}.mode-templates h3{font-size:15px;margin:8px 0}
+.template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.template-btn{padding:10px;border-radius:12px;background:#102b42;border:1px solid #385b77;color:#e6f7ff;text-align:left;cursor:pointer}
+.template-btn.active{border-color:#67e8ed;box-shadow:0 0 12px #38e3eb44;background:#17425a}
+.template-btn small{display:block;color:#93bcd1;font-size:11px;margin-top:4px}
+.extras-panel{border:1px solid #426783;border-radius:15px;background:#0c2138b8;padding:13px;margin:12px 0}
+.extras-panel h3{margin:0 0 9px;font-size:15px}.extras-panel label{display:block;margin:8px 0}
+.extras-panel input[type=range]{width:100%}.extras-panel select,.extras-panel input[type=text]{width:100%;background:#11283d;color:white;border:1px solid #45627d;border-radius:8px;padding:8px}
+.cabin-map{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:12px 0;padding:14px;border:1px solid #365976;border-radius:20px;background:linear-gradient(90deg,#091d30,#19283e,#091d30)}
+.cabin-map span{height:11px;border-radius:12px;box-shadow:0 0 12px currentColor;animation:cabinGlow 2s ease-in-out infinite alternate}
+@keyframes cabinGlow{to{opacity:.25;filter:brightness(.6)}}
+.extras-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:620px){.extras-row{grid-template-columns:1fr}.template-grid{grid-template-columns:1fr}}
+</style><style>
+/* EV6 1920x720 / 24:9 adaptive layout, CSS pixels may differ from panel pixels. */
+@media (min-width: 1200px) and (min-aspect-ratio: 2/1) {
+ html,body {width:100%;overflow-x:hidden}
+ .shell {max-width:none!important;width:100%;box-sizing:border-box;padding:10px 18px 26px 158px!important;margin:0!important}
+ .tabnav {left:10px!important;top:92px!important;width:136px!important;gap:5px!important}
+ .tabnav .tabbutton {padding:11px 9px!important;font-size:13px!important}
+ .top {min-height:118px!important;padding:12px 18px!important;border-radius:14px!important}
+ .top .title {font-size:clamp(25px,2.4vw,38px)!important;margin:0!important}
+ .top .header-copy {padding-top:0!important}
+ .studio-visualizer-full .visual-bars {height:58px!important}
+ .global-preview {position:relative!important;top:auto!important;margin:6px 0 10px!important;padding:8px 12px!important}
+ .global-preview .preview {min-height:24px!important}
+ .mode-workspace {grid-template-columns:minmax(245px,.55fr) minmax(520px,1.45fr)!important;gap:12px!important}
+ .mode-list .modes {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .mode-list .mode {min-height:54px!important;padding-top:7px!important;padding-bottom:7px!important}
+ .mode-detail {padding:12px!important}
+ .template-grid {grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .preset-workspace {grid-template-columns:minmax(300px,.8fr) minmax(570px,1.6fr)!important;gap:12px!important}
+ .preset-library .presets {grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .panel {padding:12px!important;border-radius:14px!important}
+ .extras-row {grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .signature-row {padding:10px!important;margin:8px 0!important}
+}
+@media (min-width:1200px) and (max-height:800px) {
+ .shell {padding-bottom:12px!important}
+ .top {min-height:100px!important}
+ .studio-visualizer-full .visual-bars {height:44px!important}
+}
+</style><style>
+/* Preserve illustrated images beside labels at all EV6 widths. */
+#modes .mode{display:flex!important;align-items:center!important;justify-content:flex-start!important;text-align:left!important;gap:11px!important;min-height:72px!important;padding:8px 10px!important;position:relative}
+#modes .mode .mode-art{display:flex!important;align-items:center;justify-content:center;flex:0 0 54px!important;width:54px!important;height:54px!important;min-width:54px!important;border-radius:12px;overflow:hidden;background:#101d33}
+#modes .mode .mode-art img{width:100%;height:100%;object-fit:cover;display:block}
+#presets .preset .preset-art{flex-shrink:0!important;overflow:hidden}
+#presets .preset .preset-art img{width:100%;height:100%;object-fit:cover;display:block}
+@media(min-width:1200px) and (min-aspect-ratio:2/1){#modes .mode{min-height:70px!important}#modes .mode .mode-art{flex-basis:48px!important;width:48px!important;height:48px!important;min-width:48px!important}}
+</style></head><body><div aria-hidden="true" class="ambient-hues"><span class="hue hue-a"></span><span class="hue hue-b"></span><span class="hue hue-c"></span><span class="hue hue-d"></span></div><div class="shell"><header class="top"><div aria-label="Simulated music visualizer" class="header-spectrum"><div class="visually-hidden"><strong>Music Visualizer</strong><span id="visualizerStatus">Simulated audio · demo</span></div><div class="visual-bars" id="visualBars"></div></div><div><div class="logo">MOOD STUDIO</div><div class="muted">Concept D / Lighting Lab</div></div><div class="badge">● DESIGN PREVIEW</div><div class="run-controls"><button aria-pressed="false" class="master-toggle" id="masterToggle" type="button">▶ Start lighting</button><span class="master-status" id="masterStatus">Preview stopped</span></div><div class="header-copy"><h1 class="title">Set the atmosphere.</h1><p class="desc">Your sound. Your colors. Your atmosphere.</p></div></header><div class="layout"><div><nav aria-label="Lighting categories" class="tabnav"><button aria-pressed="true" class="tabbutton selected" data-target="colors" type="button">🎨 Modes &amp; Colors</button><button aria-pressed="false" class="tabbutton" data-target="presets" type="button">🎉 Presets</button><button aria-pressed="false" class="tabbutton" data-target="music" type="button">🎵 Music</button><button aria-pressed="false" class="tabbutton" data-target="effects" type="button">✨ Effects</button><button aria-pressed="false" class="tabbutton" data-target="favorites" type="button">⭐ Favorites</button><button aria-pressed="false" class="tabbutton" data-target="night" type="button">🌙 Night</button></nav><div class="global-preview" id="globalPreview"><h2>Live color preview</h2><div class="preview" id="lightPreview"></div><div class="label"><span>Preview animation</span><button class="btn secondary" id="animate">Start</button></div></div><section class="panel" data-tab="colors"><h2>Lighting modes</h2><div class="modes" id="modes"></div><div class="section"><h2>Color selection</h2><div class="color-slot-tools"><span id="colorCount">2 of 10 colors</span><button class="btn secondary" id="addColor">+ Add color</button><button class="btn secondary" id="removeColor">− Remove last</button></div><div class="color-slots" id="colorSlots"></div><div class="colorhint">Each row has preset swatches followed by a rainbow wheel at the end. Tap the wheel to choose a custom shade.</div></div><div class="wave-panel" id="wavePanel"><h2>Traveling Wave</h2><p class="muted">Preview a bright pulse sweeping across the cabin. Independent vehicle zones must be verified before real-world control.</p><div class="wave-controls"><label>Direction<select id="waveDirection"><option value="lr">Left → Right</option><option value="rl">Right → Left</option><option value="bounce">Bounce</option></select></label><label>Wave speed <output id="waveSpeedVal">50%</output><input id="waveSpeed" max="100" min="10" type="range" value="50"/></label><label>Wave width <output id="waveWidthVal">3 sections</output><input id="waveWidth" max="7" min="1" type="range" value="3"/></label><label>Brightness <output id="waveBrightnessVal">90%</output><input id="waveBrightness" max="100" min="20" type="range" value="90"/></label><label>Fade strength <output id="waveFadeVal">70%</output><input id="waveFade" max="100" min="10" type="range" value="70"/></label><label class="wave-check"><input id="waveBeat" type="checkbox"/> Sync wave to music beats (simulated)</label></div><div aria-label="Simulated cabin lighting wave" class="wave-strip" id="waveStrip"></div><p class="muted">This visualization is simulated. No vehicle lighting commands are sent.</p></div></section><section class="panel" data-tab="presets" hidden="" style="margin-top:14px"><h2>Holiday &amp; lifestyle presets</h2>
+<div class="section"><div class="label"><span>Custom preset name</span></div><input id="presetName" placeholder="My custom lighting" style="width:100%;background:#0e1d30;border:1px solid #3b5870;color:white;border-radius:12px;padding:13px"/><div class="actions"><button class="btn" id="save">Save preset</button><button class="btn secondary" id="reset">Reset</button></div><div class="status" id="status"></div></div><div class="preset-workspace" id="presetWorkspace"><div class="preset-library"><div class="presets" id="presets"></div></div><div class="preset-detail"><div class="preset-editor" hidden="" id="presetEditor">
+<div class="editor-heading"><div><div class="eyebrow">PRESET STUDIO</div><h2 id="editorTitle">Customize preset</h2><div class="muted">Changes here are a preview until you save a custom version.</div></div><button class="btn secondary" id="closeEditor" type="button">Close</button></div>
+<div class="signature-row" id="signaturePanel"><span class="signature-badge">SIGNATURE LIGHTING</span><h3 id="signatureName">Preset choreography</h3><p id="signatureDescription">Each preset has a unique animation.</p><div class="signature-preview" id="signaturePreview" aria-label="Simulated signature lighting effect"></div><label><input type="checkbox" id="signatureEnabled" checked> Use signature effect</label><label>Effect intensity <output id="signatureIntensityVal">75%</output><input id="signatureIntensity" type="range" min="0" max="100" value="75"></label><label>Animation speed <output id="signatureSpeedVal">50%</output><input id="signatureSpeed" type="range" min="5" max="100" value="50"></label><label>Accent frequency <output id="signatureAccentVal">45%</output><input id="signatureAccent" type="range" min="0" max="100" value="45"></label><p class="muted">Preview simulation. Spatial LED choreography depends on actual vehicle zone control.</p></div><div class="editor-controls">
+<label>Lighting effect<select id="editorEffect"><option>Spectrum</option><option>Beat</option><option>Pulse</option><option>Rainbow</option><option>Party</option><option>Dual Color</option><option>Custom</option><option>Wave</option></select></label>
+<label>Color transition<select id="editorTransition"><option>Soft fade</option><option>Sharp</option><option>Breathing</option><option>Strobe</option></select></label>
+<label>Color behavior<select id="editorBehavior"><option>Alternate colors</option><option>Blend colors</option><option>Random per beat</option><option>Follow frequency</option></select></label>
+<label>Animation speed <output id="editorSpeedVal">50%</output><input id="editorSpeed" max="100" min="0" type="range" value="50"/></label>
+<label>Brightness <output id="editorBrightVal">8 / 10</output><input id="editorBright" max="10" min="1" type="range" value="8"/></label>
+<label>Beat sensitivity <output id="editorSensVal">75%</output><input id="editorSens" max="100" min="10" type="range" value="75"/></label>
+</div>
+<h3>Preset colors <span class="muted" id="editorCount">2 / 10</span></h3>
+<div class="color-slots" id="editorColorSlots"></div>
+<div class="actions"><button class="btn secondary" id="editorAddColor">+ Add color</button><button class="btn secondary" id="editorRemoveColor">− Remove last</button></div>
+<label>Save as a new preset<input id="editorSaveName" placeholder="e.g. Christmas — My Style"/></label>
+<div class="actions"><button class="btn" id="editorSave">Save my version</button><button class="btn secondary" id="editorRestore">Restore original colors</button></div>
+<div aria-live="polite" class="status" id="editorStatus"></div>
+</div></div></div></section></div><div><section class="panel" data-tab="music" hidden=""><h2>Music response</h2><label class="switch"><input checked="" id="auto" type="checkbox"/> Auto BPM synchronization (preview)</label><div id="sliders"></div><div class="section"><h2>Beat multiplier</h2><div class="modes" id="mults"></div></div><div class="section" id="bandsSection"><h2>Frequency bands · Kyle-style editor</h2><div class="muted" style="margin-bottom:13px">Adjust bass, midrange and treble colors and boosts</div><div class="bands" id="bands"></div></div></section><section class="panel" data-tab="effects" hidden="" style="margin-top:14px"><h2>Effect details</h2><div class="section"><h2>Effect settings</h2><p class="muted">Choose a lighting mode under <strong>Modes &amp; Colors</strong> to see its dedicated customization on the right. The options here apply globally.</p></div><div class="label"><span>Transition style</span></div><select id="transition" style="width:100%;padding:13px;border-radius:12px;background:#142b40;border:1px solid #35536b;color:#e6f6ff"><option>Sharp</option><option>Soft fade</option><option>Breathing</option><option>Strobe</option></select><div class="label"><span>Color behavior</span></div><select id="behavior" style="width:100%;padding:13px;border-radius:12px;background:#142b40;border:1px solid #35536b;color:#e6f6ff"><option>Alternate colors</option><option>Blend colors</option><option>Random per beat</option><option>Follow frequency</option></select><div class="notice">This is a phone interface prototype. Preview animation is simulated; there is no microphone, audio capture, EV6 connection, or real BPM detection. Saving presets stores them in this browser only.</div></section><section class="panel" data-tab="favorites" hidden=""><h2>Quick Favorites</h2><p class="muted">Save your current color combination and effect, then recall it with one tap. Favorites are stored locally in this browser.</p><div class="favorite-save"><input aria-label="Favorite name" id="favoriteName" placeholder="Name this look"/><button class="btn" id="addFavorite">★ Save current look</button></div><div class="favorite-list" id="favoriteList"></div><p aria-live="polite" class="muted" id="favoriteStatus"></p></section><section class="panel" data-tab="night" hidden=""><h2>Automatic Night Mode</h2><p class="muted">Preview a softer brightness level after dark. A schedule works in this browser; automatic vehicle-based activation is not implemented.</p><label class="switch"><input id="nightEnabled" type="checkbox"/> Enable scheduled night dimming</label><div class="night-grid"><label>Start time<input id="nightStart" type="time" value="20:00"/></label><label>End time<input id="nightEnd" type="time" value="06:00"/></label><label>Night brightness <output id="nightLevelText">30%</output><input id="nightLevel" max="80" min="10" step="5" type="range" value="30"/></label></div><div class="actions"><button class="btn secondary" id="nightDemo">Preview night dimming</button><button class="btn secondary" id="nightReset">Return to normal</button></div><p aria-live="polite" class="muted" id="nightStatus">Schedule off</p></section></div></div></div><script>
+const $=id=>document.getElementById(id);
+const modes=['Spectrum','Beat','Pulse','Rainbow','Party','Dual Color','Wave','Ambient Flow','Bass Drop','Chill','Twilight','Custom'];
+const palette=['#9958f5','#24d9ed','#ee62b4','#ff963e','#56dc91','#4979f5','#ec4e61','#ffffff'];
+const THUMBNAILS={"Christmas":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iIzI0ZWQ5OSIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjMjRlZDk5Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZTk0YzZiIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iIzI0ZWQ5OSIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTk0YzZiIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjoQ8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iIzI0ZWQ5OSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Halloween":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmOTgyYiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmY5ODJiIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYWE1Y2ZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmOTgyYiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWE1Y2ZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjoM8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmOTgyYiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Thanksgiving":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmYjQ1ZCIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZiNDVkIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYTk1MWU2Ii8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmYjQ1ZCIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYTk1MWU2IiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfpoM8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmYjQ1ZCIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Valentine’s":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmNWI5YyIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmY1YjljIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZjU4YWQ3Ii8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmNWI5YyIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjU4YWQ3IiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfkpc8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmNWI5YyIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Fourth of July":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2VmNTg2YyIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZWY1ODZjIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNDc4YWZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2VmNTg2YyIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDc4YWZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjoY8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2VmNTg2YyIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Easter":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2Q3YTJmZiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZDdhMmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNjVmMGQyIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2Q3YTJmZiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjVmMGQyIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfkLA8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2Q3YTJmZiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","St. Patrick’s":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iIzQxZjU4YSIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjNDFmNThhIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYTJlNjRiIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iIzQxZjU4YSIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYTJlNjRiIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPuKYmO+4jzwvdGV4dD48cGF0aCBkPSJNMjIgMTIwIFE3MiAxMzcgMTIyIDEyMCIgc3Ryb2tlPSIjNDFmNThhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIG9wYWNpdHk9Ii43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+","New Year’s":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iIzcyZTZmZiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjNzJlNmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZDY4YWZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iIzcyZTZmZiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDY4YWZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjoc8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iIzcyZTZmZiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Autumn":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmYWQ0YiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZhZDRiIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZWM1ZDQ4Ii8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmYWQ0YiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZWM1ZDQ4IiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjYE8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmYWQ0YiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Birthday":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmNmViZCIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmY2ZWJkIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNjhlYWZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmNmViZCIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjhlYWZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjoI8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmNmViZCIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Ocean":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iIzM3ZThlNyIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjMzdlOGU3Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMzk4OGZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iIzM3ZThlNyIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzk4OGZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfkKw8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iIzM3ZThlNyIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Sunset":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmYWU1NSIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZhZTU1Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYjQ1ZGZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmYWU1NSIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYjQ1ZGZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjIU8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmYWU1NSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Galaxy":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2IxN2JmZiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjYjE3YmZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNDhlOGZmIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2IxN2JmZiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDhlOGZmIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfqpA8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2IxN2JmZiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Sports":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZTE2YSIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZlMTZhIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNDhmMGI0Ii8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iI2ZmZTE2YSIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDhmMGI0IiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfj4Y8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iI2ZmZTE2YSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","Custom":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiB2aWV3Qm94PSIwIDAgMTQ0IDE0NCI+PGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJiZyI+PHN0b3Agc3RvcC1jb2xvcj0iIzgwY2FmZiIgc3RvcC1vcGFjaXR5PSIuMjMiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjEwMjgiLz48L3JhZGlhbEdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZWRnZSIgeDI9IjEiIHkyPSIxIj48c3RvcCBzdG9wLWNvbG9yPSIjODBjYWZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZTk3OWZhIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJibHVyIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI5Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMjgiIGZpbGw9IiMwYTEwMjciLz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iMTM0IiBoZWlnaHQ9IjEzNCIgcng9IjI1IiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSJ1cmwoI2VkZ2UpIiBzdHJva2Utb3BhY2l0eT0iLjY1IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0MiIgZmlsbD0iIzgwY2FmZiIgb3BhY2l0eT0iLjE5IiBmaWx0ZXI9InVybCgjYmx1cikiLz48Y2lyY2xlIGN4PSI3MiIgY3k9IjcwIiByPSI0NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTk3OWZhIiBzdHJva2Utb3BhY2l0eT0iLjM1IiBzdHJva2Utd2lkdGg9IjEuNiIvPjx0ZXh0IHg9IjcyIiB5PSI5NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzMiPvCfjqg8L3RleHQ+PHBhdGggZD0iTTIyIDEyMCBRNzIgMTM3IDEyMiAxMjAiIHN0cm9rZT0iIzgwY2FmZiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="};
+const presets={
+'Christmas':['#e43d50','#ffffff','#22a65e'],'Halloween':['#ff8a27','#8e4ad8','#111827'],
+'Thanksgiving':['#d77c27','#a13e2e','#f4c16b'],'Valentine’s':['#e74d83','#ffb1cc'],
+'Fourth of July':['#e84b59','#ffffff','#4a7bf5'],'Easter':['#f6b3d8','#b4f4d4','#e8d779'],
+'St. Patrick’s':['#39c67b','#ffd269'],'New Year’s':['#ffd769','#ffffff','#4b55bd'],
+'Autumn':['#d87d31','#8f4634','#edbc59'],'Birthday':['#ee62b4','#24d9ed','#ffca54','#9b5bf2'],
+'Ocean':['#23d5d6','#2458b9','#0b778b'],'Sunset':['#ff963e','#9958f5','#f25c94'],
+'Galaxy':['#9958f5','#24d9ed','#2b2e72'],'Sports':['#e44e5c','#4a7af2'],
+'Custom':['#9958f5','#24d9ed']
+};
+let colors=['#9958f5','#24d9ed'],mode='Spectrum',active='Galaxy',mult=2,playing=false,tick=0;
+function makeButton(label,cls,fn,parent){let b=document.createElement('button');b.textContent=label;b.className=cls;b.type='button';b.onclick=fn;parent.appendChild(b);return b}
+const MODE_ART={Spectrum:'▥',Beat:'♥',Pulse:'◉',Rainbow:'🌈',Party:'✦','Dual Color':'◐',Wave:'〰','Ambient Flow':'≈','Bass Drop':'⚡',Chill:'☾',Twilight:'✧',Custom:'✎'};
+function drawModes(){let box=$('modes');box.innerHTML='';modes.forEach(m=>{let b=makeButton(m,'mode'+(m===mode?' active':''),()=>{mode=m;if(typeof selectModeFeature==='function')selectModeFeature(m);drawModes();$('bandsSection').classList.toggle('hidden',mode!=='Spectrum');update()},box);let icon=document.createElement('span');icon.className='mode-art';icon.textContent=MODE_ART[m]||'✦';icon.setAttribute('aria-hidden','true');b.prepend(icon);let s=document.createElement('small');s.textContent=({Spectrum:'Frequency bands',Beat:'Color on beat',Pulse:'Rhythmic glow',Rainbow:'Color cycle',Party:'High energy','Dual Color':'Multi-color cycle',Wave:'Traveling light','Ambient Flow':'Smooth color shifts','Bass Drop':'Bass-triggered pulse',Chill:'Gentle breathing',Twilight:'Soft evening glow',Custom:'Your rules'})[m];b.appendChild(s)})}
+function drawMult(){let box=$('mults');box.innerHTML='';[1,2,4].forEach(n=>makeButton(n+'×','mode'+(mult===n?' active':''),()=>{mult=n;drawMult()},box))}
+function drawSlots(){
+let root=$('colorSlots');root.innerHTML='';$('colorCount').textContent=colors.length+' of 10 colors';
+colors.forEach((c,i)=>{
+const slot=document.createElement('div');slot.className='color-slot';
+const title=document.createElement('div');title.className='slot-title';const name=document.createElement('span');name.textContent='Color '+(i+1);title.appendChild(name);
+const dot=document.createElement('span');dot.className='slot-color';dot.style.background=c;title.appendChild(dot);slot.appendChild(title);
+const row=document.createElement('div');row.className='swatches';
+palette.forEach(p=>{let b=makeButton('','swatch'+(p.toLowerCase()===c.toLowerCase()?' active':''),()=>{colors[i]=p;drawSlots();update()},row);b.style.background=p;b.setAttribute('aria-label','Set Color '+(i+1)+' to '+p)});
+const picker=document.createElement('input');picker.type='color';picker.value=c;picker.id='picker'+i;picker.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';picker.setAttribute('aria-label','Custom shade for Color '+(i+1));
+picker.oninput=()=>{colors[i]=picker.value;dot.style.background=picker.value;update();};
+const wheel=makeButton('','wheel-btn',()=>picker.click(),row);wheel.setAttribute('aria-label','Custom color wheel for Color '+(i+1));wheel.title='Choose custom color';row.appendChild(picker);slot.appendChild(row);
+const hex=document.createElement('div');hex.className='colorhint';hex.textContent=c.toUpperCase();slot.appendChild(hex);root.appendChild(slot);
+});
+}
+$('addColor').onclick=()=>{if(colors.length>=10){$('status').textContent='Maximum 10 colors.';return}colors.push(palette[(colors.length+1)%palette.length]);drawSlots();update()};
+$('removeColor').onclick=()=>{if(colors.length<=1){$('status').textContent='At least one color is required.';return}colors.pop();drawSlots();update()};
+function update(){
+const box=$('lightPreview');box.innerHTML='';
+colors.forEach(c=>{let d=document.createElement('div');d.style.background=c;box.appendChild(d)});
+}
+const PRESET_ART={Christmas:'✦',Halloween:'☾',Thanksgiving:'❧',"Valentine’s Day":'♥',"Valentine's Day":'♥',"Fourth of July":'✷',Easter:'✿',"St. Patrick’s Day":'☘',"St. Patrick's Day":'☘',"New Year’s Eve":'✧',"New Year's Eve":'✧',Autumn:'❦',Birthday:'✹',Ocean:'≈',Sunset:'◒',Galaxy:'✧',Sports:'★',Custom:'✎'};
+function drawPresets(){
+let box=$('presets');box.innerHTML='';
+Object.entries(presets).forEach(([name,cs])=>{
+let b=makeButton('','preset'+(active===name?' active':''),()=>{active=name;colors=cs.slice(0,10);drawPresets();drawSlots();update();openPresetEditor(name)},box);
+let art=document.createElement('span');art.className='preset-art';const artKey=({'Valentine’s Day':'Valentine’s',"Valentine's Day":'Valentine’s',"St. Patrick’s Day":'St. Patrick’s',"St. Patrick's Day":'St. Patrick’s',"New Year’s Eve":'New Year’s',"New Year's Eve":'New Year’s'})[name]||name;
+art.textContent='';const picture=document.createElement('img');picture.src=THUMBNAILS[artKey]||'';picture.alt='';picture.decoding='async';picture.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block';art.appendChild(picture);art.setAttribute('aria-hidden','true');art.style.setProperty('--art-color',(cs[0]||'#9d63fa'));art.style.setProperty('--art-color2',(cs[1]||'#27dfe8'));b.appendChild(art);
+let txt=document.createElement('span');txt.textContent=name;b.appendChild(txt);
+});
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+const sliders=[['Sensitivity',10,100,75,'%'],['Brightness',1,10,8,' / 10'],['Flash duration',60,400,120,' ms'],['Minimum beat gap',100,500,150,' ms'],['Smoothing',0,250,25,' ms']];
+sliders.forEach(([label,min,max,val,unit],i)=>{let el=document.createElement('div');el.innerHTML=`<div class="label"><span>${label}</span><output id="out${i}">${val}${unit}</output></div><input type="range" id="slide${i}" min="${min}" max="${max}" value="${val}" step="5">`;$('sliders').appendChild(el);$('slide'+i).oninput=e=>$('out'+i).textContent=e.target.value+unit});
+['Bass','Mids','Treble'].forEach((label,i)=>{let row=document.createElement('div');row.className='band';row.innerHTML=`<span>${label}</span><input type="color" value="${palette[i]}" aria-label="${label} color"><input type="range" min="0" max="100" value="${[80,65,55][i]}" aria-label="${label} boost">`;$('bands').appendChild(row)});
+$('animate').onclick=()=>{playing=!playing;$('animate').textContent=playing?'Stop preview':'Start preview';update()};
+setInterval(()=>{if(!playing)return;tick++;const cells=[...$('lightPreview').children];cells.forEach((cell,i)=>{cell.style.opacity=(tick+i)%2?.45:1;if(mode==='Rainbow')cell.style.background=`hsl(${(tick*28+i*60)%360} 90% 60%)`;else cell.style.background=colors[(i+tick)%colors.length]})},240);
+$('save').onclick=()=>{let name=$('presetName').value.trim();if(!name){$('status').textContent='Enter a name first.';return}presets[name]=colors.slice();active=name;try{localStorage.setItem('mood-presets-v7',JSON.stringify(presets));$('status').textContent='Saved locally: '+name}catch(e){$('status').textContent='Browser storage unavailable; preset kept for this session.'}drawPresets()};
+$('reset').onclick=()=>{active='Galaxy';mode='Spectrum';colors=['#9958f5','#24d9ed'];$('presetName').value='';drawModes();drawPresets();drawSlots();update();$('status').textContent='Preview reset.'};
+try{let old=JSON.parse(localStorage.getItem('mood-presets-v7')||localStorage.getItem('moon-presets-v3')||'{}');for(let [name,cs] of Object.entries(old))if(Array.isArray(cs)&&cs.length>0&&cs.length<=10&&cs.every(c=>/^#[0-9a-f]{6}$/i.test(c)))presets[name]=cs}catch(e){}
+drawModes();drawMult();drawPresets();drawSlots();update();
+</script><script>
+(function(){
+const tabs=[...document.querySelectorAll('.tabbutton')];
+const sections=[...document.querySelectorAll('section[data-tab]')];
+function switchTab(name){
+ tabs.forEach(b=>{const selected=b.dataset.target===name;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',selected?'true':'false')});
+ sections.forEach(sec=>{sec.hidden=sec.dataset.tab!==name});
+ window.scrollTo({top:0,behavior:'instant'});
+}
+tabs.forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.target)));
+})();
+</script>
+<script>
+const originalPresetColors=JSON.parse(JSON.stringify(presets));
+const presetOverrides={};
+let editingPreset=null;
+function editorColors(){
+ const root=$('editorColorSlots');root.innerHTML='';$('editorCount').textContent=colors.length+' / 10';
+ colors.forEach((c,i)=>{
+  const slot=document.createElement('div');slot.className='color-slot';
+  const title=document.createElement('div');title.className='slot-title';title.textContent='Color '+(i+1);
+  const dot=document.createElement('span');dot.className='slot-color';dot.style.background=c;title.append(dot);slot.append(title);
+  const row=document.createElement('div');row.className='swatches';
+  palette.forEach(p=>{const b=makeButton('','swatch'+(p.toLowerCase()===c.toLowerCase()?' active':''),()=>{colors[i]=p;drawSlots();editorColors();update()},row);b.style.background=p;b.setAttribute('aria-label','Color '+(i+1)+' '+p)});
+  const picker=document.createElement('input');picker.type='color';picker.value=c;picker.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';picker.setAttribute('aria-label','Custom color for Color '+(i+1));
+  picker.oninput=()=>{colors[i]=picker.value;dot.style.background=picker.value;drawSlots();drawEditorPreview();update()};
+  const wheel=makeButton('','wheel-btn',()=>picker.click(),row);wheel.title='Custom color wheel';wheel.setAttribute('aria-label','Custom color wheel for Color '+(i+1));
+  row.append(picker);slot.append(row);root.append(slot);
+ });
+ drawEditorPreview();
+}
+function drawEditorPreview(){update()}
+
+const SIGNATURES={
+'Christmas':['Twinkling Tree Lights','Red and green alternate with occasional golden sparkles.','twinkle'],
+'Halloween':['Haunted Pumpkin Flicker','Orange candle flicker, purple shadows and occasional lightning.','flicker'],
+'Thanksgiving':['Harvest Candle Glow','Warm copper and amber glow gently ripples across the cabin.','harvest'],
+'Valentine’s':['Double Heartbeat','Two soft pink pulses followed by a gentle pause.','heartbeat'],
+'Fourth of July':['Fireworks Burst','Red, white and blue bursts with fading trails.','fireworks'],
+'Easter':['Pastel Bunny Hop','Pastel highlights hop between lighting sections.','hop'],
+'St. Patrick’s':['Emerald Shimmer','Green shimmer with scattered golden highlights.','shimmer'],
+'New Year’s':['Countdown Celebration','Rising countdown pulses followed by a sparkling celebration.','countdown'],
+'Autumn':['Falling Leaves','Amber highlights drift slowly across warm autumn colors.','leaves'],
+'Birthday':['Confetti Party','Playful rainbow color pops and beat-like bursts.','confetti'],
+'Ocean':['Rolling Tide','A turquoise and blue wave rolls across the lighting sections.','ocean'],
+'Sunset':['Golden Hour Melt','Orange and pink slowly blend into purple.','sunset'],
+'Galaxy':['Nebula Twinkle','Violet and cyan stars shimmer across a deep-space glow.','galaxy'],
+'Sports':['Victory Celebration','Team colors alternate with energetic celebration bursts.','sports'],
+'Custom':['Custom Light Show','Your own colors with a customizable flowing pattern.','custom']
+};
+let signatureFrame=0,signatureLast=0;
+function renderSignature(now){
+ requestAnimationFrame(renderSignature);
+ if(now-signatureLast<65)return;signatureLast=now;
+ const box=document.getElementById('signaturePreview');if(!box||!editingPreset||box.closest('[hidden]'))return;
+ if(!box.children.length){for(let i=0;i<18;i++)box.appendChild(document.createElement('span'))}
+ const signature=SIGNATURES[editingPreset]||SIGNATURES.Custom;
+ const enabled=document.getElementById('signatureEnabled').checked;
+ const intensity=Number(document.getElementById('signatureIntensity').value)/100;
+ const speed=Number(document.getElementById('signatureSpeed').value)/50;
+ const accent=Number(document.getElementById('signatureAccent').value)/100;
+ const t=signatureFrame++*.075*speed;
+ const base=colors.length?colors:['#9656ff','#24d9ed'];
+ for(let i=0;i<box.children.length;i++){
+  let phase=i/18,light=.45+.55*Math.sin(t+phase*6);
+  let ix=i%base.length;
+  switch(signature[2]){
+   case 'twinkle':light=.35+.65*Math.pow(Math.max(0,Math.sin(t*2+i*9.1)),6);break;
+   case 'flicker':light=.22+.78*Math.abs(Math.sin(t*2+i*2.7)*Math.sin(t*.9+i));break;
+   case 'heartbeat':light=.2+.8*Math.pow(Math.max(0,Math.sin(t*1.7)),12);break;
+   case 'fireworks':light=.18+.82*Math.pow(Math.max(0,Math.sin(t*2-i*.65)),6);break;
+   case 'hop':light=.2+.8*Math.pow(Math.max(0,Math.sin(t*1.8-i*1.3)),8);break;
+   case 'shimmer':light=.3+.7*Math.pow(Math.max(0,Math.sin(t*2+i*4)),3);break;
+   case 'countdown':light=.2+.8*Math.pow(Math.max(0,Math.sin(t*.8)),6);break;
+   case 'leaves':light=.25+.75*Math.max(0,Math.sin(t-i*.55));break;
+   case 'confetti':light=.18+.82*Math.pow(Math.max(0,Math.sin(t*3+i*7.1)),8);break;
+   case 'ocean':light=.28+.72*(.5+.5*Math.sin(t-i*.45));break;
+   case 'sunset':light=.55+.45*Math.sin(t*.35+i*.2);break;
+   case 'galaxy':light=.3+.7*Math.pow(Math.max(0,Math.sin(t+i*5.7)),5);break;
+   case 'sports':light=.25+.75*(Math.sin(t*3+i*.6)>0?1:0);break;
+   default:light=.3+.7*(.5+.5*Math.sin(t-i*.4));
+  }
+  const el=box.children[i];el.style.background=base[ix];el.style.color=base[ix];
+  el.style.opacity=enabled?String(Math.max(.12,Math.min(1,light*(.25+.75*intensity)+(Math.sin(i*17+t*5)>1.0-accent*.1?.12:0)))):'.35';
+ }
+}
+requestAnimationFrame(renderSignature);
+for(const id of ['Intensity','Speed','Accent'])document.getElementById('signature'+id).addEventListener('input',e=>document.getElementById('signature'+id+'Val').textContent=e.target.value+'%');
+
+function openPresetEditor(name){
+ editingPreset=name;
+ const signature=SIGNATURES[name]||SIGNATURES.Custom;
+ $('signatureName').textContent=signature[0];
+ $('signatureDescription').textContent=signature[1];
+ $('signatureEnabled').checked=true;
+ $('signaturePreview').innerHTML='';
+ const stored=presetOverrides[name];
+ $('editorTitle').textContent='Customize '+name;
+ $('editorSaveName').value=name+' — My Style';
+ $('editorEffect').value=stored?.effect||'Pulse';
+ $('signatureEnabled').checked=stored?.signatureEnabled??true;
+ $('signatureIntensity').value=stored?.signatureIntensity??75;
+ $('signatureSpeed').value=stored?.signatureSpeed??50;
+ $('signatureAccent').value=stored?.signatureAccent??45;
+ for(const id of ['Intensity','Speed','Accent'])$('signature'+id).dispatchEvent(new Event('input'));
+ $('editorTransition').value=stored?.transition||'Soft fade';
+ $('editorBehavior').value=stored?.behavior||'Alternate colors';
+ $('editorSpeed').value=stored?.speed||50;
+ $('editorBright').value=stored?.brightness||8;
+ $('editorSens').value=stored?.sensitivity||75;
+ for(const id of ['Speed','Bright','Sens'])$('editor'+id).dispatchEvent(new Event('input'));
+ $('editorStatus').textContent='';
+ $('presetEditor').hidden=false;editorColors();document.getElementById('presetWorkspace').classList.add('editing');
+
+}
+for(const [id,suffix] of [['Speed','%'],['Bright',' / 10'],['Sens','%']]){
+ $('editor'+id).addEventListener('input',e=>$('editor'+id+'Val').textContent=e.target.value+suffix)
+}
+$('closeEditor').onclick=()=>{$('presetEditor').hidden=true;document.getElementById('presetWorkspace').classList.remove('editing')};
+$('editorAddColor').onclick=()=>{if(colors.length>=10){$('editorStatus').textContent='Maximum 10 colors';return}colors.push(palette[(colors.length+1)%palette.length]);editorColors();drawSlots();update()};
+$('editorRemoveColor').onclick=()=>{if(colors.length<=1)return;colors.pop();editorColors();drawSlots();update()};
+$('editorRestore').onclick=()=>{colors=(originalPresetColors[editingPreset]||presets[editingPreset]||['#9958f5','#24d9ed']).slice();editorColors();drawSlots();update();$('editorStatus').textContent='Original colors restored in editor.'};
+$('editorSave').onclick=()=>{
+ const name=$('editorSaveName').value.trim();
+ if(!name){$('editorStatus').textContent='Enter a preset name.';return}
+ if(name===editingPreset){$('editorStatus').textContent='Choose a new name to preserve the original preset.';return}
+ presets[name]=colors.slice();
+ presetOverrides[name]={effect:$('editorEffect').value,transition:$('editorTransition').value,behavior:$('editorBehavior').value,speed:+$('editorSpeed').value,brightness:+$('editorBright').value,sensitivity:+$('editorSens').value};
+ try{localStorage.setItem('mood-presets-v7',JSON.stringify(presets));localStorage.setItem('mood-preset-settings-v7',JSON.stringify(presetOverrides));$('editorStatus').textContent='Saved '+name+' locally with its advanced settings.'}
+ catch(e){$('editorStatus').textContent='Saved for this session; browser storage is unavailable.'}
+ active=name;drawPresets();
+};
+try{Object.assign(presetOverrides,JSON.parse(localStorage.getItem('mood-preset-settings-v7')||localStorage.getItem('moon-preset-settings-v6')||'{}'))}catch(e){}
+</script>
+<script>
+(function(){
+let running=false,position=0,heading=1,last=performance.now();
+const toggle=document.getElementById('masterToggle'),status=document.getElementById('masterStatus');
+const strip=document.getElementById('waveStrip');
+for(let i=0;i<12;i++)strip.appendChild(document.createElement('div'));
+function show(){toggle.classList.toggle('running',running);toggle.setAttribute('aria-pressed',String(running));toggle.textContent=running?'■ Stop lighting':'▶ Start lighting';status.textContent=running?'Simulated lighting active':'Preview stopped'}
+toggle.addEventListener('click',()=>{running=!running;show()});show();
+for(const [id,suffix] of [['waveSpeed','%'],['waveWidth',' sections'],['waveBrightness','%'],['waveFade','%']])document.getElementById(id).addEventListener('input',e=>document.getElementById(id+'Val').textContent=e.target.value+suffix);
+function animate(now){
+ const elapsed=Math.min(100,now-last);last=now;
+ const speed=+document.getElementById('waveSpeed').value/50;
+ const width=+document.getElementById('waveWidth').value;
+ const bright=+document.getElementById('waveBrightness').value/100;
+ const fade=+document.getElementById('waveFade').value/100;
+ const direction=document.getElementById('waveDirection').value;
+ if(running){position+=elapsed*.004*speed*(direction==='rl'?-1:heading);if(direction==='bounce'){if(position>=11){position=11;heading=-1}if(position<=0){position=0;heading=1}}else position=(position+12)%12}
+ const colors=Array.from(document.querySelectorAll('#lightPreview>div')).map(x=>x.style.background).filter(Boolean);
+ [...strip.children].forEach((node,i)=>{const dist=Math.abs(i-position);const circular=direction==='bounce'?dist:Math.min(dist,12-dist);const glow=Math.max(0,1-circular/Math.max(.5,width));node.style.background=colors[i%Math.max(colors.length,1)]||'#7b72f6';node.style.opacity=String((running?0.06+bright*Math.pow(glow,1+fade*2):.1));node.style.filter='brightness('+(1+glow*1.5)+')'});
+ requestAnimationFrame(animate)
+}requestAnimationFrame(animate);
+})();
+</script><script>
+(function(){
+ const byId=id=>document.getElementById(id);
+ // Simulated audio analyzer. This is intentionally not microphone or vehicle audio.
+ const bars=byId('visualBars');for(let i=0;i<38;i++){const b=document.createElement('i');b.style.height='12%';bars.appendChild(b)}
+ let beat=0;let nightDemo=false;
+ function animate(){
+  const active=byId('masterToggle').getAttribute('aria-pressed')==='true';
+  beat+=.18;
+  const currentMode=typeof mode!=='undefined'?mode:'Spectrum';
+  const chill=currentMode==='Chill'||currentMode==='Twilight';
+  const max=chill?38:95;
+  [...bars.children].forEach((b,i)=>{const signal=active?(18+Math.abs(Math.sin(beat+i*.33)*Math.cos(beat*.51+i*.17))*max):(14+Math.abs(Math.sin(beat*.4+i*.32))*23);b.style.height=signal+'%';b.style.opacity=active?'1':'.65'});
+  byId('visualizerStatus').textContent=active?'Simulated beat response · '+currentMode:'Simulated audio · stopped';
+  const preview=byId('lightPreview');if(!preview)return;
+  if(active&&['Ambient Flow','Bass Drop','Chill','Twilight'].includes(currentMode)){
+   const nodes=[...preview.children];const speed=Number(byId('flowSpeed').value)/50;
+   nodes.forEach((n,i)=>{
+    if(currentMode==='Ambient Flow'){n.style.background=colors[(Math.floor(beat*speed)+i)%colors.length];n.style.opacity=.65+.3*Math.abs(Math.sin(beat*.4+i))}
+    else if(currentMode==='Bass Drop'){const threshold=Number(byId('dropThreshold').value)/100;n.style.opacity=(Math.abs(Math.sin(beat*1.6))>threshold)?1:.22}
+    else {n.style.background=colors[i%colors.length];n.style.opacity=.15+.3*(.5+.5*Math.sin(beat*(currentMode==='Twilight'?.2:.35)))}
+   });
+  }
+  requestAnimationFrameLimited();
+ }
+ let last=0;function requestAnimationFrameLimited(){requestAnimationFrame(t=>{if(t-last>110){last=t;animate()}else requestAnimationFrameLimited()})};requestAnimationFrameLimited();
+ const controls=[['flowSpeed','%'],['dropThreshold','%'],['dropCooldown',' ms'],['chillSpeed','%'],['chillBright','%'],['nightLevel','%']];
+ controls.forEach(([id,suffix])=>{const el=byId(id),out=byId(id==='nightLevel'?'nightLevelText':id+'Val');if(el&&out)el.addEventListener('input',()=>out.textContent=el.value+suffix)});
+ const KEY='mood-studio-v11-favorites';let favs=[];try{favs=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(favs))favs=[]}catch(e){}
+ function renderFavs(){const root=byId('favoriteList');root.innerHTML='';if(!favs.length){root.textContent='No favorites yet. Save a look to get started.';return}
+  favs.forEach((f,i)=>{const card=document.createElement('div');card.className='favorite-card';const title=document.createElement('strong');title.textContent=f.name;card.appendChild(title);
+   const strip=document.createElement('div');strip.className='favorite-colors';f.colors.forEach(c=>{const el=document.createElement('span');el.style.background=c;strip.appendChild(el)});card.appendChild(strip);
+   const caption=document.createElement('small');caption.textContent=f.mode+' · '+f.colors.length+' colors';card.appendChild(caption);
+   const actions=document.createElement('div');actions.className='favorite-actions';const load=document.createElement('button');load.className='btn';load.textContent='Apply';load.onclick=()=>{colors=f.colors.slice();mode=f.mode;drawModes();drawSlots();update();byId('favoriteStatus').textContent='Loaded '+f.name+' into the preview.'};actions.appendChild(load);
+   const del=document.createElement('button');del.className='btn secondary';del.textContent='Delete';del.onclick=()=>{favs.splice(i,1);persist();renderFavs()};actions.appendChild(del);card.appendChild(actions);root.appendChild(card)
+  });
+ }
+ function persist(){try{localStorage.setItem(KEY,JSON.stringify(favs))}catch(e){byId('favoriteStatus').textContent='Local storage unavailable; favorites last only this session.'}}
+ byId('addFavorite').onclick=()=>{const name=byId('favoriteName').value.trim()||('Favorite '+(favs.length+1));favs.unshift({name,mode,colors:colors.slice()});persist();renderFavs();byId('favoriteStatus').textContent='Saved '+name;byId('favoriteName').value=''};renderFavs();
+ function timeInWindow(now,start,end){if(start===end)return false;return start<end?now>=start&&now<end:now>=start||now<end}
+ function nightState(){const now=new Date();const hh=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');const scheduled=byId('nightEnabled').checked&&timeInWindow(hh,byId('nightStart').value,byId('nightEnd').value);const on=nightDemo||scheduled;document.documentElement.style.setProperty('--night-dim',on?String(Number(byId('nightLevel').value)/100):'1');byId('nightStatus').textContent=on?'Night dimming preview active':'Night dimming inactive';byId('lightPreview').style.filter=on?'brightness(var(--night-dim))':'';}
+ ['nightEnabled','nightStart','nightEnd','nightLevel'].forEach(id=>byId(id).addEventListener('input',nightState));byId('nightDemo').onclick=()=>{nightDemo=true;nightState()};byId('nightReset').onclick=()=>{nightDemo=false;byId('nightEnabled').checked=false;nightState()};nightState();setInterval(nightState,60000);
+})();
+</script>
+<script>
+(function(){
+const section=document.querySelector('section[data-tab="colors"]');
+const heading=section.querySelector('h2');
+const modeList=document.createElement('div');modeList.className='mode-list';
+const detail=document.createElement('div');detail.className='mode-detail';detail.id='activeModeDetail';
+const workspace=document.createElement('div');workspace.className='mode-workspace';
+heading.remove();modeList.append(heading,document.getElementById('modes'));
+workspace.append(modeList,detail);section.prepend(workspace);
+const colorSection=section.querySelector('.section');
+const wave=document.getElementById('wavePanel');
+const detailTitle=document.createElement('h2');detailTitle.id='modeDetailTitle';
+const note=document.createElement('p');note.className='muted';note.textContent='Settings for the selected lighting mode';
+detail.append(detailTitle,note);
+const panels={};
+const modes=['Spectrum','Beat','Pulse','Rainbow','Party','Dual Color','Wave','Ambient Flow','Bass Drop','Chill','Twilight','Custom'];
+const definitions={
+ 'Spectrum':[['Frequency sensitivity','range',75],['Band response','select',['Bass + mids + treble','Bass emphasis','Treble emphasis']],['Smoothing','range',45]],
+ 'Beat':[['Beat sensitivity','range',75],['Flash duration','range',40],['Beat cooldown','range',35]],
+ 'Pulse':[['Pulse speed','range',55],['Pulse depth','range',70],['Fade style','select',['Soft','Medium','Sharp']]],
+ 'Rainbow':[['Cycle speed','range',55],['Saturation','range',85],['Direction','select',['Forward','Reverse']]],
+ 'Party':[['Energy','range',80],['Color change speed','range',65],['Flash style','select',['Soft flashes','Sharp flashes','Random']]],
+ 'Dual Color':[['Alternation speed','range',50],['Blend amount','range',50],['Behavior','select',['Alternate','Blend','Follow beat']]],
+ 'Ambient Flow':[['Flow speed','range',50],['Color order','select',['In order','Reverse','Random']],['Fade smoothness','range',80]],
+ 'Bass Drop':[['Bass threshold','range',70],['Cooldown','range',30],['Drop intensity','range',90]],
+ 'Chill':[['Breathing speed','range',35],['Maximum brightness','range',35],['Softness','range',90]],
+ 'Twilight':[['Glow intensity','range',45],['Color transition time','range',65],['Night softness','range',85]],
+ 'Custom':[['Animation speed','range',50],['Beat response','range',50],['Transition','select',['Soft fade','Sharp','Breathing','Strobe']]]
+};
+for(const name of modes){
+ if(name==='Wave'){panels[name]=wave;detail.append(wave);continue}
+ const panel=document.createElement('div');panel.className='mode-specific';panel.dataset.mode=name;
+ for(const [label,type,values] of definitions[name]){
+  const field=document.createElement('label');field.textContent=label;
+  if(type==='range'){
+   const output=document.createElement('output');output.textContent=values+'%';
+   const input=document.createElement('input');input.type='range';input.min='0';input.max='100';input.value=values;
+   input.addEventListener('input',()=>output.textContent=input.value+'%');field.append(output,input);
+  }else{const select=document.createElement('select');for(const v of values){const opt=document.createElement('option');opt.textContent=v;select.append(opt)}field.append(select)}
+  panel.append(field);
+ }
+ panels[name]=panel;detail.append(panel);
+}
+detail.append(colorSection);
+function showMode(){
+ const selected=typeof mode!=='undefined'?mode:'Spectrum';
+ detailTitle.textContent=selected+' customization';
+ for(const [name,panel] of Object.entries(panels)){panel.classList.toggle('active',name===selected);panel.hidden=name!==selected}
+ colorSection.querySelector('h2').textContent='Colors for '+selected;
+}
+document.getElementById('modes').addEventListener('click',()=>requestAnimationFrame(showMode));showMode();
+// Restore the original full-width Spectrum Bars visualizer.
+// It stays transparent and uses the existing simulated visualizer animation.
+
+})();
+</script>
+<script>
+(function(){
+const modeTemplates={
+'Spectrum':['Rainbow Equalizer','Bass Colors','Neon Spectrum','Soft Frequencies'],
+'Beat':['Beat Flash','Deep Bass','Double Hit','Soft Beat'],
+'Pulse':['Soft Heartbeat','Double Pulse','Neon Breathing','Deep Bass'],
+'Rainbow':['Pastel Rainbow','Vivid Rainbow','Slow Spectrum','Rainbow Chase'],
+'Party':['Disco','Club Lights','Color Explosion','Party Strobe'],
+'Dual Color':['Alternating Duo','Soft Blend','Neon Contrast','Two-Tone Beat'],
+'Wave':['Ocean Wave','Rainbow Chase','Neon Sweep','Gentle Ripple'],
+'Ambient Flow':['Aurora Flow','Soft Gradient','Color Drift','Northern Lights'],
+'Bass Drop':['Subwoofer Pop','Drop Explosion','Soft Bass','Bass Thunder'],
+'Chill':['Cozy Cabin','Soft Breathing','Moonlight','Warm Relax'],
+'Twilight':['Midnight Blue','Aurora','Dreamy Purple','Starlight'],
+'Custom':['My Show 1','My Show 2','Freeform','Custom Mix']
+};
+const detail=document.getElementById('activeModeDetail');
+if(!detail)return;
+const templates=document.createElement('div');templates.className='mode-templates';
+templates.innerHTML='<h3>Built-in styles for this mode</h3><div class="template-grid" id="templateGrid"></div><p class="muted" id="templateStatus">Choose a style to load its example settings.</p>';
+detail.insertBefore(templates,detail.children[2]);
+const extras=document.createElement('div');extras.className='extras-panel';
+extras.innerHTML=`<h3>Lighting studio extras</h3>
+<div class="cabin-map" id="cabinMap" aria-label="Simulated EV6 ambient lighting sections"></div>
+<div class="extras-row"><div>
+<label>Mix with another effect<select id="mixEffect"><option>None</option><option>Twinkle</option><option>Wave</option><option>Bass Drop</option><option>Chill</option><option>Rainbow</option></select></label>
+<label>Mix strength <output id="mixStrengthVal">40%</output><input id="mixStrength" type="range" min="0" max="100" value="40"></label>
+<label>Preset transition <output id="transitionTimeVal">2 seconds</output><input id="transitionTime" type="range" min="0" max="5" value="2"></label>
+</div><div>
+<label>Day brightness <output id="dayBrightVal">10 / 10</output><input id="dayBright" type="range" min="1" max="10" value="10"></label>
+<label>Night brightness <output id="nightBrightExtraVal">4 / 10</output><input id="nightBrightExtra" type="range" min="1" max="10" value="4"></label>
+<label>Minimum brightness <output id="minBrightVal">1 / 10</output><input id="minBright" type="range" min="0" max="10" value="1"></label>
+</div></div>
+<label><input type="checkbox" id="reduceFlashes" checked> Reduce rapid flashing</label>
+<div class="actions"><button class="btn secondary" id="exportShow" type="button">Export my show</button><label class="btn secondary" style="cursor:pointer">Import show<input id="importShow" type="file" accept=".json,application/json" style="display:none"></label><button class="btn secondary" id="restoreFactory" type="button">Factory lighting preview</button></div>
+<div id="extraStatus" class="muted" aria-live="polite">These controls simulate the intended app behavior. Factory restore is not connected to the EV6.</div>`;
+detail.append(extras);
+let chosenByMode={},lastMode='';
+function currentMode(){return document.getElementById('modeDetailTitle').textContent.replace(/ customization$/,'').trim()}
+function refresh(){
+ const mode=currentMode();if(!mode||mode===lastMode)return;lastMode=mode;
+ const grid=document.getElementById('templateGrid');grid.innerHTML='';
+ (modeTemplates[mode]||modeTemplates.Custom).forEach((name,i)=>{
+ const b=document.createElement('button');b.type='button';b.className='template-btn'+((chosenByMode[mode]||0)===i?' active':'');
+ b.innerHTML='<strong>'+name+'</strong><small>Tap to preview &amp; customize</small>';
+ b.onclick=()=>{chosenByMode[mode]=i;grid.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ const sliders=detail.querySelectorAll('.mode-specific.active input[type=range],.wave-panel.active input[type=range]');
+ sliders.forEach((input,j)=>{input.value=Math.max(5,Math.min(100,25+((i*23+j*17)%70)));input.dispatchEvent(new Event('input',{bubbles:true}))});
+ document.getElementById('templateStatus').textContent=name+' loaded — customize the controls below.';
+ drawCabin();};grid.append(b);
+ });
+ drawCabin();
+}
+const cabin=document.getElementById('cabinMap');
+for(let i=0;i<16;i++){const bar=document.createElement('span');bar.style.animationDelay=(i*.11)+'s';cabin.append(bar)}
+function drawCabin(){
+ const p=typeof colors!=='undefined'&&colors.length?colors:['#a052f4','#27d9e6'];
+ [...cabin.children].forEach((el,i)=>{el.style.background=p[(i+Math.floor(Date.now()/1200))%p.length];el.style.color=el.style.background;el.style.animationDuration=(1+(i%5)*.3)+'s'});
+}
+setInterval(drawCabin,900);
+const modeObserver=new MutationObserver(refresh);
+modeObserver.observe(document.getElementById('modeDetailTitle'),{childList:true,subtree:true});
+refresh();
+[['mixStrength','%'],['transitionTime',' seconds'],['dayBright',' / 10'],['nightBrightExtra',' / 10'],['minBright',' / 10']].forEach(([id,suffix])=>{
+const el=document.getElementById(id);el.addEventListener('input',()=>document.getElementById(id+'Val').textContent=el.value+suffix);
+});
+document.getElementById('restoreFactory').onclick=()=>{
+ document.getElementById('extraStatus').textContent='Factory lighting preview selected. No commands have been sent to the EV6.';
+ document.getElementById('mixEffect').value='None';
+};
+document.getElementById('exportShow').onclick=()=>{
+const data={version:22,mode:currentMode(),style:chosenByMode[currentMode()]||0,colors:typeof colors!=='undefined'?colors:[],mix:document.getElementById('mixEffect').value,transition:document.getElementById('transitionTime').value,day:document.getElementById('dayBright').value,night:document.getElementById('nightBrightExtra').value,minimum:document.getElementById('minBright').value};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='mood-studio-show.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+};
+document.getElementById('importShow').onchange=async e=>{
+const file=e.target.files[0];if(!file)return;
+try{const data=JSON.parse(await file.text());if(!data||!Array.isArray(data.colors))throw Error('Invalid file');
+if(typeof colors!=='undefined'&&data.colors.length){colors=data.colors.slice(0,10);drawSlots();update()}
+if(data.mix)document.getElementById('mixEffect').value=data.mix;
+document.getElementById('extraStatus').textContent='Imported lighting colors and mixer settings.';
+}catch(err){document.getElementById('extraStatus').textContent='Could not import this show.'}
+};
+})();
+</script>
+<script>
+/* Illustrated, offline SVG artwork for every lighting mode. Preset artwork is retained. */
+(function(){
+ const art={
+ 'Spectrum':['#34e3ee','#ad65ff','bars'],'Beat':['#fa5eae','#ffd16c','beat'],'Pulse':['#6d8dff','#48e4ee','pulse'],
+ 'Rainbow':['#ff5b9a','#56e7d2','rainbow'],'Party':['#ffae4c','#b15bff','party'],'Dual Color':['#46e1f1','#fa6ba9','dual'],
+ 'Wave':['#4b9aff','#4eeacb','wave'],'Ambient Flow':['#6bdcfc','#8f6cfb','flow'],'Bass Drop':['#ff5e9e','#ffb65a','bass'],
+ 'Chill':['#74a4ff','#69f5e0','chill'],'Twilight':['#af76ff','#fd8fc4','twilight'],'Custom':['#c98cff','#59e9e7','custom']
+ };
+ function svgFor(name){
+ const [a,b,kind]=art[name]||art.Custom;
+ const lines=Array.from({length:11},(_,i)=>{let h=14+Math.round(42*Math.abs(Math.sin(i*1.21+(kind==='bass'?1.4:0))));return `<rect x="${17+i*10}" y="${71-h/2}" width="6" height="${h}" rx="3" fill="${i%2?a:b}" opacity=".9"/>`}).join('');
+ const shapes={
+ bars:lines,beat:`<path d="M8 73H37L49 44L62 97L78 58L90 73H134" fill="none" stroke="${a}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`,
+ pulse:`<circle cx="72" cy="72" r="19" fill="${a}" opacity=".7"/><circle cx="72" cy="72" r="36" fill="none" stroke="${b}" stroke-width="7" opacity=".8"/><circle cx="72" cy="72" r="55" fill="none" stroke="${a}" stroke-width="3" opacity=".5"/>`,
+ rainbow:`<path d="M18 101 A54 54 0 0 1 126 101" stroke="#ff5b9a" stroke-width="10" fill="none"/><path d="M30 101 A42 42 0 0 1 114 101" stroke="#ffbf65" stroke-width="9" fill="none"/><path d="M42 101 A30 30 0 0 1 102 101" stroke="#55eacb" stroke-width="9" fill="none"/>`,
+ party:`<path d="M72 19L83 54L119 46L96 75L117 105L81 97L72 128L62 97L27 105L49 75L26 46L61 54Z" fill="${a}"/><circle cx="29" cy="25" r="6" fill="${b}"/><circle cx="119" cy="25" r="5" fill="${b}"/>`,
+ dual:`<path d="M20 70C42 10 62 130 82 70S120 10 132 70" stroke="${a}" stroke-width="12" fill="none"/><path d="M20 92C42 32 62 152 82 92S120 32 132 92" stroke="${b}" stroke-width="10" fill="none"/>`,
+ wave:`<path d="M4 75Q22 36 40 75T76 75T112 75T148 75" stroke="${a}" stroke-width="9" fill="none"/><path d="M4 96Q22 57 40 96T76 96T112 96T148 96" stroke="${b}" stroke-width="6" fill="none"/>`,
+ flow:`<path d="M4 49C42 0 72 99 140 41M4 93C42 44 72 143 140 85" stroke="${a}" stroke-width="13" stroke-linecap="round" fill="none" opacity=".8"/><path d="M4 69C42 20 72 119 140 61" stroke="${b}" stroke-width="9" fill="none"/>`,
+ bass:`<path d="M72 10L44 75H69L55 135L107 62H78L91 10Z" fill="${a}" stroke="${b}" stroke-width="3"/>`,
+ chill:`<path d="M91 23A49 49 0 1 0 120 102A40 40 0 0 1 91 23Z" fill="${a}"/><circle cx="39" cy="36" r="5" fill="${b}"/><circle cx="119" cy="31" r="4" fill="${b}"/>`,
+ twilight:`<circle cx="75" cy="73" r="36" fill="${a}"/><path d="M15 98Q73 47 130 98" fill="none" stroke="${b}" stroke-width="9"/><circle cx="106" cy="30" r="6" fill="#fff"/>`,
+ custom:`<path d="M29 101L98 32L112 46L43 115Z" fill="${a}"/><path d="M24 115L29 101L43 115Z" fill="${b}"/><circle cx="116" cy="104" r="14" fill="${b}"/>`
+ };
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="${a}" stop-opacity=".25"/><stop offset="1" stop-color="${b}" stop-opacity=".15"/></linearGradient></defs><rect width="144" height="144" rx="22" fill="#0a1530"/><rect x="3" y="3" width="138" height="138" rx="20" fill="url(#bg)" stroke="${a}" stroke-opacity=".4"/><g>${shapes[kind]}</g></svg>`;
+ return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+ }
+ function apply(){document.querySelectorAll('#modes .mode').forEach(button=>{const label=Array.from(button.childNodes).find(n=>n.nodeType===3);const name=label&&label.textContent.trim();if(!name||!art[name])return;const holder=button.querySelector('.mode-art');if(!holder)return;if(holder.querySelector('img'))return;holder.textContent='';const img=document.createElement('img');img.src=svgFor(name);img.alt='';img.loading='lazy';holder.appendChild(img);});}
+ const host=document.getElementById('modes');if(host){new MutationObserver(apply).observe(host,{childList:true});apply();}
+})();
+</script>
+<style>
+#engineBridgeBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 15px;margin:8px 0;border:1px solid #305776;border-radius:13px;background:linear-gradient(100deg,#101b35,#152d40);font-size:13px;color:#e0f4ff}
+#engineBridgeBar button{border:1px solid #45b9d3;border-radius:10px;padding:9px 13px;background:#153b54;color:white;font-weight:700;cursor:pointer}
+#engineBridgeBar .bridge-status{flex:1;color:#b5d6e9;min-width:220px}
+@media (min-width:1400px) and (max-height:800px){#engineBridgeBar{padding:6px 12px;margin:4px 0}#engineBridgeBar button{padding:6px 12px}}
+</style>
+<script>
+/* V27 integration: WebView bridge to Kyle's native settings, guarded and opt-in.
+   Does NOT control the vehicle in an ordinary browser. */
+(function(){
+ function init(){
+   const host=document.querySelector('main')||document.querySelector('.app')||document.body;
+   const bar=document.createElement('div');bar.id='engineBridgeBar';
+   bar.innerHTML='<strong>LIGHT VIBES ENGINE</strong><span class="bridge-status" id="bridgeStatus">Checking Android bridge…</span><button id="bridgePower" type="button">Start lighting</button><button id="bridgeApply" type="button">Apply mode</button><button id="bridgeBrightness" type="button">Apply brightness</button><button id="bridgeRefresh" type="button">Refresh status</button>';
+   host.insertBefore(bar,host.firstChild);
+   const bridge=window.MoodLighting;
+   const status=document.getElementById('bridgeStatus');
+   const power=document.getElementById('bridgePower');
+   const apply=document.getElementById('bridgeApply');
+   const bright=document.getElementById('bridgeBrightness');
+   const refresh=document.getElementById('bridgeRefresh');
+   function showState(state){enabled=Boolean(state.enabled);power.textContent=enabled?'Stop lighting':'Start lighting';status.textContent='Engine: '+(enabled?'ON':'OFF')+' · '+state.mode+' · brightness '+state.brightnessMin+'–'+state.brightnessMax;}
+   function reload(){try{showState(JSON.parse(bridge.getState()));return true}catch(e){status.textContent='Unable to read engine state: '+e.message;return false}}
+   let enabled=false;
+   if(!bridge){status.textContent='Browser preview only — no EV6 connection';[power,apply,bright,refresh].forEach(b=>b.disabled=true);return}
+   try {
+     if(!reload()) throw new Error('state unavailable');
+   } catch(e) {
+     status.textContent='Bridge detected but state unreadable — controls locked';
+     [power,apply,bright,refresh].forEach(b=>b.disabled=true);
+     return;
+   }
+   refresh.onclick=reload;
+   power.onclick=function(){try{let r=bridge.setEnabled(!enabled);if(r==='ok')reload();else status.textContent='Power: '+r}catch(e){status.textContent='Bridge error: '+e.message}};
+   apply.onclick=function(){let current=typeof mode==='string'?mode:'Spectrum';let mapped={Spectrum:'spectrum',Beat:'beat',Pulse:'pulse'}[current];if(!mapped){status.textContent=current+' is a UI-only preview; native mode not implemented';return}try{let r=bridge.setMode(mapped);if(r==='ok')reload();else status.textContent='Mode '+current+': '+r}catch(e){status.textContent='Bridge error: '+e.message}};
+   bright.onclick=function(){let slider=document.getElementById('slide1');let high=slider?Number(slider.value):8;high=Math.max(1,Math.min(10,high));try{let r=bridge.setBrightness(1,high);if(r==='ok')reload();else status.textContent='Brightness: '+r}catch(e){status.textContent='Bridge error: '+e.message}};
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+<script id="adaptive-display-engine">
+(function(){
+  const layoutStatus = document.createElement('div');
+  layoutStatus.id='displayFitStatus';
+  layoutStatus.style.cssText='position:fixed;bottom:6px;right:8px;z-index:99999;background:#101c2be8;color:#9ac8d7;border:1px solid #31556a;border-radius:8px;padding:3px 7px;font:10px Arial,sans-serif;pointer-events:none';
+  document.body.appendChild(layoutStatus);
+  function fit(){
+    const w=document.documentElement.clientWidth,h=document.documentElement.clientHeight;
+    const ratio=w/Math.max(1,h);
+    let layout=(w>=1200&&ratio>=2.05)?'ultrawide':(w>=850?'landscape':(w>=560&&ratio>=1.25?'compact':'portrait'));
+    document.body.dataset.displayLayout=layout;
+    document.body.dataset.displayHeight=h<=800?'short':'normal';
+    layoutStatus.textContent=layout+' · '+w+'×'+h;
+    document.documentElement.style.setProperty('--screen-width',w+'px');
+    document.documentElement.style.setProperty('--screen-height',h+'px');
+  }
+  let pending=false;
+  function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;fit()})}
+  addEventListener('resize',schedule,{passive:true});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',schedule,{passive:true});
+  fit();
+})();
+</script>
+</body></html>
