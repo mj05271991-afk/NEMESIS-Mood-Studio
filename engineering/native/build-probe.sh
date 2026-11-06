@@ -5,8 +5,12 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 TINY="${TINYALSA_DIR:-third_party/tinyalsa}"
 PIN="a7cd26a17fe2add2ff38d2f281ed0b919187a068"
-if ! command -v zig >/dev/null 2>&1; then
-  echo "zig compiler required" >&2; exit 2
+if command -v zig >/dev/null 2>&1; then
+  ZIG=(zig)
+elif python3 -c "import ziglang" >/dev/null 2>&1; then
+  ZIG=(python3 -m ziglang)
+else
+  echo "zig required (install zig or python3 -m pip install ziglang)" >&2; exit 2
 fi
 if [ ! -f "$TINY/include/tinyalsa/asoundlib.h" ]; then
   echo "tinyalsa missing: clone https://github.com/tinyalsa/tinyalsa into $TINY and checkout $PIN" >&2
@@ -20,7 +24,7 @@ if [ -d "$TINY/.git" ]; then
   fi
 fi
 mkdir -p build/native
-zig cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -Os \
+"${ZIG[@]}" cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -Os \
   -I"$TINY/include" \
   -o build/native/moon_audio_probe \
   engineering/native/moon_audio_probe.c \
