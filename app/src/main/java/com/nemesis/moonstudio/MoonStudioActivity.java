@@ -56,7 +56,7 @@ public class MoonStudioActivity extends Activity {
    if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("Cannot create native settings directory");
    File temp=new File(dir,key+".tmp");
    FileOutputStream out=new FileOutputStream(temp);
-   try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+   try{out.write((value+"\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
    File target=new File(dir,key);
    if(!temp.renameTo(target))throw new IOException("Cannot save "+key);
   }
