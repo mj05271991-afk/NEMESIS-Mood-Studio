@@ -48,7 +48,7 @@ jobs:
           test -s /tmp/moon_music_light_bridge.o
       - name: Test music-to-light bridge against mock hardware
         run: |
-          cc -std=c11 -Wall -Wextra -Werror -O2 native/test_music_light_bridge.c native/moon_music_light_bridge.c native/native_controller.c native/native_lighting_session.c native/native_ownership_lock.c -lm -o /tmp/test_music_light_bridge
+          cc -D_GNU_SOURCE -std=c11 -Wall -Wextra -Werror -O2 native/test_music_light_bridge.c native/moon_music_light_bridge.c native/native_controller.c native/native_lighting_session.c native/native_ownership_lock.c -lm -o /tmp/test_music_light_bridge
           /tmp/test_music_light_bridge
       - name: Install Zig for static ARMv7 build
         run: |
