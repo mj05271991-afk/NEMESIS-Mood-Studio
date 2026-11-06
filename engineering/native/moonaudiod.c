@@ -163,7 +163,7 @@ static void load_config(const char *dir) {
     snprintf(C.dir, sizeof C.dir, "%s", d);
     cfg_str("preset", C.preset, sizeof C.preset, "standard");
     int repo = !strcmp(C.preset, "repo");
-    C.enabled = cfg_int("enabled", 1);
+    C.enabled = cfg_int("enabled", 0); /* Explicit opt-in: no lighting writes until configured. */
     C.debug = cfg_int("debug", 0);
     cfg_str("mode", C.mode, sizeof C.mode, repo ? "spectrum" : "beat");
     C.min_interval_ms = clampi(cfg_int("min_interval_ms", 250), 150, 5000);
@@ -808,7 +808,7 @@ static int is_other_daemon(pid_t pid) {
     cl[n] = 0;
     const char *exe = cl, *arg1 = cl + strlen(cl) + 1;
     if (arg1 >= cl + n) arg1 = "";
-    if (!strstr(exe, "lightvibesd")) return 0;
+    if (!strstr(exe, "moonaudiod")) return 0;
     return arg1[0] != '-';            /* --status / --off / --analyze ... are one-shot tools */
 }
 static int same_binary(pid_t pid) {
@@ -841,10 +841,10 @@ static void stop_other_instances(void) {
     for (;;) {
         pid_t all[32], old[32]; int n = list_daemons(all, 32), no = 0; pid_t twin = 0;
         for (int i = 0; i < n; i++) { if (same_binary(all[i])) twin = all[i]; else old[no++] = all[i]; }
-        for (int i = 0; i < no; i++) say("outdated lightvibesd running (pid %d) — stopping it", old[i]);
+        for (int i = 0; i < no; i++) say("outdated moonaudiod running (pid %d) — stopping it", old[i]);
         if (no) stop_pids(old, no);
         if (!twin) return;
-        say("an identical lightvibesd is already running (pid %d) — standing by", twin);
+        say("an identical moonaudiod is already running (pid %d) — standing by", twin);
         while (!stop_flag && kill(twin, 0) == 0) sleep(5);
         if (stop_flag) return;
         say("pid %d exited — taking over", twin);
@@ -903,7 +903,7 @@ int main(int argc, char **argv) {
         load_config(argc >= 3 ? argv[2] : defdir);
         if (!strcmp(argv[1], "--stop-all")) {
             pid_t f[32]; int n = list_daemons(f, 32);
-            for (int i = 0; i < n; i++) say("stopping lightvibesd pid %d", f[i]);
+            for (int i = 0; i < n; i++) say("stopping moonaudiod pid %d", f[i]);
             stop_pids(f, n);
         }
         return set_loopback(0) ? 1 : 0;
@@ -944,13 +944,13 @@ int main(int argc, char **argv) {
         if (!C.debug) C.debug = 2;
         return analyze_file(argv[2]);
     }
-    if (argc < 2 || argv[1][0] == '-') { fprintf(stderr, "usage: lightvibesd <state-dir> [fallback-dir] | --status | --log [lines] [filter] | --stop-all | --off | --testcall R G B [level] | --analyze file.raw [dir]\n"); return 2; }
+    if (argc < 2 || argv[1][0] == '-') { fprintf(stderr, "usage: moonaudiod <state-dir> [fallback-dir] | --status | --log [lines] [filter] | --stop-all | --off | --testcall R G B [level] | --analyze file.raw [dir]\n"); return 2; }
 
     settings_dir = argv[1];
     if (argc >= 3) fallback_dir = argv[2];
     load_config(active_dir());
     log_open();
-    say("lightvibesd %s starting", VERSION);
+    say("moonaudiod %s starting", VERSION);
     show_config();
 
     struct sigaction sa; memset(&sa, 0, sizeof sa); sa.sa_handler = on_sig;
