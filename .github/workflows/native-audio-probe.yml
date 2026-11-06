@@ -48,7 +48,7 @@ jobs:
           import pathlib, re
           html=pathlib.Path('design/approved-moon-studio-concept.html').read_text()
           assert '<script' in html and 'MoodLighting' in html
-          assert 'id="bridgePower"' not in html, 'bridge toolbar should be created by JavaScript'
+          assert "bar.innerHTML=" in html and 'id="bridgePower"' in html, 'bridge toolbar must be created by JavaScript'
           parts=[]
           def extract(match):
               opening,body=match.group(1),match.group(2)
