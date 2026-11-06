@@ -7,7 +7,7 @@
 #include "moon_audio_backend.h"
 static volatile sig_atomic_t interrupted=0;
 static void stop(int sig){(void)sig;interrupted=1;}
-static int run(int capture,int loopback){
+static int run(int capture,int loopback,int continuous){
  struct mixer *m=mixer_open(0);
  if(!m){fputs("ALSA card0 unavailable\n",stderr);return 3;}
  const char *name="Device2 Tx to Rx Internal Loopback Mode";
@@ -28,12 +28,15 @@ static int run(int capture,int loopback){
  struct pcm *pcm=pcm_open(0,2,PCM_IN,&cfg);
  if(!pcm||!pcm_is_ready(pcm)){fprintf(stderr,"Capture unavailable: %s\n",pcm?pcm_get_error(pcm):"null");if(pcm)pcm_close(pcm);rc=6;goto done;}
  unsigned char samples[8192];
- if(interrupted||pcm_readi(pcm,samples,2048)<0){fprintf(stderr,"Capture read interrupted or failed: %s\n",pcm_get_error(pcm));rc=7;}
+ do {
+ if(interrupted||pcm_readi(pcm,samples,2048)<0){fprintf(stderr,"Capture read interrupted or failed: %s\n",pcm_get_error(pcm));rc=7;break;}
  else{
   MoonAudioMeter meter;MoonAudioBands bands;
   if(moon_audio_analyze(samples,sizeof samples,&meter)||moon_audio_bands(samples,sizeof samples,&bands))rc=8;
   else printf("frames=%lu rms=%.6f peak=%.6f bass=%.6f mid=%.6f treble=%.6f\n",meter.frames,meter.rms,meter.peak,bands.bass,bands.mid,bands.treble);
  }
+ fflush(stdout);
+ } while(continuous&&!interrupted);
  pcm_close(pcm);
 done:
  if(changed){
@@ -46,8 +49,9 @@ done:
 int main(int argc,char **argv){
  signal(SIGINT,stop);signal(SIGTERM,stop);
  if(argc!=2){fputs("Usage: moon-alsa-probe --probe|--capture-once|--capture-loopback-once\n",stderr);return 2;}
- if(!strcmp(argv[1],"--probe"))return run(0,0);
- if(!strcmp(argv[1],"--capture-once"))return run(1,0);
- if(!strcmp(argv[1],"--capture-loopback-once"))return run(1,1);
+ if(!strcmp(argv[1],"--probe"))return run(0,0,0);
+ if(!strcmp(argv[1],"--capture-once"))return run(1,0,0);
+ if(!strcmp(argv[1],"--capture-loopback-once"))return run(1,1,0);
+ if(!strcmp(argv[1],"--monitor-loopback"))return run(1,1,1);
  return 2;
 }
