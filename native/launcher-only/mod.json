@@ -1,0 +1,31 @@
+{
+  "id": "moon-studio-launcher",
+  "name": "Moon Studio Launcher",
+  "version": "0.2.1",
+  "hmgapi": ">=1.0.0",
+  "authors": [
+    "Moon Studio contributors"
+  ],
+  "license": "AGPL-3.0",
+  "description": "Launcher-only Moon Studio Concept D interface; no lighting daemon or vehicle writes.",
+  "live": true,
+  "apps": [
+    {
+      "package": "com.nemesis.moonstudio",
+      "apk": "app/MoonStudio.apk"
+    }
+  ],
+  "provides": {
+    "launcher": [
+      {
+        "title": "Moon Studio",
+        "package": "com.nemesis.moonstudio",
+        "class": ".MoonStudioActivity",
+        "icon": "icons/tile.png",
+        "icon_night": "icons/tile.png",
+        "icon_disabled": "icons/tile_disabled.png",
+        "icon_disabled_night": "icons/tile_disabled.png"
+      }
+    ]
+  }
+}
