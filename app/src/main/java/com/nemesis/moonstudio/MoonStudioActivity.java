@@ -63,6 +63,8 @@ public class MoonStudioActivity extends Activity {
      if(!m.equals("beat")&&!m.equals("spectrum")&&!m.equals("pulse")&&!m.equals("speed"))throw new IllegalArgumentException("Unsupported music mode");
      writeMoonSetting("mode",m);
      writeMoonSetting("brightness_max",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("brightness_min",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("flash_on_beat","0");
      writeMoonSetting("enabled","1");
      java.io.File marker=new java.io.File(getFilesDir(),"enable_moon_lighting");
      if(!marker.exists()&&!marker.createNewFile())throw new java.io.IOException("Unable to enable background service");
@@ -76,7 +78,7 @@ public class MoonStudioActivity extends Activity {
      writeMoonSetting("enabled","0");
      java.io.File marker=new java.io.File(getFilesDir(),"enable_moon_lighting");
      if(marker.exists()&&!marker.delete())throw new java.io.IOException("Could not clear service start marker");
-     runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Background lighting disabled in settings. An already-running HMG service must be stopped by its manager.')");}});
+     runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Background lighting disabled. HMG service monitor will request daemon shutdown and restore; verify lights return to normal.')");}});
     }catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}
    }},"MoonStopBackground").start();
   }
@@ -87,6 +89,8 @@ public class MoonStudioActivity extends Activity {
      if(!m.equals("beat")&&!m.equals("spectrum")&&!m.equals("pulse")&&!m.equals("speed"))throw new IllegalArgumentException("Unsupported music mode");
      writeMoonSetting("mode",m);
      writeMoonSetting("brightness_max",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("brightness_min",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("flash_on_beat","0");
      writeMoonSetting("enabled","0");
      runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Settings saved. Background lighting remains disabled pending vehicle validation.')");}});
     }catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}
