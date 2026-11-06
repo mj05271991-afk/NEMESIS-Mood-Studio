@@ -134,9 +134,14 @@ jobs:
           exit 0
           EOF
           chmod 755 usb-staging/NEMESIS.sh
+          test -s usb-staging/NEMESIS.data
+          test -s usb-staging/NEMESIS.sh
           test -s usb-staging/packages/moon.studio.zip
+          unzip -p usb-staging/packages/moon.studio.zip NEMESIS.data | grep -F 'package=com.nemesis.moonstudio'
+          unzip -l usb-staging/packages/moon.studio.zip | grep -F 'app/NEMESIS-Moon-Studio.apk'
           (cd usb-staging && zip -qr ../Moon-Studio-USB-staging.zip .)
           unzip -t Moon-Studio-USB-staging.zip
+          unzip -l Moon-Studio-USB-staging.zip | grep -F 'packages/moon.studio.zip'
 
       - name: Upload USB staging ZIP
         uses: actions/upload-artifact@v4
