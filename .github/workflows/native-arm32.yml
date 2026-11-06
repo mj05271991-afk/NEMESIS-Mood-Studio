@@ -76,9 +76,41 @@ jobs:
           cp native/arm32-ndk-build/moonstudiod-static native/ev6-diagnostics/
           printf '%s\\n' 'EV6 diagnostic build, NOT a NEMESIS installable package.' 'No vehicle writes are enabled.' 'Do not run --monitor-loopback until in-car recovery procedure is verified.' 'Read-only: moon-alsa-probe --probe' > native/ev6-diagnostics/README.txt
           (cd native && zip -q -r ev6-diagnostics.zip ev6-diagnostics)
+      - name: Set up Java 8 for Android 4.4 APK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+      - name: Set up Gradle 4.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '4.6'
+      - name: Install Android SDK for Moon Studio
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-28" "build-tools;28.0.3"
+      - name: Build and verify Moon Studio launcher APK
+        run: |
+          gradle --no-daemon :app:assembleDebug
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/28.0.3/aapt" dump badging "$APK" | grep -F "package: name='com.nemesis.moonstudio'"
+          "$ANDROID_HOME/build-tools/28.0.3/aapt" dump badging "$APK" | grep -F "launchable-activity: name='com.nemesis.moonstudio.MoonStudioActivity'"
+          "$ANDROID_HOME/build-tools/28.0.3/apksigner" verify --min-sdk-version 19 --verbose "$APK" | grep -F 'Verified using v1 scheme (JAR signing): true'
       - name: Package HMG opt-in diagnostic service staging
         run: |
-          mkdir -p native/hmg-staging
+          mkdir -p native/hmg-staging/app native/hmg-staging/icons
+          cp app/build/outputs/apk/debug/app-debug.apk native/hmg-staging/app/MoonStudio.apk
+          python3 - <<'PYICON'
+          import struct, zlib, pathlib
+          root=pathlib.Path('native/hmg-staging/icons')
+          def png(path, color):
+              w=h=96
+              raw=b''.join(b'\x00'+bytes(color)*w for _ in range(h))
+              def chunk(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
+              path.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
+          png(root/'tile.png',(92,42,174))
+          png(root/'tile_disabled.png',(78,78,78))
+          PYICON
           cp native/hmg-mod/moon.sh native/hmg-staging/moon.sh
           cp native/hmg-mod/mod.json native/hmg-staging/mod.json
           cp native/arm32-static-build/moon-alsa-probe native/hmg-staging/moon-alsa-probe
@@ -98,6 +130,10 @@ jobs:
           import json
           with open('native/hmg-staging/mod.json') as f: m=json.load(f)
           assert m['id']=='moon-studio'
+          assert m['apps'][0]['package']=='com.nemesis.moonstudio'
+          assert m['apps'][0]['apk']=='app/MoonStudio.apk'
+          assert m['provides']['launcher'][0]['class']=='.MoonStudioActivity'
+          assert m['provides']['launcher'][0]['package']=='com.nemesis.moonstudio'
           assert m['services'][0]['script']=='moon.sh'
           assert m['services'][0]['restart'] is True
           assert m['services'][0]['name']=='moon-lighting'
@@ -109,6 +145,9 @@ jobs:
             echo 'Unexpected signed manifest in staging archive'
             exit 1
           fi
+          test -s native/hmg-staging/app/MoonStudio.apk
+          test -s native/hmg-staging/icons/tile.png
+          test -s native/hmg-staging/icons/tile_disabled.png
           test -s native/hmg-staging/moon-lightd
           test -s native/hmg-staging/LICENSE
       - name: Sign HMG package and wrap for NEMESIS when signing key is configured
