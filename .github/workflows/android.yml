@@ -2,7 +2,7 @@ name: Build NEMESIS Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, moon-native-arm32-integration ]
   workflow_dispatch:
 
 jobs:
