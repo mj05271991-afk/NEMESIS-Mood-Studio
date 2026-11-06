@@ -170,26 +170,25 @@ jobs:
               z.write(daemon,'bin/moonaudiod')
               z.writestr('svc/audio.sh', '#!/system/bin/sh\n# Disabled unless Moon Studio settings explicitly enable native capture.\nMOD=/data/nemesis/apps/moon.studio\nBIN="$MOD/bin/moonaudiod"\nSETTINGS=/data/data/com.nemesis.moonstudio/files/settings\nDEFAULTS="$MOD/defaults"\n[ -f "$BIN" ] || exit 1\nchmod 755 "$BIN" || exit 1\nexec "$BIN" "$SETTINGS" "$DEFAULTS"\n')
           outer_desc='[nemesis]\nversion=1.0\ntype=install\npath=packages/moon.studio.zip\n'
-          out=pathlib.Path('build/Moon-Studio-NEMESIS-USB-WITH-DAEMON.zip')
-          with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as z:
-              z.writestr('NEMESIS.data',outer_desc)
-              z.writestr('packages/moon.studio.zip',inner.getvalue())
-          with zipfile.ZipFile(out) as z:
-              assert z.testzip() is None
-              assert set(z.namelist()) == {'NEMESIS.data','packages/moon.studio.zip'}
-              with zipfile.ZipFile(io.BytesIO(z.read('packages/moon.studio.zip'))) as n:
+          usb=pathlib.Path('build/nemesis-usb-root')
+          (usb/'packages').mkdir(parents=True,exist_ok=True)
+          (usb/'NEMESIS.data').write_text(outer_desc)
+          (usb/'packages/moon.studio.zip').write_bytes(inner.getvalue())
+          assert sorted(p.relative_to(usb).as_posix() for p in usb.rglob('*') if p.is_file()) == ['NEMESIS.data','packages/moon.studio.zip']
+          with zipfile.ZipFile(usb/'packages/moon.studio.zip') as n:
+
                   assert n.testzip() is None
                   assert 'app/NEMESIS-Moon-Studio.apk' in n.namelist()
-                  assert 'bin/moonaudiod' in n.namelist()
-                  assert 'svc/audio.sh' in n.namelist()
-                  assert '[service.0]' in n.read('NEMESIS.data').decode()
-                  assert 'id=moon.studio' in n.read('NEMESIS.data').decode()
+              assert 'bin/moonaudiod' in n.namelist()
+              assert 'svc/audio.sh' in n.namelist()
+              assert '[service.0]' in n.read('NEMESIS.data').decode()
+              assert 'id=moon.studio' in n.read('NEMESIS.data').decode()
           print('PASS: USB and nested NEMESIS package structures')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: Moon-Studio-NEMESIS-USB-WITH-DAEMON
-          path: build/Moon-Studio-NEMESIS-USB-WITH-DAEMON.zip
+          path: build/nemesis-usb-root/
       - uses: actions/upload-artifact@v4
         with:
           name: Moon-HMGAPI-INTEGRATION-UNTESTED
