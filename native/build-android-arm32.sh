@@ -8,7 +8,7 @@ if [[ -z "$HOST" || ! -x "$HOST/bin/clang" || ! -x "$HOST/bin/llvm-ar" || ! -d "
 fi
 OUT="${MOON_BUILD_OUT:-$ROOT/arm32-ndk-build}"
 mkdir -p "$OUT"
-files=(native_controller native_hmg_adapter native_lighting_session native_ownership_lock native_transport_gate native_verified_controller)
+files=(native_controller native_hmg_adapter native_lighting_session native_ownership_lock native_transport_gate native_verified_controller moon_audio_backend)
 for f in "${files[@]}"; do
   "$HOST/bin/clang" --target=armv7a-linux-androideabi21 --sysroot="$HOST/sysroot" -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -fPIC -O2 -c "$ROOT/$f.c" -o "$OUT/$f.o"
   "$HOST/bin/llvm-readelf" -h "$OUT/$f.o" | grep -q 'Machine:.*ARM' || { echo "Non-ARM object: $f" >&2; exit 3; }
