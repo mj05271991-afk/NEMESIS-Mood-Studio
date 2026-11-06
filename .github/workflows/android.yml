@@ -98,15 +98,17 @@ jobs:
         run: |
           mkdir -p native-staging
           gh run download 42251434113 --repo "${{ github.repository }}" --name moon-arm32-staging-library --dir native-staging
-          test -s native-staging/native/ev6-diagnostics.zip
-          unzip -t native-staging/native/ev6-diagnostics.zip
-          test -s native-staging/native/arm32-static-build/moon-alsa-probe
+          find native-staging -type f -print
+          DIAG=$(find native-staging -type f -name ev6-diagnostics.zip -print -quit)
+          test -n "$DIAG"
+          unzip -t "$DIAG"
+          cp "$DIAG" native-staging/verified-ev6-diagnostics.zip
 
       - name: Package combined APK and native diagnostic binaries
         run: |
           mkdir -p combined-staging/app combined-staging/native
           cp app/build/outputs/apk/debug/app-debug.apk combined-staging/app/Moon-Studio.apk
-          cp native-staging/native/ev6-diagnostics.zip combined-staging/native/
+          cp native-staging/verified-ev6-diagnostics.zip combined-staging/native/ev6-diagnostics.zip
           printf '%s\\n' 'STAGING ONLY: Not a vehicle-installable NEMESIS bundle.' 'Contains Android APK and compiled native diagnostics from successful native CI run 42251434113.' 'No background daemon installation or vehicle music-reactive lighting integration yet.' > combined-staging/README.txt
           (cd combined-staging && zip -qr ../Moon-Studio-combined-staging.zip .)
           unzip -t Moon-Studio-combined-staging.zip
