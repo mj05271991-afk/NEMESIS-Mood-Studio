@@ -35,7 +35,7 @@ public class MoonStudioActivity extends Activity {
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
   registerReceiver(smlReceiver,new IntentFilter(Ev6LightingProbe.STATUS_ACTION));
-  web.addJavascriptInterface(new NativeDaemonBridge(),"MoonDaemon");web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
+  web.addJavascriptInterface(new NativeDaemonBridge(),"MoonDaemon");web.addJavascriptInterface(new MoodLightingBridge(),"MoodLighting");web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
   setContentView(web);web.loadUrl("file:///android_asset/index.html");
  }
  private void beginConnect(){
@@ -81,6 +81,42 @@ public class MoonStudioActivity extends Activity {
      callJavascript("window.onNativeAudioError('"+jsQuote(e.getMessage())+"')");
     }});
    }
+  }
+ }
+ private class MoodLightingBridge{
+  private File dir(){return new File(getFilesDir(),"settings");}
+  private String read(String name,String fallback){
+   java.io.BufferedReader in=null;
+   try{in=new java.io.BufferedReader(new java.io.FileReader(new File(dir(),name)));String v=in.readLine();return v==null?fallback:v.trim();}
+   catch(IOException e){return fallback;}
+   finally{if(in!=null)try{in.close();}catch(IOException ignored){}}
+  }
+  private String write(String name,String value){
+   File folder=dir();if(!folder.isDirectory()&&!folder.mkdirs())return "settings directory unavailable";
+   File tmp=new File(folder,name+".tmp");
+   try{
+    FileOutputStream out=new FileOutputStream(tmp);
+    try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+    if(!tmp.renameTo(new File(folder,name)))return "settings rename failed";
+    return "ok";
+   }catch(IOException e){return "settings write failed";}
+  }
+  @JavascriptInterface public String getState(){
+   String m=read("mode","beat");if(!m.equals("beat")&&!m.equals("spectrum")&&!m.equals("pulse"))m="beat";
+   int lo=1,hi=8;
+   try{lo=Integer.parseInt(read("brightness_min","1"));}catch(NumberFormatException ignored){}
+   try{hi=Integer.parseInt(read("brightness_max","8"));}catch(NumberFormatException ignored){}
+   return "{\\"enabled\\":"+("1".equals(read("enabled","0"))?"true":"false")+",\\"mode\\":\\""+m+"\\",\\"brightnessMin\\":"+lo+",\\"brightnessMax\\":"+hi+"}";
+  }
+  @JavascriptInterface public String setEnabled(boolean enabled){return write("enabled",enabled?"1":"0");}
+  @JavascriptInterface public String setMode(String mode){
+   if(!"beat".equals(mode)&&!"spectrum".equals(mode)&&!"pulse".equals(mode))return "unsupported mode";
+   return write("mode",mode);
+  }
+  @JavascriptInterface public String setBrightness(int min,int max){
+   if(min<0||max>10||min>max)return "brightness out of range";
+   String r=write("brightness_min",Integer.toString(min));if(!"ok".equals(r))return r;
+   return write("brightness_max",Integer.toString(max));
   }
  }
  private class AudioBridge{
