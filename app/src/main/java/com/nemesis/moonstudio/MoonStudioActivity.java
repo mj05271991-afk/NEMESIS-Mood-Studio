@@ -14,12 +14,17 @@ import android.view.View;
 
 public class MoonStudioActivity extends Activity {
  private WebView web; private AudioBandCapture capture; private Handler mainHandler;
- private boolean probePending; private BroadcastReceiver smlReceiver;
+ private boolean probePending; private volatile boolean uiLightingChanged; private BroadcastReceiver smlReceiver;
+ private long lastBandUiMs;
  @Override public void onCreate(Bundle state){
   super.onCreate(state);mainHandler=new Handler();
   getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
   web=new WebView(this);WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);web.setWebChromeClient(new WebChromeClient());
-  capture=new AudioBandCapture(new AudioBandCapture.Listener(){@Override public void onBands(final float bass,final float mid,final float treble){runOnUiThread(new Runnable(){@Override public void run(){if(web!=null)web.loadUrl("javascript:window.onNativeBands("+bass+","+mid+","+treble+")");}});}});
+  capture=new AudioBandCapture(new AudioBandCapture.Listener(){@Override public void onBands(final float bass,final float mid,final float treble){if(android.os.SystemClock.uptimeMillis()-lastBandUiMs<100)return;
+   lastBandUiMs=android.os.SystemClock.uptimeMillis();
+   runOnUiThread(new Runnable(){@Override public void run(){if(web!=null)web.evaluateJavascript("window.onNativeBands("+bass+","+mid+","+treble+")",null);}});}
+   @Override public void onError(final String message){runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onNativeAudioError(\'"+jsQuote(message)+"\')");}});}
+  });
   smlReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){
    if(!probePending||intent==null)return;
    try{byte[] status=intent.getByteArrayExtra(Ev6LightingProbe.STATUS_EXTRA);Ev6LightingProbe.decodeStatus(status);Ev6LightingController.capture(status);
@@ -47,13 +52,13 @@ public class MoonStudioActivity extends Activity {
  }
  private class VehicleBridge{
   @JavascriptInterface public void connect(){runOnUiThread(new Runnable(){@Override public void run(){beginConnect();}});}
-  @JavascriptInterface public void setColor(final String hex){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.color(hex);}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLColor").start();}
-  @JavascriptInterface public void setBrightness(final int percent){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.brightness(percent);}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLBrightness").start();}
-  @JavascriptInterface public void release(){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.restore();runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onVehicleReleased('Original EV6 color and brightness restored.')");}});}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLRestore").start();}
+  @JavascriptInterface public void setColor(final String hex){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.color(hex);uiLightingChanged=true;}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLColor").start();}
+  @JavascriptInterface public void setBrightness(final int percent){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.brightness(percent);uiLightingChanged=true;}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLBrightness").start();}
+  @JavascriptInterface public void release(){new Thread(new Runnable(){@Override public void run(){try{Ev6LightingController.restore();uiLightingChanged=false;runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onVehicleReleased('Original EV6 color and brightness restored.')");}});}catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}}},"NemesisSMLRestore").start();}
  }
  @Override protected void onDestroy(){
   probePending=false;mainHandler.removeCallbacksAndMessages(null);
-  try{Ev6LightingController.restore();}catch(Exception ignored){}
+  if(uiLightingChanged){try{Ev6LightingController.restore();}catch(Exception ignored){}}
   if(smlReceiver!=null){try{unregisterReceiver(smlReceiver);}catch(Exception ignored){}}
   if(capture!=null)capture.stop();if(web!=null)web.destroy();super.onDestroy();
  }

@@ -1,0 +1,27 @@
+{
+  "id": "moon-studio",
+  "name": "Moon Studio",
+  "version": "0.3.0-dev",
+  "hmgapi": ">=1.0.0",
+  "authors": [
+    "Moon Studio"
+  ],
+  "license": "AGPL-3.0",
+  "description": "Development staging only: Moon Studio native audio daemon and loopback capture not yet integrated or validated.",
+  "live": true,
+  "apps": [
+    {
+      "package": "com.nemesis.moonstudio",
+      "apk": "app/MoonStudio.apk"
+    }
+  ],
+  "services": [
+    {
+      "name": "audio",
+      "script": "audio.sh",
+      "user": "root",
+      "restart": true,
+      "start": "android"
+    }
+  ]
+}
