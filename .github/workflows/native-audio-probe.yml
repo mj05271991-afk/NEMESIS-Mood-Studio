@@ -51,10 +51,10 @@ jobs:
           parts=[]
           def extract(match):
               opening,body=match.group(1),match.group(2)
-              if re.search(r'\\bsrc\\s*=',opening,re.I): return match.group(0)
+              if re.search(r'\bsrc\s*=',opening,re.I): return match.group(0)
               parts.append(body)
               return opening+'__MOON_SCRIPT_'+str(len(parts)-1)+'__</script>'
-          templ=re.sub(r'(<script\\b[^>]*>)([\\s\\S]*?)</script>',extract,html,flags=re.I)
+          templ=re.sub(r'(<script\b[^>]*>)([\s\S]*?)</script>',extract,html,flags=re.I)
           out=pathlib.Path('/tmp/moon-dashboard');out.mkdir(exist_ok=True)
           (out/'template.html').write_text(templ)
           for i,part in enumerate(parts):(out/f'script-{i}.js').write_text(part)
