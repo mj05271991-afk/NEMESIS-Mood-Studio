@@ -1,0 +1,20 @@
+{
+  "id": "moon-studio",
+  "name": "Moon Studio Audio Diagnostics",
+  "version": "0.1.0-test",
+  "hmgapi": ">=1.0.0",
+  "authors": [
+    "Moon Studio contributors"
+  ],
+  "description": "Opt-in, non-lighting audio diagnostic service. NOT a verified music-reactive lighting release.",
+  "live": true,
+  "services": [
+    {
+      "name": "moon-audio",
+      "script": "moon.sh",
+      "user": "root",
+      "restart": false,
+      "start": "android"
+    }
+  ]
+}

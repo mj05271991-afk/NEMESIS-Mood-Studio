@@ -70,10 +70,27 @@ jobs:
           cp native/arm32-ndk-build/moonstudiod-static native/ev6-diagnostics/
           printf '%s\\n' 'EV6 diagnostic build, NOT a NEMESIS installable package.' 'No vehicle writes are enabled.' 'Do not run --monitor-loopback until in-car recovery procedure is verified.' 'Read-only: moon-alsa-probe --probe' > native/ev6-diagnostics/README.txt
           (cd native && zip -q -r ev6-diagnostics.zip ev6-diagnostics)
+      - name: Package HMG opt-in diagnostic service staging
+        run: |
+          mkdir -p native/hmg-staging
+          cp native/hmg-mod/moon.sh native/hmg-staging/moon.sh
+          cp native/hmg-mod/mod.json native/hmg-staging/mod.json
+          cp native/arm32-static-build/moon-alsa-probe native/hmg-staging/moon-alsa-probe
+          chmod 755 native/hmg-staging/moon.sh native/hmg-staging/moon-alsa-probe
+          python3 - <<'PY'
+          import json
+          with open('native/hmg-staging/mod.json') as f: m=json.load(f)
+          assert m['id']=='moon-studio'
+          assert m['services'][0]['script']=='moon.sh'
+          assert m['services'][0]['restart'] is False
+          PY
+          (cd native/hmg-staging && zip -qr ../moon-hmg-diagnostics-staging.zip .)
+          unzip -t native/moon-hmg-diagnostics-staging.zip
       - uses: actions/upload-artifact@v4
         with:
           name: moon-arm32-staging-library
           path: |
+            native/moon-hmg-diagnostics-staging.zip
             native/ev6-diagnostics.zip
             native/arm32-ndk-build/moonstudiod
             native/arm32-ndk-build/moonstudiod-static
