@@ -8,6 +8,7 @@ on:
       - 'engineering/native/**'
       - 'engineering/hmgapi-mod/**'
       - 'app/**'
+      - 'design/approved-moon-studio-concept.html'
       - '.github/workflows/native-audio-probe.yml'
 
 jobs:
@@ -40,6 +41,42 @@ jobs:
           wget -q https://services.gradle.org/distributions/gradle-6.7.1-bin.zip -O /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d /tmp
           /tmp/gradle-6.7.1/bin/gradle --version
+      - name: Transpile approved dashboard for legacy EV6 WebView
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          html=pathlib.Path('design/approved-moon-studio-concept.html').read_text()
+          assert '<script' in html and 'MoodLighting' in html
+          parts=[]
+          def extract(match):
+              opening,body=match.group(1),match.group(2)
+              if re.search(r'\\bsrc\\s*=',opening,re.I): return match.group(0)
+              parts.append(body)
+              return opening+'__MOON_SCRIPT_'+str(len(parts)-1)+'__</script>'
+          templ=re.sub(r'(<script\\b[^>]*>)([\\s\\S]*?)</script>',extract,html,flags=re.I)
+          out=pathlib.Path('/tmp/moon-dashboard');out.mkdir(exist_ok=True)
+          (out/'template.html').write_text(templ)
+          for i,part in enumerate(parts):(out/f'script-{i}.js').write_text(part)
+          (out/'count').write_text(str(len(parts)))
+          print('Extracted',len(parts),'inline scripts')
+          PY
+          npm install --prefix /tmp/moon-dashboard --no-save @babel/core@7 @babel/cli@7 @babel/preset-env@7
+          for js in /tmp/moon-dashboard/script-*.js; do
+            /tmp/moon-dashboard/node_modules/.bin/babel "$js" --no-babelrc --presets '@babel/preset-env' --out-file "${js%.js}.legacy.js"
+          done
+          python3 - <<'PY'
+          import pathlib
+          folder=pathlib.Path('/tmp/moon-dashboard')
+          html=(folder/'template.html').read_text()
+          for i in range(int((folder/'count').read_text())):
+              js=(folder/f'script-{i}.legacy.js').read_text()
+              html=html.replace('__MOON_SCRIPT_'+str(i)+'__',js)
+          assert '__MOON_SCRIPT_' not in html
+          assert 'MoodLighting' in html
+          pathlib.Path('app/src/main/assets/index.html').write_text(html)
+          print('Approved dashboard transpiled:',len(html),'characters')
+          PY
       - name: Compile APK
         run: |
           java -version
