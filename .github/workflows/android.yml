@@ -92,25 +92,24 @@ jobs:
           (cd nemesis-package && zip -qr ../NEMESIS-Moon-Studio-installer.zip .)
           unzip -l NEMESIS-Moon-Studio-installer.zip
 
-      - name: Download matching native staging artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: moon-arm32-staging-library
-          path: native-staging
-          run-id: ${{ github.run_id }}
-        continue-on-error: true
+      - name: Retrieve verified ARMv7 native artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p native-staging
+          gh run download 42251434113 --repo "${{ github.repository }}" --name moon-arm32-staging-library --dir native-staging
+          test -s native-staging/native/ev6-diagnostics.zip
+          unzip -t native-staging/native/ev6-diagnostics.zip
+          test -s native-staging/native/arm32-static-build/moon-alsa-probe
 
-      - name: Stage combined app and native diagnostic bundle
+      - name: Package combined APK and native diagnostic binaries
         run: |
           mkdir -p combined-staging/app combined-staging/native
           cp app/build/outputs/apk/debug/app-debug.apk combined-staging/app/Moon-Studio.apk
-          printf '%s\\n' 'STAGING ONLY: Not a vehicle-installable NEMESIS bundle.' 'Native audio is not integrated with the Android app lifecycle.' 'Do not install or execute this bundle on a vehicle.' > combined-staging/README.txt
-          if test -f native-staging/native/ev6-diagnostics.zip; then
-            cp native-staging/native/ev6-diagnostics.zip combined-staging/native/
-          else
-            printf '%s\\n' 'Native diagnostic artifact not in this workflow; retrieve separately from native CI.' > combined-staging/native/README.txt
-          fi
+          cp native-staging/native/ev6-diagnostics.zip combined-staging/native/
+          printf '%s\\n' 'STAGING ONLY: Not a vehicle-installable NEMESIS bundle.' 'Contains Android APK and compiled native diagnostics from successful native CI run 42251434113.' 'No background daemon installation or vehicle music-reactive lighting integration yet.' > combined-staging/README.txt
           (cd combined-staging && zip -qr ../Moon-Studio-combined-staging.zip .)
+          unzip -t Moon-Studio-combined-staging.zip
 
       - name: Upload combined staging bundle
         uses: actions/upload-artifact@v4
