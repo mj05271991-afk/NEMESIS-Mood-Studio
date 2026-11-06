@@ -12,11 +12,8 @@ if [ ! -f "$BIN" ]; then
 fi
 # Extracted ZIP contents may lose executable permissions.
 chmod 755 "$BIN" || exit 1
-if [ ! -d "$SETTINGS" ]; then
-  mkdir -p "$SETTINGS" || {
-    echo "Cannot create Moon Studio settings: $SETTINGS" >&2
-    exit 1
-  }
-fi
+# Do not create the app-private settings directory as root.
+# Android creates it with the app's UID when Moon Studio first launches.
+# Until then, the daemon reads the packaged fallback defaults.
 # Native daemon defaults to disabled; settings must explicitly enable it.
 exec "$BIN" "$SETTINGS" "$DEFAULTS"
