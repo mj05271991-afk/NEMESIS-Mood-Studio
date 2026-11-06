@@ -3,6 +3,10 @@
  * Standalone diagnostic; NOT installed or launched by the APK yet.
  * Never enable or change the vehicle mixer switch from this tool.
  * Capture only if an existing authorized loopback is already enabled.
+ * Kyle's Light Vibes README identifies card0/device2, pcmC0D2c,
+ * mixer switch "Device2 Tx to Rx Internal Loopback Mode", and 44.1/48 kHz.
+ * This prototype does not enable that switch or manage call interruptions.
+ * Android Auto support is listed as NOT MEASURED in Kyle's README.
  *
  * Usage: moon_audio_probe <verified-card> <verified-device>
  * Emits BANDS bass mid treble (0..1) every ~100 ms.
