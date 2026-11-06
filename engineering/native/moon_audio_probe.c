@@ -6,6 +6,7 @@
  * Kyle's Light Vibes README identifies card0/device2, pcmC0D2c,
  * mixer switch "Device2 Tx to Rx Internal Loopback Mode", and 44.1/48 kHz.
  * This prototype does not enable that switch or manage call interruptions.
+ * The 44.1/48 kHz rate is supplied by the caller, not auto-detected.
  * Android Auto support is listed as NOT MEASURED in Kyle's README.
  *
  * Usage: moon_audio_probe <verified-card> <verified-device> <verified-rate:44100|48000>
@@ -22,7 +23,8 @@
 #define CHANNELS 2
 #define MAX_FRAMES 4800
 static volatile sig_atomic_t running=1;
-static void quit(int signum){(void)signum;running=0;}
+static volatile sig_atomic_t stop_signal=0;
+static void quit(int signum){stop_signal=signum;running=0;}
 static float clamp01(double x){return x<0?0:x>1?1:(float)x;}
 int main(int argc,char **argv){
  if(argc!=4){fprintf(stderr,"MOON_AUDIO_ERROR usage: moon_audio_probe <card> <device> <44100|48000>\n");return 64;}
@@ -72,5 +74,6 @@ int main(int argc,char **argv){
   fflush(stdout);
  }
  pcm_close(pcm);
+ if(stop_signal)fprintf(stderr,"MOON_AUDIO_STOP signal=%d\n",stop_signal);
  return exitCode;
 }
