@@ -19,7 +19,7 @@ int moon_music_bridge_update(MoonMusicBridge *b,const MoonAudioMeter *m,const Mo
  if(++b->frames_since_write<3)return 0;
  b->frames_since_write=0;
  if(r==b->last_r&&g==b->last_g&&bl==b->last_b)return 0;
- int rc=moon_controller_color(b->controller,(int)r,(int)g,(int)bl,100);
+ int rc=moon_controller_color(b->controller,(int)r,(int)g,(int)bl,(int)(b->brightness_percent>100?100:b->brightness_percent));
  if(!rc){b->last_r=r;b->last_g=g;b->last_b=bl;}
  return rc;
 }
