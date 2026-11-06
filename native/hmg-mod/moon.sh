@@ -29,7 +29,20 @@ mkdir -p "$SETTINGS"
 CHILD=$!
 trap 'kill "$CHILD" 2>/dev/null; wait "$CHILD" 2>/dev/null; cleanup; exit 143' TERM
 trap 'kill "$CHILD" 2>/dev/null; wait "$CHILD" 2>/dev/null; cleanup; exit 130' INT
+# Monitor opt-in after the UI closes; stop the daemon on disable.
+(
+  while kill -0 "$CHILD" 2>/dev/null; do
+    if [ ! -f "$ENABLE" ] || [ "$(cat "$SETTINGS/enabled" 2>/dev/null)" != "1" ]; then
+      kill -TERM "$CHILD" 2>/dev/null
+      exit 0
+    fi
+    sleep 1
+  done
+) &
+WATCHER=$!
 wait "$CHILD"
 STATUS=$?
+kill "$WATCHER" 2>/dev/null
+wait "$WATCHER" 2>/dev/null
 cleanup
 exit "$STATUS"
