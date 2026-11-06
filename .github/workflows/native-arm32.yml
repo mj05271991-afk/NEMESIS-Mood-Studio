@@ -77,6 +77,11 @@ jobs:
           cp native/hmg-mod/mod.json native/hmg-staging/mod.json
           cp native/arm32-static-build/moon-alsa-probe native/hmg-staging/moon-alsa-probe
           chmod 755 native/hmg-staging/moon.sh native/hmg-staging/moon-alsa-probe
+          sh -n native/hmg-staging/moon.sh
+          file native/hmg-staging/moon-alsa-probe | grep -E 'ELF 32-bit.*ARM'
+          ! readelf -l native/hmg-staging/moon-alsa-probe | grep -q INTERP
+          grep -F 'enable_native_audio' native/hmg-staging/moon.sh
+          ! grep -E 'setSMLRGB|setSMLConfiguration|micom' native/hmg-staging/moon.sh
           python3 - <<'PY'
           import json
           with open('native/hmg-staging/mod.json') as f: m=json.load(f)
