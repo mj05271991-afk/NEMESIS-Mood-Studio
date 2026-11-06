@@ -5,7 +5,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
 public final class AudioBandCapture {
-    public interface Listener { void onBands(float bass, float mid, float treble); }
+    public interface Listener { void onBands(float bass, float mid, float treble); void onError(String message); }
 
     private static final int SAMPLE_RATE = 22050;
     private static final int FFT_SIZE = 2048;
@@ -20,12 +20,13 @@ public final class AudioBandCapture {
         if (running) return;
         int min = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
-        if (min <= 0) return;
+        if (min <= 0) { listener.onError("AudioRecord buffer unavailable"); return; }
         final AudioRecord candidate = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 Math.max(min, FFT_SIZE * 4));
         if (candidate.getState() != AudioRecord.STATE_INITIALIZED) {
             candidate.release();
+            listener.onError("AudioRecord initialization failed");
             return;
         }
         record = candidate;
@@ -36,6 +37,7 @@ public final class AudioBandCapture {
             running = false;
             candidate.release();
             record = null;
+            listener.onError("AudioRecord start failed: "+e.getMessage());
             return;
         }
         final AudioRecord captureSource = candidate;
@@ -52,6 +54,7 @@ public final class AudioBandCapture {
         while (running) {
             int n = source.read(pcm, 0, pcm.length);
             if (!running) break;
+            if (n < 0) { listener.onError("AudioRecord read failed: "+n); break; }
             if (n < FFT_SIZE) continue;
 
             // Hann-windowed FFT separates the three frequency ranges instead of
