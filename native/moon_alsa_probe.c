@@ -5,6 +5,20 @@
 #include <signal.h>
 #include <tinyalsa/asoundlib.h>
 #include "moon_audio_backend.h"
+/* Kyle's playback-side guard: capture only while device2 plays 48kHz music. */
+static int music_playing(void){
+ const char *paths[2]={
+  "/proc/asound/card0/pcm2p/sub0/status",
+  "/proc/asound/card0/pcm2p/sub0/hw_params"
+ };
+ const char *need[2]={"RUNNING","rate: 48000"};
+ for(int i=0;i<2;i++){
+  FILE *f=fopen(paths[i],"r");if(!f)return 0;
+  char buf[2048];size_t n=fread(buf,1,sizeof(buf)-1,f);fclose(f);
+  buf[n]=0;if(!strstr(buf,need[i]))return 0;
+ }
+ return 1;
+}
 static volatile sig_atomic_t interrupted=0;
 static void stop(int sig){(void)sig;interrupted=1;}
 static int run(int capture,int loopback,int continuous){
@@ -18,6 +32,7 @@ static int run(int capture,int loopback,int continuous){
  int original=mixer_ctl_get_value(ctl,0),changed=0,rc=0;
  printf("Loopback original=%d\n",original);
  if(!capture){mixer_close(m);return 0;}
+ if(loopback&&!music_playing()){fputs("Playback is not RUNNING at 48000 Hz; refusing loopback capture\\n",stderr);rc=10;goto done;}
  if(loopback&&original==0){
   changed=1; /* attempt restoration even after partial enable failure */
   if(mixer_ctl_set_value(ctl,0,1)||mixer_ctl_get_value(ctl,0)!=1){fputs("Loopback enable failed\n",stderr);rc=5;goto done;}
@@ -29,6 +44,7 @@ static int run(int capture,int loopback,int continuous){
  if(!pcm||!pcm_is_ready(pcm)){fprintf(stderr,"Capture unavailable: %s\n",pcm?pcm_get_error(pcm):"null");if(pcm)pcm_close(pcm);rc=6;goto done;}
  unsigned char samples[8192];
  do {
+ if(loopback&&!music_playing()){puts("Playback stopped or changed rate; stopping capture");break;}
  if(interrupted||pcm_readi(pcm,samples,2048)<0){fprintf(stderr,"Capture read interrupted or failed: %s\n",pcm_get_error(pcm));rc=7;break;}
  else{
   MoonAudioMeter meter;MoonAudioBands bands;
