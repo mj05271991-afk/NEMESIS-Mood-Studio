@@ -50,8 +50,15 @@ int main(int argc,char **argv){
  const double alphaBass=1.0-exp(-2.0*3.141592653589793*250.0/rate);
  const double alphaMid=1.0-exp(-2.0*3.141592653589793*2000.0/rate);
  double low=0,lowmid=0;
+ int exitCode=0;
  while(running){
-  if(pcm_readi(pcm,buf,frames)<0){fprintf(stderr,"MOON_AUDIO_ERROR read: %s\n",pcm_get_error(pcm));break;}
+  int got=0;
+  while(running&&got<frames){
+   int n=pcm_readi(pcm,buf+got*CHANNELS,(unsigned)(frames-got));
+   if(n<=0){fprintf(stderr,"MOON_AUDIO_ERROR read: %s (returned %d)\n",pcm_get_error(pcm),n);exitCode=3;running=0;break;}
+   got+=n;
+  }
+  if(got!=frames)break;
   double bass=0,mid=0,treble=0;
   for(int i=0;i<frames;i++){
    double sample=((double)buf[i*2]+buf[i*2+1])/(2.0*32768.0);
@@ -65,5 +72,5 @@ int main(int argc,char **argv){
   fflush(stdout);
  }
  pcm_close(pcm);
- return 0;
+ return exitCode;
 }
