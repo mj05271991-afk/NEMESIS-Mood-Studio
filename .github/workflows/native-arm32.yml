@@ -108,15 +108,41 @@ jobs:
           mkdir -p native/hmg-staging/app native/hmg-staging/icons
           cp app/build/outputs/apk/debug/app-debug.apk native/hmg-staging/app/MoonStudio.apk
           python3 - <<'PYICON'
-          import struct, zlib, pathlib
-          root=pathlib.Path('native/hmg-staging/icons')
-          def png(path, color):
-              w=h=96
-              raw=b''.join(b'\x00'+bytes(color)*w for _ in range(h))
-              def chunk(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
-              path.write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))
-          png(root/'tile.png',(92,42,174))
-          png(root/'tile_disabled.png',(78,78,78))
+          import math, pathlib, struct, zlib
+          root = pathlib.Path('native/hmg-staging/icons')
+          def render(disabled=False):
+              w = h = 96
+              pixels = bytearray()
+              for y in range(h):
+                  pixels.append(0)
+                  for x in range(w):
+                      # Supersampled crescent and stars on a transparent tile.
+                      coverage = 0
+                      for sy in range(4):
+                          for sx in range(4):
+                              px, py = x + (sx + .5)/4, y + (sy + .5)/4
+                              outer = (px-47)**2 + (py-49)**2 < 30**2
+                              cutout = (px-59)**2 + (py-37)**2 < 28**2
+                              star = ((abs(px-72)<1.4 and abs(py-24)<7) or
+                                      (abs(py-24)<1.4 and abs(px-72)<7) or
+                                      (abs(px-76)<1.1 and abs(py-63)<4) or
+                                      (abs(py-63)<1.1 and abs(px-76)<4))
+                              coverage += bool((outer and not cutout) or star)
+                      alpha = round(255 * coverage / 16)
+                      if disabled:
+                          rgb = (135, 135, 145)
+                      else:
+                          t = y / (h-1)
+                          rgb = (round(75 + 80*t), round(165 - 95*t), round(255 - 10*t))
+                      pixels.extend((*rgb, alpha))
+              def chunk(tag, data):
+                  return struct.pack('>I',len(data))+tag+data+struct.pack('>I',zlib.crc32(tag+data)&0xffffffff)
+              return (b'\x89PNG\r\n\x1a\n' +
+                      chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,6,0,0,0)) +
+                      chunk(b'IDAT',zlib.compress(bytes(pixels),9)) +
+                      chunk(b'IEND',b''))
+          (root/'tile.png').write_bytes(render())
+          (root/'tile_disabled.png').write_bytes(render(disabled=True))
           PYICON
           cp native/hmg-mod/moon.sh native/hmg-staging/moon.sh
           cp native/hmg-mod/mod.json native/hmg-staging/mod.json
