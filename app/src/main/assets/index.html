@@ -164,6 +164,50 @@ body{background:radial-gradient(ellipse at 78% 34%,#12234d 0,transparent 34%),ra
 .stage{height:170px}.orb{width:115px;height:115px}
 .mode,.mode:nth-child(3){min-height:58px;padding:7px 5px}
 }
+
+/* EV6 head-unit layout refinement: avoid clipping under the system chrome. */
+html{scroll-behavior:auto}
+body{overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.side-rail{width:86px;overflow-y:auto;overflow-x:hidden;gap:10px;padding:12px 8px}
+.side-rail a{width:66px;min-height:54px;padding:7px 3px;line-height:1.25;word-break:normal}
+.rail-mark{flex-shrink:0}
+.shell{margin-left:86px;width:calc(100% - 86px);min-width:0;padding:12px 18px 20px}
+.vehicle-bar{flex-wrap:wrap;gap:12px;padding:14px 16px}
+.vehicle-actions{flex-wrap:wrap;min-width:0}
+.start-btn,.stop-btn{min-width:138px;min-height:46px;height:auto;padding:12px 15px}
+.panel{min-width:0;overflow:hidden}
+.columns{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.right{min-width:0}
+.swatches{gap:8px}
+.swatch{flex:0 0 38px;width:38px;height:38px;margin:3px}
+.wheel{flex:0 0 42px}
+.dual-picker{margin:4px 0}
+.control input[type=range]{min-width:0}
+.tuning{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tune{float:none;width:auto;min-width:0;margin:0}
+.btn,.mode,.swatch,.side-rail a{touch-action:manipulation}
+@media (max-width:1150px){
+ .columns{grid-template-columns:minmax(0,1fr)}
+ .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .right>.panel{min-width:0}
+ .vehicle-bar{align-items:flex-start}
+ .vehicle-copy{flex:1 1 230px}
+ .vehicle-actions{flex:1 1 300px;justify-content:flex-end}
+ .stage{height:210px}
+}
+@media (max-width:750px){
+ .side-rail{width:66px;padding:9px 5px;gap:8px}
+ .side-rail a{width:54px;min-height:48px;font-size:9px}
+ .rail-mark{width:40px;height:40px}
+ .shell{margin-left:66px;width:calc(100% - 66px);padding:10px}
+ .right{grid-template-columns:minmax(0,1fr)}
+ .vehicle-actions{justify-content:stretch}
+ .start-btn,.stop-btn{flex:1 1 130px}
+ .top{min-height:0}
+ .heading{margin:10px 0}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
 </style>
 </head>
 <body>
