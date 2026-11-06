@@ -23,10 +23,13 @@ jobs:
           export ANDROID_NDK_HOME="${ANDROID_HOME}/ndk/27.2.12479018"
           bash native/build-android-arm32.sh
           bash native/verify-arm32-library.sh
+          test -s native/arm32-ndk-build/moonstudiod
+          file native/arm32-ndk-build/moonstudiod | grep -E 'ELF 32-bit.*ARM'
       - uses: actions/upload-artifact@v4
         with:
           name: moon-arm32-staging-library
           path: |
+            native/arm32-ndk-build/moonstudiod
             native/arm32-ndk-build/libmoon_controller.a
             native/arm32-ndk-build/archive-members.txt
             native/arm32-ndk-build/unresolved-symbols.txt
