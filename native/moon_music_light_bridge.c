@@ -12,7 +12,9 @@ int moon_music_bridge_update(MoonMusicBridge *b,const MoonAudioMeter *m,const Mo
  unsigned r=(unsigned)(255.0*level*a->bass/total);
  unsigned g=(unsigned)(255.0*level*a->mid/total);
  unsigned bl=(unsigned)(255.0*level*a->treble/total);
- if(r>255)r=255;if(g>255)g=255;if(bl>255)bl=255;
+ if(r>255)r=255;
+ if(g>255)g=255;
+ if(bl>255)bl=255;
  /* At 2048 samples / 48kHz, minimum 3 buffers gives >=128ms per write. */
  if(++b->frames_since_write<3)return 0;
  b->frames_since_write=0;

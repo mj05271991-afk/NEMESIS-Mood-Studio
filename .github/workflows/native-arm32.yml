@@ -42,6 +42,10 @@ jobs:
         run: |
           cc -std=c11 -Wall -Wextra -Werror -O2 native/test_audio_bands.c native/moon_audio_backend.c -lm -o /tmp/test_audio_bands
           /tmp/test_audio_bands
+      - name: Compile music-to-light bridge with strict warnings
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -O2 -c native/moon_music_light_bridge.c -o /tmp/moon_music_light_bridge.o
+          test -s /tmp/moon_music_light_bridge.o
       - name: Install Zig for static ARMv7 build
         run: |
           python3 -m pip install --user ziglang==0.13.0
