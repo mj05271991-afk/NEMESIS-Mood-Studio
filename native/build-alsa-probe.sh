@@ -15,3 +15,8 @@ python3 -m ziglang cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -Os -
 file "$OUT/moon-alsa-probe" | grep -E 'ELF 32-bit.*ARM'
 ! readelf -l "$OUT/moon-alsa-probe" | grep -q INTERP
 echo 'Static ARMv7 read-only tinyalsa probe built; car execution unverified.'
+
+# Kyle's proven MICOM + tinyalsa daemon, separately named for Moon Studio.
+python3 -m ziglang cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -Os -I"$TINY/include" -o "$OUT/moon-lightd" "$ROOT/upstream-lightvibes/lightvibesd.c" -lm "$TINY/src/pcm.c" "$TINY/src/pcm_hw.c" "$TINY/src/limits.c" "$TINY/src/mixer.c" "$TINY/src/mixer_hw.c" "$TINY/src/snd_card_plugin.c"
+file "$OUT/moon-lightd" | grep -E 'ELF 32-bit.*ARM'
+! readelf -l "$OUT/moon-lightd" | grep -q INTERP
