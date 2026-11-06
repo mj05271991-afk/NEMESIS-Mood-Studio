@@ -60,6 +60,14 @@ public class MoonStudioActivity extends Activity {
    File target=new File(dir,key);
    if(!temp.renameTo(target))throw new IOException("Cannot save "+key);
   }
+  @JavascriptInterface public boolean isEnabled(){
+   File f=new File(settingsDir(),"enabled");
+   if(!f.isFile())return false;
+   java.io.BufferedReader reader=null;
+   try{reader=new java.io.BufferedReader(new java.io.FileReader(f));return "1".equals(reader.readLine());}
+   catch(IOException ignored){return false;}
+   finally{if(reader!=null)try{reader.close();}catch(IOException ignored){}}
+  }
   @JavascriptInterface public void configure(String requestedMode,boolean enabled){
    String mode=requestedMode==null?"":requestedMode.toLowerCase(java.util.Locale.US);
    if(!mode.equals("beat")&&!mode.equals("spectrum")&&!mode.equals("pulse")){
