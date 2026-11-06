@@ -1,0 +1,23 @@
+name: Moon Studio ARM32 Native Library (staging)
+on:
+  workflow_dispatch:
+jobs:
+  arm32:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify native source import
+        run: |
+          test -f native/build-android-arm32.sh || { echo 'Native source import pending: add native/ files from MoonStudio-GitHub-Native-Source-Import.zip'; exit 1; }
+      - name: Install Android NDK r27c
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'ndk;27.2.12479018'
+      - name: Build native ARM32 library
+        run: |
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
+          bash native/build-android-arm32.sh
+          bash native/verify-arm32-library.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moon-arm32-staging-library
+          path: native/arm32-ndk-build/libmoon_controller.a
