@@ -84,7 +84,7 @@ jobs:
           cp native/arm32-static-build/moon-alsa-probe native/hmg-staging/moon-alsa-probe
           cp native/arm32-static-build/moon-lightd native/hmg-staging/moon-lightd
           mkdir -p native/hmg-staging/defaults
-          printf '0\\n' > native/hmg-staging/defaults/enabled
+          echo 0 > native/hmg-staging/defaults/enabled
           cp native/upstream-lightvibes/LICENSE native/hmg-staging/LICENSE
           chmod 755 native/hmg-staging/moon.sh native/hmg-staging/moon-alsa-probe native/hmg-staging/moon-lightd
           sh -n native/hmg-staging/moon.sh
