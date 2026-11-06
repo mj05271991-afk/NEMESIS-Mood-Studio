@@ -27,7 +27,7 @@ public class MoonStudioActivity extends Activity {
    }catch(Exception e){finishProbe("LIGHT CONTROL BLOCKED",e.getMessage());}
   }};
   registerReceiver(smlReceiver,new IntentFilter(Ev6LightingProbe.STATUS_ACTION));
-  web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
+  web.addJavascriptInterface(new MoonServiceBridge(),"MoonService");web.addJavascriptInterface(new AudioBridge(),"NemesisAudio");web.addJavascriptInterface(new VehicleBridge(),"NemesisVehicle");
   setContentView(web);web.loadUrl("file:///android_asset/index.html");
  }
  private void beginConnect(){
@@ -44,6 +44,30 @@ public class MoonStudioActivity extends Activity {
  private class AudioBridge{
   @JavascriptInterface public void start(){if(capture!=null)capture.start();}
   @JavascriptInterface public void stop(){if(capture!=null)capture.stop();}
+ }
+ private void writeMoonSetting(String name,String value) throws Exception {
+  if(!name.matches("[a-z_]+")||!value.matches("[a-zA-Z0-9#.,: _-]{1,256}"))throw new IllegalArgumentException("Invalid setting");
+  java.io.File dir=new java.io.File(getFilesDir(),"settings");
+  if(!dir.exists()&&!dir.mkdirs())throw new java.io.IOException("Settings directory unavailable");
+  java.io.File temp=new java.io.File(dir,name+".tmp");
+  java.io.File target=new java.io.File(dir,name);
+  java.io.FileOutputStream out=new java.io.FileOutputStream(temp);
+  try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+  if(!temp.renameTo(target))throw new java.io.IOException("Settings update failed");
+ }
+ private class MoonServiceBridge{
+  @JavascriptInterface public void configure(final String mode,final int brightness){
+   new Thread(new Runnable(){@Override public void run(){
+    try{
+     String m=mode.toLowerCase(java.util.Locale.US);
+     if(!m.equals("beat")&&!m.equals("spectrum")&&!m.equals("pulse")&&!m.equals("speed"))throw new IllegalArgumentException("Unsupported music mode");
+     writeMoonSetting("mode",m);
+     writeMoonSetting("brightness_max",String.valueOf(Math.max(0,Math.min(10,brightness/10))));
+     writeMoonSetting("enabled","0");
+     runOnUiThread(new Runnable(){@Override public void run(){callJavascript("window.onMoonServiceConfigured('Settings saved. Background lighting remains disabled pending vehicle validation.')");}});
+    }catch(final Exception e){runOnUiThread(new Runnable(){@Override public void run(){vehicleError(e);}});}
+   }},"MoonServiceSettings").start();
+  }
  }
  private class VehicleBridge{
   @JavascriptInterface public void connect(){runOnUiThread(new Runnable(){@Override public void run(){beginConnect();}});}
