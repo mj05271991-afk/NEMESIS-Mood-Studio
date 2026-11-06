@@ -4,6 +4,7 @@ on:
     branches: [moon-native-arm32-integration]
     paths:
       - 'native/**'
+      - 'app/**'
       - '.github/workflows/native-arm32.yml'
   workflow_dispatch:
 jobs:
