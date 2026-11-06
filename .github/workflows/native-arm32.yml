@@ -25,11 +25,22 @@ jobs:
           bash native/verify-arm32-library.sh
           test -s native/arm32-ndk-build/moonstudiod
           file native/arm32-ndk-build/moonstudiod | grep -E 'ELF 32-bit.*ARM'
+      - name: Install Zig for static ARMv7 build
+        run: |
+          python3 -m pip install --user ziglang==0.13.0
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Build static musl ARMv7 daemon
+        run: |
+          export ZIG="$HOME/.local/bin/python3 -m ziglang"
+          python3 -m ziglang cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -O2 -std=c11 -Wall -Wextra -Werror -o native/arm32-ndk-build/moonstudiod-static native/moonstudiod.c native/moon_audio_backend.c -lm
+          file native/arm32-ndk-build/moonstudiod-static | grep -E 'ELF 32-bit.*ARM'
+          ! readelf -l native/arm32-ndk-build/moonstudiod-static | grep -q INTERP
       - uses: actions/upload-artifact@v4
         with:
           name: moon-arm32-staging-library
           path: |
             native/arm32-ndk-build/moonstudiod
+            native/arm32-ndk-build/moonstudiod-static
             native/arm32-ndk-build/libmoon_controller.a
             native/arm32-ndk-build/archive-members.txt
             native/arm32-ndk-build/unresolved-symbols.txt
