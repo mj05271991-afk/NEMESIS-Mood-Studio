@@ -148,6 +148,22 @@ body{background:radial-gradient(ellipse at 78% 34%,#12234d 0,transparent 34%),ra
 .foot{color:#7e82a6}
 @media(max-width:900px){.columns{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:700px){.side-rail{width:58px;padding:12px 5px}.side-rail a{width:46px;min-height:46px;font-size:7px}.rail-mark{width:34px;height:34px}.rail-label{font-size:6px}.shell{margin-left:58px;width:calc(100% - 58px);padding:10px}.top{min-height:54px}.brand{font-size:20px}.vehicle-bar{padding:12px}.vehicle-actions{grid-template-columns:1fr 1fr}.start-btn,.stop-btn{height:46px;font-size:9px}.heading{margin:8px 0}.heading h1{font-size:17px}.modes{grid-template-columns:repeat(2,minmax(0,1fr))}.mode,.mode:nth-child(3){min-height:76px}.left.panel,.right>.panel{padding:12px}}
+
+/* EV6 landscape viewport: override legacy dashboard rules in one place. */
+@media (orientation:landscape) and (max-height:850px){
+.side-rail{width:64px;padding:9px 5px;gap:8px;overflow-y:auto}
+.side-rail a{width:52px;min-height:42px;font-size:8px}
+.rail-mark{width:36px;height:36px;font-size:20px}
+.shell{margin-left:64px;width:calc(100% - 64px);padding:9px 14px 18px}
+.top{min-height:42px;padding-bottom:7px}.brand{font-size:20px}
+.heading{margin:7px 0}.heading h1{font-size:20px}
+.vehicle-bar{min-height:64px;padding:8px 12px;margin-bottom:9px}
+.start-btn,.stop-btn{height:42px;min-width:125px}
+.columns{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:10px}
+.panel,.left.panel,.right>.panel{padding:10px}
+.stage{height:170px}.orb{width:115px;height:115px}
+.mode,.mode:nth-child(3){min-height:58px;padding:7px 5px}
+}
 </style>
 </head>
 <body>
@@ -235,7 +251,7 @@ $('bass').innerHTML=Math.round(levels.bass*100)+'%';$('mid').innerHTML=Math.roun
 var energy=Math.max(levels.bass,levels.mid,levels.treble),sec=now/1000,speed=Number($('speed').value),h=null,base=hueOf(color);
 var forcedColor=null;if(mode==='Rainbow'||mode==='Disco')h=sec*speed*28;else if(mode==='Dual Color'){forcedColor=(Math.floor(sec*speed*.5)%2===0)?color:secondaryColor;}else if(mode==='Static'){h=null;}else if(mode==='Spectrum'||mode==='Equalizer')h=base+levels.bass*115+levels.mid*205+levels.treble*305;else if(mode==='Bass Boost')h=base+levels.bass*150;else if(mode==='Pulse')h=base+Math.floor(energy*5)*35;else if(mode==='Wave')h=base+Math.sin(sec*speed*.7)*55+energy*90;else if(mode==='Strobe')h=base+(energy>.48&&Math.sin(sec*speed*5)>0?180:0);else if(mode==='Ambient'||mode==='Breathing')h=base+Math.sin(sec*speed*.25)*18+energy*28;
 paint(energy,h,forcedColor);if(vehicleReady&&mode!=='Static'){var vc=forcedColor?forcedColor:(h===null?color:rgbHex(hsv(h)));sendVehicleColor(vc);}$('orb').style.transform='scale('+(1+energy*.055)+')';for(var j=0;j<barEls.length;j++){var band=[levels.bass,levels.mid,levels.treble][j%3],v=band*.7+Math.abs(Math.sin(sec*speed+j*.43))*.16;barEls[j].style.height=(3+v*22)+'px';barEls[j].style.opacity=.25+v*.7;}
-raf=window.requestAnimationFrame?window.requestAnimationFrame(tick):window.setTimeout(tick,33);
+raf=window.setTimeout(tick,100);
 }
 function setMode(button){mode=button.getAttribute('data-mode');var all=document.getElementsByClassName('mode');for(var j=0;j<all.length;j++)all[j].className='mode'+(all[j]===button?' active':'');$('modeName').innerHTML=button.getElementsByTagName('b')[0].innerHTML.toUpperCase();if(mode==='Static'){if(raf){window.cancelAnimationFrame(raf);raf=0;}paint(0,null);$('orb').style.transform='scale(1)';sendVehicleColor(color);}else if(!raf){tick();}}
 var swatches=document.getElementsByClassName('swatch');for(i=0;i<swatches.length;i++){swatches[i].onclick=function(){setColor(this.getAttribute('data-color'));};}
