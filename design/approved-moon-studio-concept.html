@@ -686,7 +686,7 @@ document.getElementById('extraStatus').textContent='Imported lighting colors and
  function init(){
    const host=document.querySelector('main')||document.querySelector('.app')||document.body;
    const bar=document.createElement('div');bar.id='engineBridgeBar';
-   bar.innerHTML='<strong>LIGHT VIBES ENGINE</strong><span class="bridge-status" id="bridgeStatus">Checking Android bridge…</span><button id="bridgePower" type="button">Start lighting</button><button id="bridgeApply" type="button">Apply mode</button><button id="bridgeBrightness" type="button">Apply brightness</button><button id="bridgeRefresh" type="button">Refresh status</button>';
+   bar.innerHTML='<strong>MOON STUDIO ENGINE</strong><span class="bridge-status" id="bridgeStatus">Checking Android bridge…</span><button id="bridgePower" type="button">Start lighting</button><button id="bridgeApply" type="button">Apply mode</button><button id="bridgeBrightness" type="button">Apply brightness</button><button id="bridgeRefresh" type="button">Refresh status</button>';
    host.insertBefore(bar,host.firstChild);
    const bridge=window.MoodLighting;
    const status=document.getElementById('bridgeStatus');
@@ -705,6 +705,30 @@ document.getElementById('extraStatus').textContent='Imported lighting colors and
      [power,apply,bright,refresh].forEach(b=>b.disabled=true);
      return;
    }
+   // Single master switch: use the real native bridge, not the simulated preview.
+   const master=document.getElementById('masterToggle');
+   const masterStatus=document.getElementById('masterStatus');
+   power.style.display='none';
+   function syncMaster(){
+     if(!master)return;
+     master.textContent=enabled?'■ Stop lighting':'▶ Start lighting';
+     master.setAttribute('aria-pressed',String(enabled));
+     if(masterStatus)masterStatus.textContent=enabled?'Native engine enabled':'Native engine stopped';
+   }
+   const nativeReload=reload;
+   reload=function(){const ok=nativeReload();if(ok)syncMaster();return ok;};
+   if(master){
+     master.addEventListener('click',function(event){
+       event.stopImmediatePropagation();
+       event.preventDefault();
+       try{
+         const result=bridge.setEnabled(!enabled);
+         if(result==='ok')reload();
+         else status.textContent='Lighting: '+result;
+       }catch(e){status.textContent='Bridge error: '+e.message;}
+     },true);
+   }
+   syncMaster();
    refresh.onclick=reload;
    power.onclick=function(){try{let r=bridge.setEnabled(!enabled);if(r==='ok')reload();else status.textContent='Power: '+r}catch(e){status.textContent='Bridge error: '+e.message}};
    apply.onclick=function(){let current=typeof mode==='string'?mode:'Spectrum';let mapped={Spectrum:'spectrum',Beat:'beat',Pulse:'pulse'}[current];if(!mapped){status.textContent=current+' is a UI-only preview; native mode not implemented';return}try{let r=bridge.setMode(mapped);if(r==='ok')reload();else status.textContent='Mode '+current+': '+r}catch(e){status.textContent='Bridge error: '+e.message}};
