@@ -96,7 +96,7 @@ public class MoonStudioActivity extends Activity {
    File tmp=new File(folder,name+".tmp");
    try{
     FileOutputStream out=new FileOutputStream(tmp);
-    try{out.write((value+"\\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
+    try{out.write((value+"\n").getBytes("UTF-8"));out.getFD().sync();}finally{out.close();}
     if(!tmp.renameTo(new File(folder,name)))return "settings rename failed";
     return "ok";
    }catch(IOException e){return "settings write failed";}
