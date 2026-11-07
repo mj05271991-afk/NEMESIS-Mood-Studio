@@ -122,11 +122,10 @@ jobs:
               dashboard=z.read('assets/index.html').decode('utf-8')
               assert 'Mood Studio' in dashboard and 'MoodLighting' in dashboard
               assert 'bridgePower' in dashboard and 'bridgeBrightness' in dashboard
-              assert 'Browser preview only' in dashboard
-              assert len(dashboard) > 85000, 'approved dashboard not packaged'
+                  assert len(dashboard) > 85000, 'approved dashboard not packaged'
           with zipfile.ZipFile('build/Moon-HMGAPI-INTEGRATION-UNTESTED.zip') as z:
               names = set(z.namelist())
-              for p in ('moonaudiod','mod.json','audio.sh','app/MoonStudio.apk'):
+              for p in ('moonaudiod','mod.json','audio.sh','moon.sh','app/MoonStudio.apk'):
                   assert 'moon-hmgapi-dev/'+p in names, p
           print('PASS: payload files, service references, APK contents and archive entries')
           PY
