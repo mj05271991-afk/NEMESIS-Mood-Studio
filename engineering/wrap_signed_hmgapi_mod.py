@@ -24,8 +24,22 @@ def build(template_path, signed_path, output_path):
                 'icons/tile_disabled.png'}.issubset(signed_files):
             raise ValueError('Signed mod lacks required files')
         import json
+        # Reject stale signatures: the manifest must hash every staged payload file.
+        import hashlib
+        manifest=json.loads(signed.read('META-HMGAPI/manifest.json'))
+        expected=manifest.get('files',{})
+        payload={name for name in signed_files if not name.endswith('/')
+                 and not name.startswith('META-HMGAPI/')}
+        if set(expected)!=payload:
+            raise ValueError('Signed manifest does not enumerate every mod payload file')
+        for name in payload:
+            digest=hashlib.sha256(signed.read(name)).hexdigest()
+            if expected[name]!=digest:
+                raise ValueError('Stale signed manifest hash for '+name)
+        if manifest.get('id')!='moon-studio':
+            raise ValueError('Signed manifest has incorrect mod ID')
         config=json.loads(signed.read('mod.json'))
-        if config.get('id') != 'moon-studio':
+        if manifest.get('version') != config.get('version'):\n            raise ValueError('Signed manifest version differs from mod.json')\n        if config.get('id') != 'moon-studio':
             raise ValueError('Signed mod has incorrect mod ID')
         if template.read('mod/id').strip()!=b'moon-studio':
             raise ValueError('Template targets another HMG-API mod')
