@@ -39,7 +39,9 @@ def build(template_path, signed_path, output_path):
         if manifest.get('id')!='moon-studio':
             raise ValueError('Signed manifest has incorrect mod ID')
         config=json.loads(signed.read('mod.json'))
-        if manifest.get('version') != config.get('version'):\n            raise ValueError('Signed manifest version differs from mod.json')\n        if config.get('id') != 'moon-studio':
+        if manifest.get('version') != config.get('version'):
+            raise ValueError('Signed manifest version differs from mod.json')
+        if config.get('id') != 'moon-studio':
             raise ValueError('Signed mod has incorrect mod ID')
         if template.read('mod/id').strip()!=b'moon-studio':
             raise ValueError('Template targets another HMG-API mod')
