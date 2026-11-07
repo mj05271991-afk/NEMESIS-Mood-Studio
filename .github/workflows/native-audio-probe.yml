@@ -205,12 +205,23 @@ jobs:
           path: |
             build/native/moon_audio_probe
             build/native/moonaudiod
+      - name: Check whether release signing is configured
+        id: signing
+        env:
+          HMGAPI_SIGNING_KEY_BASE64: ${{ secrets.HMGAPI_SIGNING_KEY_BASE64 }}
+        run: |
+          if [ -n "$HMGAPI_SIGNING_KEY_BASE64" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Signing key not configured; diagnostic artifacts remain available, but no vehicle installer will be produced."
+          fi
       - name: Build signed mod and official NEMESIS USB wrapper
+        if: steps.signing.outputs.available == 'true'
         env:
           HMGAPI_SIGNING_KEY_BASE64: ${{ secrets.HMGAPI_SIGNING_KEY_BASE64 }}
         run: |
           set -euo pipefail
-          test -n "$HMGAPI_SIGNING_KEY_BASE64" || { echo "::error::Configure HMGAPI_SIGNING_KEY_BASE64 secret with the existing Moon Studio author key"; exit 1; }
           git clone --depth 1 https://github.com/VysseCodes/HMG-API.git build/hmgapi-tools
           KEY="$(mktemp)"
           trap 'rm -f "$KEY" "$KEY.pub"' EXIT
@@ -227,6 +238,7 @@ jobs:
           python3 engineering/verify_nemesis_hmg_package.py build/signed-release/moon-studio-0.3.0-nemesis.zip
           echo "Signed package built and structurally checked; in-vehicle behavior remains unverified."
       - uses: actions/upload-artifact@v4
+        if: steps.signing.outputs.available == 'true'
         with:
           name: Moon-Studio-SIGNED-HMGAPI-NEMESIS-UNTESTED
           path: build/signed-release/*
