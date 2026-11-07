@@ -139,6 +139,9 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk "$MOD/app/MoonStudio.apk"
           cp build/native/moonaudiod "$MOD/moonaudiod"
           cp engineering/hmgapi-mod/moon.sh engineering/hmgapi-mod/mod.json "$MOD/"
+          # The signer uses the author's key UUID; never replace an existing author identity silently.
+          test -s "$MOD/mod.json"
+          test -s "$MOD/moonaudiod"
           # Deterministic launcher icons (PNG), generated without external artwork dependencies.
           python3 - <<'PY'
           import pathlib, struct, zlib, math
