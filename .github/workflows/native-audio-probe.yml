@@ -139,6 +139,35 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk "$MOD/app/MoonStudio.apk"
           cp build/native/moonaudiod "$MOD/moonaudiod"
           cp engineering/hmgapi-mod/moon.sh engineering/hmgapi-mod/mod.json "$MOD/"
+          # Deterministic launcher icons (PNG), generated without external artwork dependencies.
+          python3 - <<'PY'
+          import pathlib, struct, zlib, math
+          out=pathlib.Path('build/moon-hmgapi-mod/icons')
+          out.mkdir(parents=True,exist_ok=True)
+          def chunk(tag,data):
+              return struct.pack('>I',len(data))+tag+data+struct.pack('>I',zlib.crc32(tag+data)&0xffffffff)
+          for disabled in (False,True):
+              size=128
+              rows=[]
+              for y in range(size):
+                  line=bytearray([0])
+                  for x in range(size):
+                      dx=(x-63.5)/64;dy=(y-63.5)/64
+                      radius=math.hypot(dx,dy)
+                      inside=radius<.88
+                      # Stylized M monogram with two diagonal strokes.
+                      left=abs(x-(35+(y-40)*.31))<5 and 36<y<93
+                      right=abs(x-(93-(y-40)*.31))<5 and 36<y<93
+                      center=abs(x-64)<4 and 62<y<90
+                      mark=inside and (left or right or center)
+                      rgb=((107,226,236) if mark else (17,38,59)) if inside else (0,0,0)
+                      if disabled:rgb=tuple(int(c*.45) for c in rgb)
+                      line.extend((*rgb,255 if inside else 0))
+                  rows.append(bytes(line))
+              raw=zlib.compress(b''.join(rows),9)
+              png=b'\\x89PNG\\r\\n\\x1a\\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',size,size,8,6,0,0,0))+chunk(b'IDAT',raw)+chunk(b'IEND',b'')
+              (out/('tile_disabled.png' if disabled else 'tile.png')).write_bytes(png)
+          PY
           printf '0\\n' > "$MOD/defaults/enabled"
           chmod 755 "$MOD/moon.sh" "$MOD/moonaudiod"
           sh -n "$MOD/moon.sh"
