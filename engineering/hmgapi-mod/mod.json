@@ -1,7 +1,7 @@
 {
   "id": "moon-studio",
   "name": "Moon Studio Lighting (TEST)",
-  "version": "0.3.0-dev",
+  "version": "0.3.0",
   "hmgapi": ">=1.0.0",
   "authors": [
     "Moon Studio"
