@@ -193,6 +193,18 @@ jobs:
             build/native/moonaudiod
             build/native/moon_audio_probe
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-HMGAPI-INTEGRATION-UNTESTED
+          path: |
+            build/Moon-HMGAPI-INTEGRATION-UNTESTED.zip
+            app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moon-ALSA-ARMv7-diagnostic-NOT-INSTALLER
+          path: |
+            build/native/moon_audio_probe
+            build/native/moonaudiod
       - name: Build signed mod and official NEMESIS USB wrapper
         env:
           HMGAPI_SIGNING_KEY_BASE64: ${{ secrets.HMGAPI_SIGNING_KEY_BASE64 }}
@@ -214,15 +226,3 @@ jobs:
         with:
           name: Moon-Studio-SIGNED-HMGAPI-NEMESIS-UNTESTED
           path: build/signed-release/*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Moon-HMGAPI-INTEGRATION-UNTESTED
-          path: |
-            build/Moon-HMGAPI-INTEGRATION-UNTESTED.zip
-            app/build/outputs/apk/debug/app-debug.apk
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Moon-ALSA-ARMv7-diagnostic-NOT-INSTALLER
-          path: |
-            build/native/moon_audio_probe
-            build/native/moonaudiod
