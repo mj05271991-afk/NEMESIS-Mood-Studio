@@ -205,7 +205,7 @@ jobs:
           printf '%s' "$HMGAPI_SIGNING_KEY_BASE64" | base64 -d > "$KEY"
           chmod 600 "$KEY"
           cd build/hmgapi-tools
-          sh tools/mkmodpkg.sh ../moon-hmgapi-mod "$KEY"
+          sh tools/mkmodpkg.sh "$GITHUB_WORKSPACE/build/moon-hmgapi-mod" "$KEY"
           sh tools/mknemesismod.sh "out/packages/moon-studio-0.3.0.zip" "$GITHUB_WORKSPACE/build/signed-release"
           cd "$GITHUB_WORKSPACE"
           python3 engineering/verify_nemesis_hmg_package.py build/signed-release/moon-studio-0.3.0-nemesis.zip
