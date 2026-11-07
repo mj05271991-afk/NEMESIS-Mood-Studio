@@ -131,7 +131,9 @@ public class MoonStudioActivity extends Activity {
  }
  @Override protected void onDestroy(){
   probePending=false;mainHandler.removeCallbacksAndMessages(null);
-  if(uiLightingChanged){try{Ev6LightingController.restore();}catch(Exception ignored){}}
+  // Do not reset ambient lighting simply because the dashboard closes.
+  // The explicit Release action restores the saved vehicle state while parked.
+  // Vehicle writes remain subject to Ev6LightingController.safePark().
   if(smlReceiver!=null){try{unregisterReceiver(smlReceiver);}catch(Exception ignored){}}
   if(capture!=null)capture.stop();if(web!=null)web.destroy();super.onDestroy();
  }
