@@ -247,7 +247,33 @@ jobs:
           sh tools/mkmodpkg.sh "$GITHUB_WORKSPACE/build/moon-hmgapi-mod" "$KEY"
           sh tools/mknemesismod.sh "out/packages/moon-studio-0.3.0.zip" "$GITHUB_WORKSPACE/build/signed-release"
           cd "$GITHUB_WORKSPACE"
-          python3 engineering/verify_nemesis_hmg_package.py build/signed-release/moon-studio-0.3.0-nemesis.zip
+          # Preserve the previously successful Moon Studio USB filename contract.
+          # Keep HMG-API's signed inner package and its installer scripts unchanged.
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          import re
+          root=Path('build/signed-release')
+          src=root/'moon-studio-0.3.0-nemesis.zip'
+          dst=root/'Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip'
+          with ZipFile(src) as source, ZipFile(dst,'w',ZIP_DEFLATED) as output:
+              names=set(source.namelist())
+              old='packages/hmgapi.moon-studio.zip'
+              new='packages/moon.studio.zip'
+              assert old in names and 'NEMESIS.data' in names and 'NEMESIS.sh' in names
+              for entry in source.infolist():
+                  if entry.is_dir(): continue
+                  data=source.read(entry.filename)
+                  name=new if entry.filename==old else entry.filename
+                  if name=='NEMESIS.data':
+                      descriptor=data.decode('utf-8')
+                      assert old in descriptor, 'Root descriptor does not reference expected inner package'
+                      descriptor=descriptor.replace(old,new)
+                      data=descriptor.encode('utf-8')
+                  output.writestr(name,data)
+          print('Legacy USB wrapper produced; signed HMG-API payload unchanged')
+          PY
+          python3 engineering/verify_nemesis_hmg_package.py build/signed-release/Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip
           echo "Signed package built and structurally checked; in-vehicle behavior remains unverified."
       - uses: actions/upload-artifact@v4
         if: steps.signing.outputs.available == 'true'
