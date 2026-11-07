@@ -78,7 +78,7 @@ static const unsigned char WHEEL_G[64] = {67,46,32,28,28,28,28,28,28,29,33,35,35
 static const unsigned char WHEEL_B[64] = {244,242,239,239,239,239,239,239,239,239,239,239,234,224,210,192,174,153,153,116,96,81,69,29,35,39,48,53,62,70,88,118,158,200,230,255,246,221,188,147,91,98,98,98,98,98,105,118,133,152,169,189,207,225,237,249,252,252,252,252,252,252,252,248};
 
 /* ---------- config ---------- */
-static const char *log_path = "/data/hmgapi/logs/light-vibes/lightvibesd.log";
+static const char *log_path = "/data/hmgapi/logs/moon-studio/moonaudiod.log";
 
 typedef struct { int lo, hi, color; double gain; int r, g, b; } Band;   /* color = wheel index, or -1 for #RRGGBB */
 
