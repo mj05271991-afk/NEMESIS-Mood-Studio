@@ -247,34 +247,9 @@ jobs:
           sh tools/mkmodpkg.sh "$GITHUB_WORKSPACE/build/moon-hmgapi-mod" "$KEY"
           sh tools/mknemesismod.sh "out/packages/moon-studio-0.3.0.zip" "$GITHUB_WORKSPACE/build/signed-release"
           cd "$GITHUB_WORKSPACE"
-          # Preserve the previously successful Moon Studio USB filename contract.
-          # Keep HMG-API's signed inner package and its installer scripts unchanged.
-          python3 - <<'PY'
-          from pathlib import Path
-          from zipfile import ZipFile, ZIP_DEFLATED
-          import re
-          root=Path('build/signed-release')
-          src=root/'moon-studio-0.3.0-nemesis.zip'
-          dst=root/'Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip'
-          with ZipFile(src) as source, ZipFile(dst,'w',ZIP_DEFLATED) as output:
-              names=set(source.namelist())
-              candidates=[n for n in names if n.startswith('packages/') and n.endswith('.zip')]
-              assert len(candidates)==1 and 'NEMESIS.data' in names, f'Unexpected USB entries: {sorted(names)}'
-              old=candidates[0]
-              new='packages/moon.studio.zip'
-              for entry in source.infolist():
-                  if entry.is_dir(): continue
-                  data=source.read(entry.filename)
-                  name=new if entry.filename==old else entry.filename
-                  if name=='NEMESIS.data':
-                      descriptor=data.decode('utf-8')
-                      assert old in descriptor, f'Root descriptor does not reference {old}: {descriptor}'
-                      data=descriptor.replace(old,new).encode('utf-8')
-                  output.writestr(name,data)
-          print('Legacy USB wrapper produced; signed HMG-API payload unchanged')
-          PY
-          unzip -t build/signed-release/Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip >/dev/null
-          python3 engineering/verify_nemesis_hmg_package.py build/signed-release/Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip
+          # Use HMG-API's official NEMESIS USB archive unchanged, as Kyle does.
+          unzip -t build/signed-release/moon-studio-0.3.0-nemesis.zip >/dev/null
+          python3 engineering/verify_nemesis_hmg_package.py build/signed-release/moon-studio-0.3.0-nemesis.zip
           echo "Signed package built and structurally checked; in-vehicle behavior remains unverified."
       - uses: actions/upload-artifact@v4
         if: steps.signing.outputs.available == 'true'
