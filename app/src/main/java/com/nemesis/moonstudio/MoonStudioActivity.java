@@ -108,7 +108,21 @@ public class MoonStudioActivity extends Activity {
    try{hi=Integer.parseInt(read("brightness_max","8"));}catch(NumberFormatException ignored){}
    return "{\"enabled\":"+("1".equals(read("enabled","0"))?"true":"false")+",\"mode\":\""+m+"\",\"brightnessMin\":"+lo+",\"brightnessMax\":"+hi+"}";
   }
-  @JavascriptInterface public String setEnabled(boolean enabled){return write("enabled",enabled?"1":"0");}
+  @JavascriptInterface public String setEnabled(boolean enabled){
+   File marker=new File(getFilesDir(),"enable_moon_lighting");
+   if(enabled){
+    try{
+     if(!marker.exists()&&!marker.createNewFile())return "activation marker unavailable";
+    }catch(IOException e){return "activation marker write failed";}
+    String result=write("enabled","1");
+    if(!"ok".equals(result))marker.delete();
+    return result;
+   }
+   String result=write("enabled","0");
+   if(!"ok".equals(result))return result;
+   if(marker.exists()&&!marker.delete())return "activation marker removal failed";
+   return "ok";
+  }
   @JavascriptInterface public String setMode(String mode){
    if(!"beat".equals(mode)&&!"spectrum".equals(mode)&&!"pulse".equals(mode))return "unsupported mode";
    return write("mode",mode);
