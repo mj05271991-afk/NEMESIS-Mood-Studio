@@ -232,11 +232,16 @@ jobs:
           git clone --depth 1 https://github.com/VysseCodes/HMG-API.git build/hmgapi-tools
           KEY="$(mktemp)"
           trap 'rm -f "$KEY" "$KEY.pub"' EXIT
-          printf '%s\n' "$HMGAPI_SIGNING_KEY_BASE64" > "$KEY"
+          # Normalize EC private keys to Java-compatible PKCS#8 v0 while
+          # preserving the existing public/private key pair and author UUID.
+          RAW_KEY="$(mktemp)"
+          trap 'rm -f "$KEY" "$KEY.pub" "$RAW_KEY"' EXIT
+          printf '%s' "$HMGAPI_SIGNING_KEY_BASE64" | base64 -d > "$RAW_KEY"
+          openssl pkcs8 -topk8 -nocrypt -inform DER -outform DER -in "$RAW_KEY" | base64 -w0 > "$KEY"
+          printf '\n' >> "$KEY"
           chmod 600 "$KEY"
-          # HMG-API Signing.java requires a matching .pub file next to the key.
-          # The private-key secret contains base64-encoded PKCS#8 text.
           base64 -d "$KEY" | openssl pkey -inform DER -pubout -outform DER | base64 -w0 > "$KEY.pub"
+          printf '\n' >> "$KEY.pub"
           chmod 600 "$KEY.pub"
           cd build/hmgapi-tools
           sh tools/mkmodpkg.sh "$GITHUB_WORKSPACE/build/moon-hmgapi-mod" "$KEY"
