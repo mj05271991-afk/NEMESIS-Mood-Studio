@@ -92,8 +92,8 @@ jobs:
           mkdir -p build/moon-hmgapi-dev/app
           cp build/native/moonaudiod build/moon-hmgapi-dev/moonaudiod
           cp app/build/outputs/apk/debug/app-debug.apk build/moon-hmgapi-dev/app/MoonStudio.apk
-          cp engineering/hmgapi-mod/mod.json engineering/hmgapi-mod/audio.sh build/moon-hmgapi-dev/
-          chmod 755 build/moon-hmgapi-dev/audio.sh build/moon-hmgapi-dev/moonaudiod
+          cp engineering/hmgapi-mod/mod.json engineering/hmgapi-mod/audio.sh engineering/hmgapi-mod/moon.sh build/moon-hmgapi-dev/
+          chmod 755 build/moon-hmgapi-dev/audio.sh build/moon-hmgapi-dev/moon.sh build/moon-hmgapi-dev/moonaudiod
           (cd build && zip -qr Moon-HMGAPI-INTEGRATION-UNTESTED.zip moon-hmgapi-dev)
       - name: Validate integrated APK and native service payload
         run: |
@@ -103,6 +103,7 @@ jobs:
           test -s build/moon-hmgapi-dev/audio.sh
           test -s build/moon-hmgapi-dev/mod.json
           sh -n build/moon-hmgapi-dev/audio.sh
+          sh -n build/moon-hmgapi-dev/moon.sh
           python3 - <<'PY'
           import json, pathlib, zipfile
           root = pathlib.Path('build/moon-hmgapi-dev')
