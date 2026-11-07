@@ -184,77 +184,27 @@ jobs:
                   assert p.is_file(), 'Missing required launcher icon: '+str(p)
           print('PASS: HMG-API mod inputs including launcher icons staged')
           PY
-      - name: Build NEMESIS USB installer with registered audio service (disabled by default)
+      - name: Build signed mod and official NEMESIS USB wrapper
+        env:
+          HMGAPI_SIGNING_KEY_BASE64: ${{ secrets.HMGAPI_SIGNING_KEY_BASE64 }}
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import pathlib, zipfile, io
-          apk=pathlib.Path('app/build/outputs/apk/debug/app-debug.apk')
-          assert apk.is_file() and apk.stat().st_size > 10000
-          daemon=pathlib.Path('build/native/moonaudiod')
-          assert daemon.is_file() and daemon.stat().st_size > 10000
-          inner_desc='''[nemesis]
-          version=1.1
-          id=moon.studio
-          name=Moon Studio
-          type=application,service
-          package-version=0.3.0
-          short-desc=Moon Studio EV6 lighting dashboard
-          os=any
-          models=any
-
-          [app.0]
-          kind=apk
-          path=app/NEMESIS-Moon-Studio.apk
-          package=com.nemesis.moonstudio
-
-          [service.0]
-          name=audio
-          kind=sh
-          path=svc/audio.sh
-          uid=root
-          mode=restart
-          '''
-          inner_desc='\n'.join(line.strip() for line in inner_desc.splitlines())+'\n'
-          inner=io.BytesIO()
-          with zipfile.ZipFile(inner,'w',zipfile.ZIP_DEFLATED) as z:
-              z.writestr('NEMESIS.data',inner_desc)
-              z.write(apk,'app/NEMESIS-Moon-Studio.apk')
-              z.write(daemon,'bin/moonaudiod')
-              z.writestr('svc/audio.sh', '#!/system/bin/sh\n# Disabled unless Moon Studio settings explicitly enable native capture.\nMOD=/data/nemesis/apps/moon.studio\nBIN="$MOD/bin/moonaudiod"\nSETTINGS=/data/data/com.nemesis.moonstudio/files/settings\nDEFAULTS="$MOD/defaults"\n[ -f "$BIN" ] || exit 1\nchmod 755 "$BIN" || exit 1\nexec "$BIN" "$SETTINGS" "$DEFAULTS"\n')
-          outer_desc='[nemesis]\nversion=1.0\ntype=install\npath=packages/moon.studio.zip\n'
-          usb=pathlib.Path('build/nemesis-usb-root')
-          (usb/'packages').mkdir(parents=True,exist_ok=True)
-          (usb/'NEMESIS.data').write_text(outer_desc)
-          # Preserve the three-file USB-root layout from the successful EV6 test.
-          # For type=install, NEMESIS.sh is present for layout compatibility but is not executed.
-          (usb/'NEMESIS.sh').write_text('#!/system/bin/sh\n# NEMESIS USB install descriptor is NEMESIS.data.\nexit 0\n')
-          (usb/'packages/moon.studio.zip').write_bytes(inner.getvalue())
-          assert sorted(p.relative_to(usb).as_posix() for p in usb.rglob('*') if p.is_file()) == ['NEMESIS.data','NEMESIS.sh','packages/moon.studio.zip']
-          with zipfile.ZipFile(usb/'packages/moon.studio.zip') as n:
-              assert n.testzip() is None
-              assert 'app/NEMESIS-Moon-Studio.apk' in n.namelist()
-              assert 'bin/moonaudiod' in n.namelist()
-              assert 'svc/audio.sh' in n.namelist()
-              assert '[service.0]' in n.read('NEMESIS.data').decode()
-              assert 'id=moon.studio' in n.read('NEMESIS.data').decode()
-          print('PASS: USB and nested NEMESIS package structures')
-          PY
-      - name: Require original HMG-API installer structure before publishing
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import pathlib, zipfile
-          root=pathlib.Path('build/nemesis-usb-root')
-          with zipfile.ZipFile('build/moon-release-check.zip','w',zipfile.ZIP_DEFLATED) as z:
-              for p in root.rglob('*'):
-                  if p.is_file(): z.write(p,p.relative_to(root).as_posix())
-          PY
-          python3 engineering/verify_nemesis_hmg_package.py build/moon-release-check.zip
+          test -n "$HMGAPI_SIGNING_KEY_BASE64" || { echo "::error::Configure HMGAPI_SIGNING_KEY_BASE64 secret with the existing Moon Studio author key"; exit 1; }
+          git clone --depth 1 https://github.com/VysseCodes/HMG-API.git build/hmgapi-tools
+          KEY="$(mktemp)"
+          trap 'rm -f "$KEY"' EXIT
+          printf '%s' "$HMGAPI_SIGNING_KEY_BASE64" | base64 -d > "$KEY"
+          chmod 600 "$KEY"
+          cd build/hmgapi-tools
+          sh tools/mkmodpkg.sh ../moon-hmgapi-mod "$KEY"
+          sh tools/mknemesismod.sh "out/packages/moon-studio-0.3.0-dev.zip" "$GITHUB_WORKSPACE/build/signed-release"
+          cd "$GITHUB_WORKSPACE"
+          python3 engineering/verify_nemesis_hmg_package.py build/signed-release/moon-studio-0.3.0-dev-nemesis.zip
+          echo "Signed package built and structurally checked; in-vehicle behavior remains unverified."
       - uses: actions/upload-artifact@v4
         with:
-          name: Moon-Studio-NEMESIS-USB-WITH-DAEMON
-          path: build/nemesis-usb-root/
+          name: Moon-Studio-SIGNED-HMGAPI-NEMESIS-UNTESTED
+          path: build/signed-release/*
       - uses: actions/upload-artifact@v4
         with:
           name: Moon-HMGAPI-INTEGRATION-UNTESTED
