@@ -6,6 +6,7 @@ BIN="$MOD/moonaudiod"
 SETTINGS=/data/data/com.nemesis.moonstudio/files/settings
 DEFAULTS="$MOD/defaults"
 LOCK=/data/hmgapi/moon-studio-lighting.lock
+ENABLE=/data/data/com.nemesis.moonstudio/files/enable_moon_lighting
 
 [ -f "$BIN" ] || { echo "Moon Studio: missing $BIN" >&2; exit 1; }
 chmod 755 "$BIN" || exit 1
@@ -13,11 +14,17 @@ chmod 755 "$BIN" || exit 1
 # Keep the service alive until the user explicitly enables Moon Studio.
 # Do not touch app-private settings ownership or start audio capture while disabled.
 while :; do
-  if [ "$(cat "$SETTINGS/enabled" 2>/dev/null)" = "1" ] && ! pidof lightvibesd >/dev/null 2>&1; then
+  if [ -f "$ENABLE" ] && [ "$(cat "$SETTINGS/enabled" 2>/dev/null)" = "1" ]; then
     break
   fi
   sleep 2
 done
+
+# Re-check after opt-in, before acquiring the exclusive lighting lock.
+if pidof lightvibesd >/dev/null 2>&1; then
+  echo "Moon Studio: Light Vibes is active; refusing concurrent lighting control" >&2
+  exit 2
+fi
 
 # A stale lock is deliberately not removed automatically: two lighting daemons
 # competing for the same ALSA/MICOM device can leave vehicle settings inconsistent.
