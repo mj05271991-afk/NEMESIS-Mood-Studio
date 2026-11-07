@@ -18,8 +18,8 @@ def verify(path):
         require("NEMESIS.data" in names, "Missing root NEMESIS.data")
         require("packages/moon.studio.zip" in names, "Missing Moon Studio nested NEMESIS installer")
         root = outer.read("NEMESIS.data").decode()
-        require("type=install" in root, "Root descriptor must install nested package")
-        with zipfile.ZipFile(io.BytesIO(outer.read("packages/hmgapi.moon-studio.zip"))) as nested:
+        require("packages/moon.studio.zip" in root, "Root descriptor must reference nested package")
+        with zipfile.ZipFile(io.BytesIO(outer.read("packages/moon.studio.zip"))) as nested:
             entries = set(nested.namelist())
             for item in ("NEMESIS.data", "mod/package.zip", "scripts/postinstall.sh", "mod/id"):
                 require(item in entries, "Missing nested entry: " + item)
@@ -44,7 +44,7 @@ def verify(path):
                 require(any(s.get("script") == "moon.sh" and s.get("restart") is True
                             for s in config.get("services", [])),
                         "Missing restartable background lighting service")
-    print("PASS: Moon Studio USB/HMG-API package structure matches v0.2.0 contract")
+    print("PASS: Moon Studio USB/HMG-API nested package structure validated (not identical to v0.2.0)")
     print("NOTE: This does not verify the signature, APK functionality, or vehicle behavior.")
 
 if __name__ == "__main__":
