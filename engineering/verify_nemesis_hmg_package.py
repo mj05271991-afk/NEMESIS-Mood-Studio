@@ -16,7 +16,7 @@ def verify(path):
     with zipfile.ZipFile(path) as outer:
         names = set(outer.namelist())
         require("NEMESIS.data" in names, "Missing root NEMESIS.data")
-        require("packages/hmgapi.moon-studio.zip" in names, "Missing HMG-API NEMESIS installer")
+        require("packages/moon.studio.zip" in names, "Missing Moon Studio nested NEMESIS installer")
         root = outer.read("NEMESIS.data").decode()
         require("type=install" in root, "Root descriptor must install nested package")
         with zipfile.ZipFile(io.BytesIO(outer.read("packages/hmgapi.moon-studio.zip"))) as nested:
