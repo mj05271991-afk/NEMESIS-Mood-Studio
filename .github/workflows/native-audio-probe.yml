@@ -184,6 +184,15 @@ jobs:
                   assert p.is_file(), 'Missing required launcher icon: '+str(p)
           print('PASS: HMG-API mod inputs including launcher icons staged')
           PY
+      - name: Publish diagnostic APK and native daemon even when signing is unavailable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moon-Studio-UNSIGNED-DIAGNOSTICS-NOT-FOR-NEMESIS
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            build/native/moonaudiod
+            build/native/moon_audio_probe
+          if-no-files-found: error
       - name: Build signed mod and official NEMESIS USB wrapper
         env:
           HMGAPI_SIGNING_KEY_BASE64: ${{ secrets.HMGAPI_SIGNING_KEY_BASE64 }}
