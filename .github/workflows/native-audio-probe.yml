@@ -187,6 +187,17 @@ jobs:
               assert 'id=moon.studio' in n.read('NEMESIS.data').decode()
           print('PASS: USB and nested NEMESIS package structures')
           PY
+      - name: Require original HMG-API installer structure before publishing
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, zipfile
+          root=pathlib.Path('build/nemesis-usb-root')
+          with zipfile.ZipFile('build/moon-release-check.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for p in root.rglob('*'):
+                  if p.is_file(): z.write(p,p.relative_to(root).as_posix())
+          PY
+          python3 engineering/verify_nemesis_hmg_package.py build/moon-release-check.zip
       - uses: actions/upload-artifact@v4
         with:
           name: Moon-Studio-NEMESIS-USB-WITH-DAEMON
