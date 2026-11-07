@@ -258,18 +258,18 @@ jobs:
           dst=root/'Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip'
           with ZipFile(src) as source, ZipFile(dst,'w',ZIP_DEFLATED) as output:
               names=set(source.namelist())
-              old='packages/hmgapi.moon-studio.zip'
+              candidates=[n for n in names if n.startswith('packages/') and n.endswith('.zip')]
+              assert len(candidates)==1 and 'NEMESIS.data' in names and 'NEMESIS.sh' in names, f'Unexpected USB entries: {sorted(names)}'
+              old=candidates[0]
               new='packages/moon.studio.zip'
-              assert old in names and 'NEMESIS.data' in names and 'NEMESIS.sh' in names
               for entry in source.infolist():
                   if entry.is_dir(): continue
                   data=source.read(entry.filename)
                   name=new if entry.filename==old else entry.filename
                   if name=='NEMESIS.data':
                       descriptor=data.decode('utf-8')
-                      assert old in descriptor, 'Root descriptor does not reference expected inner package'
-                      descriptor=descriptor.replace(old,new)
-                      data=descriptor.encode('utf-8')
+                      assert old in descriptor, f'Root descriptor does not reference {old}: {descriptor}'
+                      data=descriptor.replace(old,new).encode('utf-8')
                   output.writestr(name,data)
           print('Legacy USB wrapper produced; signed HMG-API payload unchanged')
           PY
