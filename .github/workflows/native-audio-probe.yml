@@ -208,6 +208,10 @@ jobs:
           path: |
             build/native/moon_audio_probe
             build/native/moonaudiod
+      - name: Validate release packaging scripts before signing
+        run: |
+          python3 -m py_compile engineering/wrap_signed_hmgapi_mod.py engineering/verify_nemesis_hmg_package.py
+          python3 engineering/wrap_signed_hmgapi_mod.py --help >/dev/null
       - name: Check whether release signing is configured
         id: signing
         env:
