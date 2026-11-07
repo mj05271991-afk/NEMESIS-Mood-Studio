@@ -1,13 +1,13 @@
 {
   "id": "moon-studio",
-  "name": "Moon Studio",
+  "name": "Moon Studio Lighting (TEST)",
   "version": "0.3.0-dev",
   "hmgapi": ">=1.0.0",
   "authors": [
     "Moon Studio"
   ],
   "license": "AGPL-3.0",
-  "description": "Development staging only: Moon Studio native audio daemon and loopback capture not yet integrated or validated.",
+  "description": "Moon Studio EV6 audio-reactive lighting and launcher; opt-in service, pending in-vehicle validation.",
   "live": true,
   "apps": [
     {
@@ -17,11 +17,24 @@
   ],
   "services": [
     {
-      "name": "audio",
-      "script": "audio.sh",
+      "name": "moon-lighting",
+      "script": "moon.sh",
       "user": "root",
       "restart": true,
       "start": "android"
     }
-  ]
+  ],
+  "provides": {
+    "launcher": [
+      {
+        "title": "Moon Studio",
+        "package": "com.nemesis.moonstudio",
+        "class": ".MoonStudioActivity",
+        "icon": "icons/tile.png",
+        "icon_night": "icons/tile.png",
+        "icon_disabled": "icons/tile_disabled.png",
+        "icon_disabled_night": "icons/tile_disabled.png"
+      }
+    ]
+  }
 }
