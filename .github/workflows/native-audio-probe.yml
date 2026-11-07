@@ -273,6 +273,7 @@ jobs:
                   output.writestr(name,data)
           print('Legacy USB wrapper produced; signed HMG-API payload unchanged')
           PY
+          unzip -t build/signed-release/Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip >/dev/null
           python3 engineering/verify_nemesis_hmg_package.py build/signed-release/Moon-Studio-LEGACY-USB-LAYOUT-UNTESTED.zip
           echo "Signed package built and structurally checked; in-vehicle behavior remains unverified."
       - uses: actions/upload-artifact@v4
