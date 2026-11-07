@@ -152,9 +152,8 @@ jobs:
           for launch in m['provides']['launcher']:
               for field in ('icon','icon_disabled'):
                   p=root/launch[field]
-                  if not p.is_file():
-                      print('SIGNING INPUT REQUIRED:',p)
-          print('HMG-API mod files staged; signing and official NEMESIS wrapper not yet integrated')
+                  assert p.is_file(), 'Missing required launcher icon: '+str(p)
+          print('PASS: HMG-API mod inputs including launcher icons staged')
           PY
       - name: Build NEMESIS USB installer with registered audio service (disabled by default)
         run: |
