@@ -131,6 +131,31 @@ jobs:
           PY
           "${ANDROID_HOME}/build-tools/28.0.3/aapt" dump badging build/moon-hmgapi-dev/app/MoonStudio.apk | grep -F "package: name='com.nemesis.moonstudio'"
           file build/moon-hmgapi-dev/moonaudiod | grep -Ei 'arm|ARM'
+      - name: Stage v0.2.0-compatible HMG-API mod inputs
+        run: |
+          set -euo pipefail
+          MOD=build/moon-hmgapi-mod
+          mkdir -p "$MOD/app" "$MOD/icons" "$MOD/defaults"
+          cp app/build/outputs/apk/debug/app-debug.apk "$MOD/app/MoonStudio.apk"
+          cp build/native/moonaudiod "$MOD/moonaudiod"
+          cp engineering/hmgapi-mod/moon.sh engineering/hmgapi-mod/mod.json "$MOD/"
+          printf '0\\n' > "$MOD/defaults/enabled"
+          chmod 755 "$MOD/moon.sh" "$MOD/moonaudiod"
+          sh -n "$MOD/moon.sh"
+          python3 - <<'PY'
+          import json,pathlib
+          root=pathlib.Path('build/moon-hmgapi-mod')
+          m=json.loads((root/'mod.json').read_text())
+          assert m['id']=='moon-studio'
+          for app in m['apps']: assert (root/app['apk']).is_file()
+          for service in m['services']: assert (root/service['script']).is_file()
+          for launch in m['provides']['launcher']:
+              for field in ('icon','icon_disabled'):
+                  p=root/launch[field]
+                  if not p.is_file():
+                      print('SIGNING INPUT REQUIRED:',p)
+          print('HMG-API mod files staged; signing and official NEMESIS wrapper not yet integrated')
+          PY
       - name: Build NEMESIS USB installer with registered audio service (disabled by default)
         run: |
           set -euo pipefail
