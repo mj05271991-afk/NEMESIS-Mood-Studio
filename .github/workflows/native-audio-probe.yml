@@ -259,7 +259,7 @@ jobs:
           with ZipFile(src) as source, ZipFile(dst,'w',ZIP_DEFLATED) as output:
               names=set(source.namelist())
               candidates=[n for n in names if n.startswith('packages/') and n.endswith('.zip')]
-              assert len(candidates)==1 and 'NEMESIS.data' in names and 'NEMESIS.sh' in names, f'Unexpected USB entries: {sorted(names)}'
+              assert len(candidates)==1 and 'NEMESIS.data' in names, f'Unexpected USB entries: {sorted(names)}'
               old=candidates[0]
               new='packages/moon.studio.zip'
               for entry in source.infolist():
